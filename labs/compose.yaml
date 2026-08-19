@@ -1,0 +1,113 @@
+# Isolated defensive lab. Bind only to loopback. labnet has no internet egress.
+name: learn-security
+
+networks:
+  labnet:
+    name: learn-security-labnet
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+  # Edge network: only services that must publish localhost ports.
+  edgenet:
+    name: learn-security-edgenet
+
+volumes:
+  lab-logs:
+  lab-data:
+  lab-cases:
+
+services:
+  mock-imds:
+    build: ./mock-imds
+    container_name: lab-mock-imds
+    hostname: mock-imds
+    networks:
+      labnet:
+        ipv4_address: 172.30.0.10
+        aliases: [metadata.internal]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:80/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  notes-api:
+    build: ./notes-api
+    container_name: lab-notes-api
+    hostname: notes-api
+    environment:
+      LAB_MODE: "${LAB_MODE:-true}"
+      JWT_SECRET: "${JWT_SECRET:-lab-jwt-secret-change-me-32b-min}"
+      DATABASE_PATH: /data/notes.db
+      LOG_PATH: /logs/notes-api.jsonl
+      MOCK_IMDS_URL: http://mock-imds
+    volumes:
+      - lab-data:/data
+      - lab-logs:/logs
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks:
+      labnet:
+        ipv4_address: 172.30.0.20
+      edgenet: {}
+    depends_on:
+      mock-imds:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  soc-lite:
+    build: ./soc-lite
+    container_name: lab-soc-lite
+    hostname: soc-lite
+    environment:
+      LOG_PATH: /logs/notes-api.jsonl
+      DB_PATH: /cases/soc.db
+      RULES_PATH: /app/rules.yaml
+    volumes:
+      - lab-logs:/logs
+      - lab-cases:/cases
+      - ./detections/rules.yaml:/app/rules.yaml:ro
+      - ./soc-lite/playbooks:/app/playbooks:ro
+    ports:
+      - "127.0.0.1:8090:8090"
+    networks:
+      labnet:
+        ipv4_address: 172.30.0.30
+      edgenet: {}
+    depends_on:
+      notes-api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  agentic-soc:
+    build: ./agentic-soc
+    container_name: lab-agentic-soc
+    hostname: agentic-soc
+    environment:
+      SOC_URL: http://soc-lite:8090
+      POLICY_PATH: /app/policy.yaml
+      PLAYBOOK_DIR: /app/playbooks
+      LLM_BASE_URL: "${LLM_BASE_URL:-}"
+      LLM_MODEL: "${LLM_MODEL:-}"
+      LLM_API_KEY: "${LLM_API_KEY:-}"
+    volumes:
+      - ./agentic-soc/policy.yaml:/app/policy.yaml:ro
+      - ./soc-lite/playbooks:/app/playbooks:ro
+      - lab-cases:/cases
+    ports:
+      - "127.0.0.1:8091:8091"
+    networks:
+      labnet:
+        ipv4_address: 172.30.0.40
+      edgenet: {}
+    depends_on:
+      - soc-lite
+    restart: unless-stopped

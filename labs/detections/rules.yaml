@@ -1,0 +1,84 @@
+# Detection-as-code for the local SOC. Queries are evaluated against JSONL logs.
+# Mappings are starting points, not complete coverage.
+
+rules:
+  - id: DET-001
+    name: Password guessing against login
+    description: Multiple failed logins from one source in a short window.
+    event: login_failure
+    group_by: [src_ip]
+    threshold: 5
+    window_seconds: 120
+    severity: medium
+    attack:
+      tactic: Credential Access
+      technique_id: T1110.001
+      technique: Password Guessing
+    playbook: brute-force.md
+
+  - id: DET-002
+    name: Cross-user note access (IDOR)
+    description: Authenticated user read a note owned by someone else.
+    event: cross_user_note_access
+    group_by: [actor]
+    threshold: 1
+    window_seconds: 3600
+    severity: high
+    attack:
+      tactic: Collection
+      technique_id: T1213
+      technique: Data from Information Repositories
+    extra_techniques:
+      - id: T1190
+        name: Exploit Public-Facing Application
+    playbook: broken-access-control.md
+
+  - id: DET-003
+    name: SSRF to instance metadata
+    description: Application fetched the synthetic metadata service.
+    event: ssrf_metadata_access
+    group_by: [actor]
+    threshold: 1
+    window_seconds: 3600
+    severity: critical
+    attack:
+      tactic: Credential Access
+      technique_id: T1552.005
+      technique: Cloud Instance Metadata API
+    extra_techniques:
+      - id: T1190
+        name: Exploit Public-Facing Application
+    playbook: ssrf-metadata.md
+
+  - id: DET-004
+    name: Broken function-level authorization
+    description: Non-admin called an admin endpoint.
+    event: broken_function_authz
+    group_by: [actor]
+    threshold: 1
+    window_seconds: 3600
+    severity: high
+    attack:
+      tactic: Discovery
+      technique_id: T1087
+      technique: Account Discovery
+    extra_techniques:
+      - id: T1069
+        name: Permission Groups Discovery
+    playbook: broken-access-control.md
+
+  - id: DET-005
+    name: Suspicious search (possible injection)
+    description: Search query contains SQL metacharacters.
+    event: search
+    group_by: [actor]
+    threshold: 1
+    window_seconds: 3600
+    severity: medium
+    match_field: q
+    match_regex: "('|--|;|union|or\\s+1=1)"
+    attack:
+      tactic: Initial Access
+      technique_id: T1190
+      technique: Exploit Public-Facing Application
+    playbook: injection.md

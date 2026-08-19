@@ -1,0 +1,2 @@
+# Fallback copy; compose mounts labs/detections/rules.yaml over this file.
+rules: []

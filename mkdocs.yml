@@ -1,36 +1,70 @@
 site_name: Defensive Security Engineering
 site_description: Visual-first, hands-on cybersecurity for software engineers
+site_url: https://sanketn26.github.io/learn-security/
+repo_url: https://github.com/sanketn26/learn-security
+repo_name: sanketn26/learn-security
+edit_uri: edit/main/docs/
+copyright: Local Docker lab · authorized use only
 docs_dir: docs
 site_dir: site
 theme:
   name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
   features:
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections
     - navigation.indexes
+    - navigation.expand
     - navigation.top
+    - navigation.footer
     - content.code.copy
-  palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: indigo
-      accent: teal
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: indigo
-      accent: teal
+    - content.tabs.link
+    - toc.follow
+    - search.highlight
+    - search.suggest
+  icon:
+    repo: fontawesome/brands/github
+extra_css:
+  - stylesheets/extra.css
 markdown_extensions:
   - admonition
   - attr_list
   - def_list
-  - pymdownx.highlight
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-  - tables
-  - toc:
-      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 nav:
   - Start Here:
       - Welcome: index.md
@@ -42,27 +76,28 @@ nav:
       - Full course guide: course.md
       - Exercise index: exercises.md
       - Modules overview: modules/README.md
-  - Part I — Understand the System:
-      - 1. Security foundations: modules/01-security-foundations.md
-      - 2. Network and OS: modules/02-network-and-os.md
-      - 3. Identity and access: modules/03-identity-and-access.md
-      - 4. Application and API: modules/04-application-and-api.md
-      - 5. Cloud, containers, Kubernetes: modules/05-cloud-containers-k8s.md
-      - 6. Cryptography: modules/06-cryptography.md
-  - Part II — See and Defend the System:
-      - 7. Monitoring and logs: modules/07-monitoring-and-logs.md
-      - 8. MITRE ATT&CK: modules/08-mitre-attack.md
-      - 9. Red, blue, and purple: modules/09-red-blue-purple.md
-      - 10. Security operations center: modules/10-soc.md
-      - 11. Detection and incident response: modules/11-detection-and-ir.md
-  - Part III — Design What Comes Next:
-      - 12. Agentic SOC: modules/12-agentic-soc.md
-      - 13. Security architecture: modules/13-security-architecture.md
-      - 14. Future directions: modules/14-future.md
-  - Part IV — Extended Lenses:
-      - 15. ML/AI system security: modules/15-ml-ai-security.md
-      - 16. Availability and denial of service: modules/16-availability-and-dos.md
-      - 17. Phishing, social engineering, insider risk: modules/17-human-factor-attacks.md
+  - Modules:
+      - Part I — Understand the System:
+          - 1. Security foundations: modules/01-security-foundations.md
+          - 2. Network and OS: modules/02-network-and-os.md
+          - 3. Identity and access: modules/03-identity-and-access.md
+          - 4. Application and API: modules/04-application-and-api.md
+          - 5. Cloud, containers, Kubernetes: modules/05-cloud-containers-k8s.md
+          - 6. Cryptography: modules/06-cryptography.md
+      - Part II — See and Defend the System:
+          - 7. Monitoring and logs: modules/07-monitoring-and-logs.md
+          - 8. MITRE ATT&CK: modules/08-mitre-attack.md
+          - 9. Red, blue, and purple: modules/09-red-blue-purple.md
+          - 10. Security operations center: modules/10-soc.md
+          - 11. Detection and incident response: modules/11-detection-and-ir.md
+      - Part III — Design What Comes Next:
+          - 12. Agentic SOC: modules/12-agentic-soc.md
+          - 13. Security architecture: modules/13-security-architecture.md
+          - 14. Future directions: modules/14-future.md
+      - Part IV — Extended Lenses:
+          - 15. ML/AI system security: modules/15-ml-ai-security.md
+          - 16. Availability and denial of service: modules/16-availability-and-dos.md
+          - 17. Phishing, social engineering, insider risk: modules/17-human-factor-attacks.md
   - Capstone:
       - Project brief: capstone/README.md
       - Threat-model template: capstone/threat-model.md

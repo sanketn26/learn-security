@@ -123,21 +123,22 @@ OpenAI-compatible LLM for summaries only.
 
 ### Safe lab architecture
 
-```
-                    [ you / analyst ]
-                           |
-              127.0.0.1:8080  8090  8091
-                           |
-              +------------+-------------+
-              |         edgenet          |
-              | notes-api  soc  agent    |
-              +------------+-------------+
-                           |
-              +------------+-------------+
-              | labnet internal /24      |
-              | mock-imds (dummy creds)  |
-              | no internet egress       |
-              +--------------------------+
+```mermaid
+flowchart TB
+    you["you / analyst"] -- "127.0.0.1:8080 8090 8091" --> edgenet
+
+    subgraph edgenet["edgenet"]
+        direction LR
+        api["notes-api"]
+        soc["soc"]
+        agent["agent"]
+    end
+
+    edgenet --> labnet
+
+    subgraph labnet["labnet internal /24 (no internet egress)"]
+        imds["mock-imds (dummy creds)"]
+    end
 ```
 
 - Published ports bind to loopback only.
@@ -297,10 +298,12 @@ dedicated detection engineering.
 
 **Typical flow**
 
-```
-telemetry → detections → alerts → triage → enrichment → investigation
-    → (false positive | incident) → containment → eradication
-    → recovery → post-incident review → detection/control updates
+```mermaid
+flowchart LR
+    telemetry --> detections --> alerts --> triage --> enrichment --> investigation
+    investigation --> fp["false positive"]
+    investigation --> incident
+    incident --> containment --> eradication --> recovery --> review["post-incident review"] --> updates["detection/control updates"]
 ```
 
 **Roles (common, not universal):** SOC manager; L1 triage; L2 investigation;
@@ -466,23 +469,20 @@ with approval**.
 
 ### Safe reference architecture (this lab)
 
-```
- analyst
-    |
-    v
- +--+------------------------------+
- | orchestrator  (agentic-soc)     |
- |  planner: deterministic catalog |
- |           + optional LLM rewrite|
- |  policy engine (allowlist)      |
- |  context: playbooks on disk     |
- |  evidence: alert JSON from SOC  |
- |  audit log: /cases/agent-audit  |
- +--+-----------+------------------+
-    |           |
-    v           v
- soc-lite     simulate_action
- read APIs    only if approval=APPROVE
+```mermaid
+flowchart TB
+    analyst --> orch
+
+    subgraph orch["orchestrator (agentic-soc)"]
+        planner["planner: deterministic catalog<br/>+ optional LLM rewrite"]
+        policy["policy engine (allowlist)"]
+        context["context: playbooks on disk"]
+        evidence["evidence: alert JSON from SOC"]
+        audit["audit log: /cases/agent-audit"]
+    end
+
+    orch --> soc["soc-lite read APIs"]
+    orch -- "only if approval=APPROVE" --> action["simulate_action"]
 ```
 
 Components the course insists on:

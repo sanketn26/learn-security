@@ -26,6 +26,12 @@ loopback ports. No real cloud accounts, no employer systems, no malware.
 
 ## Milestones
 
+```mermaid
+flowchart LR
+    M0["M0 Environment"] --> M1["M1 Model"] --> M2["M2 Telemetry"] --> M3["M3 Emulate"] --> M4["M4 Detect"]
+    M4 --> M5["M5 Investigate"] --> M6["M6 Respond"] --> M7["M7 Purple"] --> M8["M8 Agent"] --> M9["M9 Review"]
+```
+
 | Milestone | When | Done when |
 | --- | --- | --- |
 | M0 Environment | Day 1 | `make lab-up`; health endpoints 200; ethics read |

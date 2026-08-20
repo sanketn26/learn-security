@@ -2,7 +2,7 @@
 
 ## Why it matters to a software engineer
 
-Section 1's asset question asks what would hurt if something is
+Module 1's asset question asks what would hurt if something is
 "disclosed, changed, or **unavailable**" — the third leg of the CIA triad
 gets one line in most courses and then disappears. This module gives it a
 proper pass: resource exhaustion, volumetric abuse, and asymmetric-cost
@@ -91,6 +91,23 @@ correct response differs: credential-access response is "was any password
 correct, rotate if so"; availability response is "can the service still
 serve legitimate users, and where do we throttle."
 
+**Disaster recovery is a different property than surviving an attack.**
+Everything above defends *uptime while under load*. DR defends the case
+where the service goes down anyway — attack, operator error, or plain
+hardware failure — and asks whether you can come back. Two numbers make
+this concrete instead of aspirational:
+
+- **RPO (recovery point objective):** how much data you can afford to
+  lose, measured in time since the last good backup. "We back up nightly"
+  means an RPO of up to 24 hours, whether or not anyone said so on purpose.
+- **RTO (recovery time objective):** how long you can afford to be down
+  while restoring.
+
+A backup you have never restored is a belief, not a control — the same
+"controls fail, plan for that" idea from Module 1 applies to backups
+themselves: the failure mode isn't "we forgot to back up," it's "we backed
+up for two years and the restore script silently broke in month three."
+
 ## Architecture connection
 
 Rate limiting, backoff, and circuit breakers belong at the same trust
@@ -104,11 +121,27 @@ because by the time a request reaches business logic, the expensive work
 
 ### Prerequisites
 
-`make lab-up`. Health check passes.
+Docker/Compose and `curl`. This experiment requires secure mode because the
+default teaching mode deliberately uses fast SHA-256. Resetting below deletes
+lab-only alerts, cases, and data; preserve anything you need first.
 
 ### Steps
 
-1. Time a single successful login:
+1. Start from a clean database and run the stack with bcrypt enabled:
+
+   ```bash
+   make lab-reset
+   cd labs
+   LAB_MODE=false docker compose up -d --build
+   cd ..
+   curl -s http://127.0.0.1:8080/health
+   ```
+
+   Confirm the health response contains `"lab_mode":false`. Do not continue
+   if it reports true; otherwise this experiment measures fast SHA-256 and
+   cannot demonstrate the intended cost.
+
+2. Time a single successful login:
 
    ```bash
    time curl -s -X POST http://127.0.0.1:8080/login \
@@ -116,30 +149,39 @@ because by the time a request reaches business logic, the expensive work
      -d '{"username":"alice","password":"alice-lab-password"}' >/dev/null
    ```
 
-2. Time a single *failed* login with an obviously wrong password, using the
+3. Time a single *failed* login for the **known user `alice`** with an
+   obviously wrong password, using the
    same command with a bad password. Compare the wall-clock time to a
    trivial rejection (a malformed JSON body, which fails before hashing
    runs). The failed-but-well-formed attempt should cost close to the same
    as the successful one — the slow KDF from Module 6 runs either way.
-3. Run the existing brute-force scenario and count requests per second it
-   can sustain against your machine:
+4. Run the existing six-request brute-force scenario and calculate its
+   approximate requests per second from the elapsed time:
 
    ```bash
    time python3 labs/attack-sim/simulate.py --scenario brute_force
    ```
 
-4. Query `soc-lite` for the resulting `login_failure` events and note the
-   timestamps. Ask: at what request rate would this endpoint's CPU become
-   the bottleneck for *legitimate* logins, given the per-attempt cost you
-   measured in step 2?
-5. Read `labs/notes-api/app.py`'s `/login` route. Confirm there is no rate
+5. Ingest, then query `soc-lite` for the resulting `login_failure` events:
+
+   ```bash
+   curl -s -X POST http://127.0.0.1:8090/ingest | python3 -m json.tool
+   curl -s 'http://127.0.0.1:8090/events?event=login_failure' | python3 -m json.tool
+   ```
+
+   Note the timestamps. Ask: at what request rate would this endpoint's CPU
+   become the bottleneck for *legitimate* logins, given the per-attempt cost
+   you measured in step 3?
+6. Read `labs/notes-api/app.py`'s `/login` route. Confirm there is no rate
    limit, lockout counter, or per-source throttle — every attempt, valid or
    not, pays the full authentication cost.
 
 ### Expected observations
 
-Failed and successful logins cost roughly the same wall-clock time (both
-run the full password hash); a malformed request is rejected far faster.
+In confirmed secure mode, failed and successful logins for the known user
+cost roughly the same wall-clock time because both run bcrypt; a malformed
+request is rejected far faster. Exact timings vary by laptop and one sample
+is noisy, so repeat each measurement several times before comparing it.
 DET-001 fires on the same burst that would, at higher volume, start
 starving legitimate logins of CPU.
 
@@ -160,10 +202,20 @@ hash *and* a rate limit, not one instead of the other.
   placed expensive requests can be worse than a large number of cheap ones.
 - Adding a rate limit only on `/login` success, which does nothing for the
   cost already paid on every failure.
+- Treating "we take backups" as a finished control without ever running a
+  restore drill — an RPO/RTO nobody has tested is a guess, not a number.
 
 ### Cleanup
 
-`make lab-down`.
+Restore the default course state:
+
+```bash
+make lab-reset
+make lab-up
+```
+
+Confirm `/health` reports `"lab_mode":true`. This removes the secure-mode
+database whose bcrypt hashes are incompatible with the default teaching mode.
 
 ## Knowledge check
 
@@ -194,8 +246,13 @@ what is counted, what the window and threshold are, what happens on
 breach, and how a legitimate user recovers. State one trade-off your policy
 accepts (e.g. a shared-IP office network briefly locking out real users).
 
+State an RPO and RTO for `notes-api`'s sqlite file, and one sentence on how
+you would actually verify the restore works, not just that the backup file
+exists.
+
 ## Further reading
 
 - [OWASP API4:2023 Unrestricted Resource Consumption](https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/)
 - [OWASP Denial of Service Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Denial_of_Service_Cheat_Sheet.html)
 - [NIST SP 800-61r3](https://csrc.nist.gov/pubs/sp/800/61/r3/final)
+- [CISA Data Backup Options](https://www.cisa.gov/sites/default/files/publications/data_backup_options.pdf)

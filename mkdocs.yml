@@ -78,4 +78,5 @@ nav:
       - Condensed plan: condensed-plan.md
       - Follow-up projects: follow-up-projects.md
 extra_javascript:
-  - https://unpkg.com/mermaid@11/dist/mermaid.min.js
+  # Vendored so diagrams render when the course is served offline.
+  - assets/javascripts/mermaid-11.16.1.min.js

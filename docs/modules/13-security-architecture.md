@@ -8,17 +8,24 @@ SOC can see. Tools do not substitute for this. Compliance does not either.
 
 ## Visual overview
 
-```text
-INSECURE
-Internet -> API (shared secret, broad DB, broad egress) -> shared database
-              +---------------------------------------> metadata
-CI (long-lived prod key) -> mutable image tag -> cluster-admin deployment
+```mermaid
+flowchart LR
+    subgraph INSECURE["INSECURE"]
+        direction LR
+        I_internet["Internet"] --> I_api["API<br/>(shared secret, broad DB, broad egress)"]
+        I_api --> I_db["shared database"]
+        I_api --> I_meta["metadata"]
+        I_ci["CI<br/>(long-lived prod key)"] --> I_tag["mutable image tag"] --> I_deploy["cluster-admin deployment"]
+    end
 
-IMPROVED
-Internet -> gateway -> API (audience identity, object policy) -> scoped data
-                       +--deny--> metadata
-                       +-------> protected audit pipeline
-CI OIDC -> signed immutable artifact -> admission -> non-root workload
+    subgraph IMPROVED["IMPROVED"]
+        direction LR
+        P_internet["Internet"] --> P_gw["gateway"] --> P_api["API<br/>(audience identity, object policy)"]
+        P_api --> P_data["scoped data"]
+        P_api -- deny --> P_meta["metadata"]
+        P_api --> P_audit["protected audit pipeline"]
+        P_ci["CI OIDC"] --> P_artifact["signed immutable artifact"] --> P_admission["admission"] --> P_workload["non-root workload"]
+    end
 ```
 
 !!! note "Intuition"
@@ -71,6 +78,15 @@ radius. Not a replacement for AuthZ.
 of levels*, not a certificate), signed images, review GitHub Actions
 permissions, do not `latest`.
 
+**Third-party and vendor trust.** Every SaaS integration, payment processor,
+and third-party library is a trust boundary you drew a diagram for in
+Module 1, whether or not you actually drew it. Ask the same questions:
+what data crosses to them, what can they push back to you (webhooks,
+callbacks, SDK code that runs in your process), and what happens to your
+system if their credential or their service is compromised. A vendor
+security questionnaire is not a substitute for naming that boundary on
+your own architecture diagram.
+
 **Secure SDLC.** Threat model on design; code review including AuthZ;
 dependency scan; SAST as a *helper*; DAST/API tests for IDOR; deploy gates;
 production security observability. None of these is complete.
@@ -90,12 +106,13 @@ production security observability. None of these is complete.
 
 Capstone platform:
 
-```
-users --> notes-api --audit--> soc-lite <--analyst
-                |                 ^
-                +--X--> mock-imds | detections as code
-                                  v
-                             agent (approve)
+```mermaid
+flowchart LR
+    users["users"] --> api["notes-api"]
+    api -- audit --> soc["soc-lite"]
+    api -. blocked .-> imds["mock-imds"]
+    analyst["analyst"] --> soc
+    soc -- detections as code --> agent["agent (approve)"]
 ```
 
 Your design review should say which arrows are allowed.

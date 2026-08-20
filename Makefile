@@ -1,10 +1,14 @@
+DOCS_MKDOCS ?= .venv/bin/mkdocs
+
 .PHONY: docs docs-build lab-up lab-down lab-reset simulate ingest alerts
 
 docs:
-	mkdocs serve
+	@test -x "$(DOCS_MKDOCS)" || (echo "Missing $(DOCS_MKDOCS). Run: python3 -m venv .venv && .venv/bin/python -m pip install -r requirements-docs.txt" && exit 1)
+	$(DOCS_MKDOCS) serve
 
 docs-build:
-	mkdocs build --strict
+	@test -x "$(DOCS_MKDOCS)" || (echo "Missing $(DOCS_MKDOCS). Run: python3 -m venv .venv && .venv/bin/python -m pip install -r requirements-docs.txt" && exit 1)
+	$(DOCS_MKDOCS) build --strict
 
 lab-up:
 	chmod +x labs/scripts/*.sh

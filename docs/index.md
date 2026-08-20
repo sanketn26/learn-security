@@ -25,14 +25,10 @@ identities, databases, and logs—and adds one security question at a time:
 
 ## What you will build
 
-```text
-application -> security events -> searchable store -> detections -> alerts
-                                                           |
-                                                           v
-                                             investigation and response
-                                                           |
-                                                           v
-                                              approval-gated assistant
+```mermaid
+flowchart LR
+    application --> events["security events"] --> store["searchable store"] --> detections --> alerts
+    alerts --> ir["investigation and response"] --> assistant["approval-gated assistant"]
 ```
 
 By the capstone, you will be able to explain the complete chain from software

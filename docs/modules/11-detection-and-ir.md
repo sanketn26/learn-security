@@ -77,6 +77,27 @@ need YARA for JSON API logs. Do not download malware to “try YARA.”
 **Enrichment.** Add owner, asset criticality, geo, intel — without treating
 intel as gospel.
 
+**The Diamond Model.** A structuring tool for one intrusion event, not a
+replacement for the timeline: every event has an **adversary** using a
+**capability** over some **infrastructure** against a **victim**.
+
+```text
+        Adversary
+        /        \
+Capability ---- Infrastructure
+        \        /
+         Victim
+```
+
+Fill in what you actually know and mark the rest unknown — for DET-002 in
+this lab: adversary = "Alice's session, attribution unknown"; capability =
+"a valid token plus another user's object id, no exploit tooling";
+infrastructure = "the notes-api itself, no external C2"; victim = "Bob's
+note." An empty adversary corner is normal and honest; guessing to fill it
+is not. Pivoting along one edge (same infrastructure, different victim;
+same capability, different adversary) is how you find related activity you
+were not already looking for.
+
 **Incident severity.** Combine impact (data class, blast radius) and
 urgency (active vs historical). Dummy payroll note → practice as high.
 
@@ -129,7 +150,10 @@ curl -s -X POST http://127.0.0.1:8090/ingest
    - H2: Alice’s dummy password was guessed (DET-001 then success?)
    - H3: Lab operator ran simulate.py (true in this course)
    Record what evidence would distinguish H1/H2 in production (MFA, device
-   posture, mail) that you **do not have** here.
+   posture, mail) that you **do not have** here. Sketch each hypothesis as a
+   Diamond Model quad — H1 and H2 share victim and infrastructure but differ
+   in adversary and capability, which is exactly why the telemetry alone
+   cannot resolve them.
 4. Impact: which notes, dummy IMDS keys treated as burned.
 5. Containment (simulated): snapshot_logs, revoke_token_notice,
    disable_lab_mode via compose recreate with `LAB_MODE=false` **after**
@@ -185,3 +209,4 @@ detection, falsepositives, level, tags). You do not need a Sigma compiler.
 - [Sigma](https://github.com/SigmaHQ/sigma)
 - [YARA](https://yara.readthedocs.io/) (conceptual; no malware lab)
 - [FIRST TLP](https://www.first.org/tlp/)
+- [The Diamond Model of Intrusion Analysis (Caltagirone, Pendergast, Betz)](https://www.activeresponse.org/wp-content/uploads/2013/07/diamond.pdf)

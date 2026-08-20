@@ -14,8 +14,9 @@ Labs are local, defensive, and isolated. Read [docs/ethics.md](docs/ethics.md)
 before starting. Offensive steps are **AUTHORIZED LAB USE ONLY**.
 
 ```bash
-python3 -m pip install -r requirements-docs.txt
-mkdocs serve
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-docs.txt
+make docs
 
 # In another terminal, when you are ready for the lab:
 chmod +x labs/scripts/*.sh
@@ -38,4 +39,5 @@ curl -s http://127.0.0.1:8080/.well-known/lab
 | One-page plan | [docs/condensed-plan.md](docs/condensed-plan.md) |
 
 License: MIT (see [LICENSE](LICENSE)). Dummy lab secrets are not real
-credentials.
+credentials. Vendored asset notices are in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

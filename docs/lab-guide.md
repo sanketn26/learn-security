@@ -9,25 +9,24 @@ exits if they do not.
 
 ## Architecture
 
-```
- learner workstation
-        |
-        |  127.0.0.1:8080 / 8090 / 8091
-        v
- +------+------------------+
- |      edgenet            |
- |                         |
- |  notes-api  soc-lite  agentic-soc
- |      |          |          |
- +------+----------+----------+
-        |          |          |
-        v          v          v
- +----------------------------------+
- | labnet (internal, 172.30.0.0/24) |
- |   mock-imds (synthetic metadata) |
- +----------------------------------+
-        |
-   volumes: logs, sqlite, cases
+```mermaid
+flowchart TB
+    workstation["learner workstation"] -- "127.0.0.1:8080 / 8090 / 8091" --> edgenet
+
+    subgraph edgenet["edgenet"]
+        direction LR
+        api["notes-api"]
+        soc["soc-lite"]
+        agent["agentic-soc"]
+    end
+
+    edgenet --> labnet
+
+    subgraph labnet["labnet (internal, 172.30.0.0/24)"]
+        imds["mock-imds (synthetic metadata)"]
+    end
+
+    labnet --> volumes["volumes: logs, sqlite, cases"]
 ```
 
 ## Resource requirements

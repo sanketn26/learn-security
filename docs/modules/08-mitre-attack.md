@@ -87,6 +87,27 @@ mapping is often wrong.
 **Limitations.** Coverage ≠ security; techniques are ambiguous; mappings
 need context; version drift; paper coverage.
 
+**The Pyramid of Pain (David Bianco).** A ranking of indicator types by how
+much it costs an *attacker* to change them when you detect on that type —
+and therefore how durable your detection is:
+
+| Indicator (bottom → top) | Cost for attacker to change | Detection durability |
+| --- | --- | --- |
+| Hash values | Trivial — recompile, repack | Almost none |
+| IP addresses | Easy — new host/proxy | Low |
+| Domain names | Simple — register another | Low–medium |
+| Network/host artifacts | Annoying — rework tooling | Medium |
+| Tools | Challenging — rewrite/replace the tool | High |
+| TTPs (technique/procedure) | Tough — relearn a new approach | Highest |
+
+ATT&CK gives teams a vocabulary for the TTPs near the top of the pyramid; the
+framework itself is not a pyramid layer. A behavioral detection for
+T1110.001 password guessing can survive a changed IP or tool **if** its logic
+uses durable behavior and sufficient context. A rule tied to one procedure's
+fields can still be brittle even when it carries a technique tag. Hash- or
+IP-only detections are usually cheaper for an attacker to evade, so combine
+them with behavior and test the concrete procedures your telemetry can see.
+
 ## Architecture connection
 
 Detections should cite: data source → event → rule → technique (confidence).
@@ -169,3 +190,4 @@ Write a mapping with confidence and an alternative ID. One paragraph.
 - [ATT&CK for Cloud](https://attack.mitre.org/matrices/enterprise/cloud/)
 - [MITRE D3FEND](https://d3fend.mitre.org/) (defensive counterpart; optional)
 - [MITRE ATLAS](https://atlas.mitre.org/)
+- [The Pyramid of Pain](https://detect-respond.blogspot.com/2013/03/the-pyramid-of-pain.html)

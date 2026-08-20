@@ -93,6 +93,36 @@ respond. [NIST CSF 2.0](https://www.nist.gov/cyberframework) organizes work as
 Govern, Identify, Protect, Detect, Respond, Recover — useful as a map, not a
 certificate of completeness.
 
+**Classes of vulnerability.** "Vulnerability" is one word covering several
+different failure origins, and the class changes both who should have
+caught it and what kind of control fixes it:
+
+| Class | What actually broke | Example | Primary CIA impact | Fixed by |
+| --- | --- | --- | --- | --- |
+| Design flaw | The security model itself is wrong or missing a decision | No object-ownership check was ever designed for `GET /notes/{id}` | C (wrong reader gets data) | Redesign the authorization model (Module 3) |
+| Implementation bug | The design was sound; the code doesn't match it | String-concatenated SQL instead of the parameterized query the design called for | C, I | Fix the code; test the property, not just the symptom (Module 4) |
+| Configuration / operational | Design and code are fine; how it's deployed isn't | `LAB_MODE=true` shipped to production; a debug endpoint left reachable | C, I, A | Secure defaults, deployment review (Module 13) |
+| Cryptographic | A cryptographic primitive or its usage is wrong | Fast hash for passwords; predictable IV; no certificate validation | C, I | Correct primitive and usage (Module 6) |
+| Availability / resource | The system has no bound on cost or capacity | No rate limit; unbounded request body; algorithmic complexity | A | Rate limiting, bounded work (Module 16) |
+| Process / human | The weakness is in a decision a person made, not in the system | Phished credential; insider misuse of legitimate access | C, I, A | Least privilege, phishing-resistant MFA (Module 17) |
+
+A memory-safety class also exists (buffer overflow, use-after-free, type
+confusion) — the historic root cause of a huge share of critical CVEs in
+C/C++ codebases. Ordinary Python application code prevents direct pointer
+arithmetic and bounds mistakes, so this course does not include a memory-
+corruption exercise. CPython and native extensions are still implemented in
+memory-unsafe languages and can contain such flaws. This distinction is one
+reason the industry is moving toward memory-safe languages for new systems
+code.
+
+**CWE vs CVE.** [CWE](https://cwe.mitre.org/) (Common Weakness Enumeration)
+names the *class* — CWE-89 is "SQL Injection" as a category. [CVE](https://cve.mitre.org/)
+names one *instance* — a specific vulnerability in a specific version of a
+specific product. The table above is a small, informal CWE; production
+vulnerability management usually references CWE IDs directly. Same
+relationship as "threat" (a class of harm) vs. "the specific incident that
+happened to you."
+
 **Asset.** Something of value: Bob’s note, the JWT signing secret, availability
 of `/login`, analyst time, your reputation. Threat-model assets, not only hosts.
 

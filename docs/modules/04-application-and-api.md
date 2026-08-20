@@ -21,11 +21,19 @@ there is no HTML form to hide fields.
 Use this same frame for injection, BOLA, SSRF, XSS, CSRF, deserialization,
 file handling, rate limits, and business-flow abuse:
 
-```text
-NORMAL:      typed input -> validation -> authorization -> safe interpreter -> result
-MANIPULATED: input ------> missing decision / unsafe interpretation -------> impact
-                                      |                         |
-                                      +---- audit evidence -----+
+```mermaid
+flowchart LR
+    subgraph NORMAL
+        direction LR
+        n_input["typed input"] --> n_valid["validation"] --> n_authz["authorization"] --> n_interp["safe interpreter"] --> n_result["result"]
+    end
+
+    subgraph MANIPULATED
+        direction LR
+        m_input["input"] --> m_gap["missing decision /<br/>unsafe interpretation"] --> m_impact["impact"]
+        m_gap -.-> m_evidence["audit evidence"]
+        m_impact -.-> m_evidence
+    end
 ```
 
 | Case | Normal path | Manipulated path | Evidence | Primary control |

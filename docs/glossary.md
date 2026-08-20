@@ -15,9 +15,11 @@
 | Containment | Limiting damage while investigation continues. |
 | Control | A measure that changes risk. |
 | Correlation ID | Identifier joining events across components. |
-| CVE | Publicly disclosed vulnerability identifier (MITRE/NVD ecosystem). |
+| CVE | Publicly disclosed vulnerability identifier for one specific instance (MITRE/NVD ecosystem). |
 | CVSS | Severity scoring for vulnerabilities; not the same as risk. |
+| CWE | Common Weakness Enumeration; names a *class* of vulnerability (e.g. CWE-89 SQL Injection), not one instance. |
 | Detection-as-code | Rules and tests in version control. |
+| Diamond Model | Adversary–capability–infrastructure–victim structuring tool for one intrusion event. |
 | Dwell time | How long an adversary was present before detection. |
 | EDR | Endpoint detection and response. |
 | Enrichment | Adding context (asset owner, intel) to an alert. |
@@ -42,10 +44,12 @@
 | OIDC | OpenID Connect; identity layer on OAuth. |
 | Playbook | Documented investigation/response steps. |
 | Purple team | Collaborative validation of detections and controls. |
+| Pyramid of Pain | Ranking of indicator types by how costly they are for an attacker to change; TTPs cost the most, hashes the least. |
 | RBAC | Role-based access control. |
 | Residual risk | Risk remaining after controls. |
 | Risk | Effect of uncertainty on objectives (likelihood and impact in context). |
 | RoE | Rules of engagement for authorized testing. |
+| RPO / RTO | Recovery point/time objective: how much data loss and how much downtime a recovery plan accepts. |
 | SIEM | Security information and event management. |
 | SOAR | Security orchestration, automation, and response. |
 | SOC | Security operations center / function. |

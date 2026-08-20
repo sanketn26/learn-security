@@ -10,7 +10,7 @@ foundation concepts.
 | Standard engineer | 80–100 h | all modules and capstone | only hardware-heavy options |
 | Architecture focus | 35–45 h | 1, 3–7, 9, 11–13; threat model + review | deep SOC operations; return later |
 | Detection/SOC focus | 40–50 h | 1–4, 7–12; incident capstone artifacts | optional Kubernetes |
-| Preview | 8–12 h | onboarding, visual guide, module summaries, knowledge checks | runnable labs and capstone |
+| Preview | 8–12 h | onboarding, each module's Visual overview, module summaries, knowledge checks | runnable labs and capstone |
 
 ## Recommended beginner rhythm
 
@@ -36,4 +36,3 @@ is an enrichment, not a hidden prerequisite. In particular:
 - Trivy/Grype are optional;
 - hosted or local LLM use is optional—the agent has a deterministic mode;
 - a commercial SIEM, EDR, NDR, or SOAR is never required.
-

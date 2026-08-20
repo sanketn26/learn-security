@@ -1,5 +1,7 @@
 # Defensive Security Engineering
 
+[![Buy Me A Coffee](https://img.shields.io/badge/☕-Buy%20me%20a%20coffee-FFDD00?style=flat-square)](https://buymeacoffee.com/sanketn)
+
 Hands-on cybersecurity course for experienced software, platform, backend,
 DevOps, and ML engineers. You will learn how modern attacks work, how systems
 are defended, how security operations run, how to investigate events, and how

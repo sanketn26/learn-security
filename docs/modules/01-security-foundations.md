@@ -108,12 +108,13 @@ caught it and what kind of control fixes it:
 
 A memory-safety class also exists (buffer overflow, use-after-free, type
 confusion) — the historic root cause of a huge share of critical CVEs in
-C/C++ codebases. Ordinary Python application code prevents direct pointer
-arithmetic and bounds mistakes, so this course does not include a memory-
-corruption exercise. CPython and native extensions are still implemented in
-memory-unsafe languages and can contain such flaws. This distinction is one
-reason the industry is moving toward memory-safe languages for new systems
-code.
+C/C++ codebases. Memory-safe languages (Python, Go, Java, Rust, JavaScript,
+and most others you would write this course's application code in) prevent
+direct pointer arithmetic and bounds mistakes by design, so this course does
+not include a memory-corruption exercise. Their interpreters/runtimes and
+native extensions are still commonly implemented in memory-unsafe languages
+and can contain such flaws themselves. This distinction is one reason the
+industry is moving toward memory-safe languages for new systems code.
 
 **CWE vs CVE.** [CWE](https://cwe.mitre.org/) (Common Weakness Enumeration)
 names the *class* — CWE-89 is "SQL Injection" as a category. [CVE](https://cve.mitre.org/)

@@ -1,4 +1,10 @@
-.PHONY: lab-up lab-down lab-reset simulate ingest alerts
+.PHONY: docs docs-build lab-up lab-down lab-reset simulate ingest alerts
+
+docs:
+	mkdocs serve
+
+docs-build:
+	mkdocs build --strict
 
 lab-up:
 	chmod +x labs/scripts/*.sh

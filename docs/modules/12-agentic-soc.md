@@ -18,7 +18,7 @@ Unsupported: claims that agents replace analysts.
 
 ## Key concepts
 
-See [COURSE.md section 7](../COURSE.md) for architecture and comparison
+See [COURSE.md section 7](../course.md) for architecture and comparison
 tables.
 
 **Planner.** Chooses next tool. Lab default: deterministic catalog, not a

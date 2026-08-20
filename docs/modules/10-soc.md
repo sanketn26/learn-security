@@ -16,7 +16,7 @@ it. This module is the operating model.
 
 ## Key concepts
 
-Full narrative and comparison tables: [COURSE.md section 5](../COURSE.md).
+Full narrative and comparison tables: [COURSE.md section 5](../course.md).
 
 **Why a SOC.** Prevention is incomplete; someone correlates identity + app +
 cloud; someone is accountable for detection SLAs; someone coordinates IR.

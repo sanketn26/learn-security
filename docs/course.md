@@ -17,8 +17,11 @@ Labs are legal, local, and instrumented. Simulated adversary activity runs
 only against an intentionally vulnerable compose stack bound to loopback.
 Offensive steps are marked **AUTHORIZED LAB USE ONLY**.
 
-Start here, then follow the modules in order. Ethics: [docs/ethics.md](docs/ethics.md).
-Lab: [labs/README.md](labs/README.md).
+Start here, then open the matching section of the
+[visual learning guide](visual-learning-guide.md) before each module.
+The guide repeatedly shows normal behavior, broken behavior, evidence, and
+the improved architecture for the same Acme Notes system. Ethics:
+[docs/ethics.md](ethics.md). Lab: [docs/lab-guide.md](lab-guide.md).
 
 ---
 
@@ -63,12 +66,14 @@ commercial SIEM.
 
 | Mode | Duration | Weekly load | Total |
 | --- | --- | --- | --- |
-| Cohort | 12 weeks | 7–8 hours | ~90 hours |
-| Self-paced | 8–14 weeks | as available | 80–100 hours |
-| Intensive | 3 weeks | 25–30 hours | ~80 hours |
+| Cohort | 13 weeks | 7–8 hours | ~95 hours |
+| Self-paced | 9–15 weeks | as available | 85–105 hours |
+| Intensive | 3 weeks | 25–30 hours | ~85 hours |
 
 Modules 1–6 are foundations and hardening. Modules 7–12 are operations.
-Modules 13–14 and the capstone integrate architecture and judgment.
+Modules 13–14 integrate architecture and judgment. Modules 15–17 are
+extended lenses (ML/AI systems, availability, human factor) that reuse the
+same lab and method rather than adding new labs. The capstone follows.
 
 ### Learning outcomes
 
@@ -97,10 +102,16 @@ By the end of the course you can:
     audit, and approval — without treating it as a replacement for expertise.
 14. Make security architecture trade-offs in distributed systems and AI
     applications, and know which fundamentals remain valuable as tooling changes.
+15. Threat-model a machine-learning pipeline (training data, model artifact,
+    serving API) using the same asset/boundary/control lens as Module 1.
+16. Distinguish volumetric from asymmetric-cost denial of service, and
+    design a rate-limit and lockout policy that states its trade-offs.
+17. Read identical-looking telemetry as either an external-attacker or an
+    insider scenario, and name the control that helps regardless of which.
 
 ### Required and optional tooling
 
-See [labs/README.md](labs/README.md) for the full map. Summary:
+See [docs/lab-guide.md](lab-guide.md) for the full map. Summary:
 
 **Required:** Docker (or Podman) and Compose, Python 3.12+, curl, Git, a text
 editor. The default stack is notes-api, mock-imds, soc-lite, and agentic-soc.
@@ -179,7 +190,10 @@ this document.
 | 10 | [12 Agentic SOC](modules/12-agentic-soc.md) | Assist, do not replace; policy and approval | Investigate + APPROVE |
 | 11 | [13 Security architecture](modules/13-security-architecture.md) | SDLC, secrets, supply chain, distributed trade-offs | Design review of the platform |
 | 11 | [14 Future](modules/14-future.md) | Durable fundamentals vs emerging practice | Written judgment |
-| 12 | Capstone | Operate the platform | [capstone/README.md](capstone/README.md) |
+| 12 | [15 ML/AI security](modules/15-ml-ai-security.md) | Model/data as an asset, not a black box | Threat-model smart search; audit agent policy |
+| 12 | [16 Availability and DoS](modules/16-availability-and-dos.md) | Volumetric vs asymmetric-cost attacks | Time the login endpoint under load |
+| 12 | [17 Human factor](modules/17-human-factor-attacks.md) | Phishing vs insider risk, same telemetry | Competing-narrative writeup on DET-001/004 |
+| 13 | Capstone | Operate the platform | [capstone/README.md](capstone/README.md) |
 
 Progressive difficulty: read-only observation → authorized local “attack”
 against the lab app → fix and detect → investigate and report → gated
@@ -190,9 +204,14 @@ automation.
 ## 4. Module-by-module curriculum
 
 Full teaching notes, labs, knowledge checks, and assignments live in
-[`modules/`](modules/). Each module uses the same format: why it matters,
+[`modules/`](modules/README.md). Each module uses the same format: why it matters,
 objectives, concepts, architecture connection, lab, mistakes, cleanup, five
 questions, engineering assignment, further reading.
+
+The visual-first pass and experiment worksheet live in
+[docs/visual-learning-guide.md](visual-learning-guide.md). Read its
+matching numbered section first; then use the module notes for precise terms,
+commands, expected results, failure modes, cleanup, and references.
 
 | # | File | Core engineering connection |
 | --- | --- | --- |
@@ -210,6 +229,9 @@ questions, engineering assignment, further reading.
 | 12 | Agentic SOC | Tools, policy, humans |
 | 13 | Security architecture | Defaults you ship |
 | 14 | Future | Skills that compound |
+| 15 | ML/AI system security | Same lens, model as the asset |
+| 16 | Availability and DoS | Asymmetric cost is an application decision |
+| 17 | Human factor | Evidence doesn't say who to blame |
 
 ---
 
@@ -552,7 +574,7 @@ agentic assistant with mandatory approval.
 
 ## 10. Assessment plan
 
-See [docs/assessment.md](docs/assessment.md). Short version: each module has
+See [docs/assessment.md](assessment.md). Short version: each module has
 a five-question check (self-graded) and a short engineering assignment.
 The capstone is the summative assessment, scored by rubric, not by “number
 of tools installed.”
@@ -561,26 +583,26 @@ of tools installed.”
 
 ## 11. Glossary
 
-See [docs/glossary.md](docs/glossary.md).
+See [docs/glossary.md](glossary.md).
 
 ---
 
 ## 12. Further reading and authoritative references
 
-See [docs/references.md](docs/references.md). Prefer MITRE, NIST, CISA,
+See [docs/references.md](references.md). Prefer MITRE, NIST, CISA,
 OWASP, FIRST, and official project docs over vendor blogs when they disagree.
 
 ---
 
 ## 13. One-page condensed learning plan
 
-See [docs/condensed-plan.md](docs/condensed-plan.md).
+See [docs/condensed-plan.md](condensed-plan.md).
 
 ---
 
 ## 14. Ten follow-up project ideas
 
-See [docs/follow-up-projects.md](docs/follow-up-projects.md).
+See [docs/follow-up-projects.md](follow-up-projects.md).
 
 ---
 
@@ -612,7 +634,7 @@ The tables in section 5 cover:
 git clone <this-repo> && cd learn-security
 # Read docs/ethics.md
 make lab-up
-# Work through modules/01 ... 14
-# Complete capstone/
+# Work through Modules 1 ... 17 in the site navigation
+# Complete the capstone templates under docs/capstone/
 make lab-reset
 ```

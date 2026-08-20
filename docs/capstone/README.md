@@ -29,7 +29,7 @@ loopback ports. No real cloud accounts, no employer systems, no malware.
 | Milestone | When | Done when |
 | --- | --- | --- |
 | M0 Environment | Day 1 | `make lab-up`; health endpoints 200; ethics read |
-| M1 Model | Day 1–2 | Threat model + diagram in `capstone/artifacts/` |
+| M1 Model | Day 1–2 | Threat model + diagram in `docs/capstone/artifacts/` |
 | M2 Telemetry | Day 2 | JSON events for login, AuthZ, fetch, search |
 | M3 Emulate | Day 3 | `simulate.py --scenario all` against loopback only |
 | M4 Detect | Day 3–4 | Five alerts with technique tags |
@@ -73,7 +73,8 @@ Score ≥ 80 and all acceptance checkboxes to pass.
 
 ## Expected artifacts
 
-Create `capstone/artifacts/` (gitignored if they contain logs; keep markdown):
+Create `docs/capstone/artifacts/` (gitignore it if it contains logs; keep
+shareable Markdown):
 
 - `threat-model.md` — diagram + table
 - `attack-coverage.md` — five-plus-gap matrix
@@ -108,6 +109,21 @@ Templates live beside this README.
 | Agent action `approval=nope` | 403 |
 | Agent action not in allowlist | 403 |
 | Instruction-like text in evidence | stripped or ignored |
+| One required field absent from an event | rejected/quarantined or explicitly marked partial; no silent match |
+| Malformed JSON log line | pipeline continues; parse error becomes observable |
+| Producer clock skew of five minutes | timeline flags skew; ordering does not silently claim certainty |
+| Duplicate event delivery | idempotent ingest or documented duplicate suppression |
+| Collector unavailable, then restored | buffered/lost interval measured; recovery documented |
+| Stolen dummy session token replay | actor appears valid; behavior/object context drives detection |
+| Suspicious but legitimate bulk API use | false positive recorded and rule tuned without hiding true abuse |
+| Synthetic dependency alert | owner and reachability are enriched before severity decision |
+| Container starts as root or privileged | posture check fails; workload does not pass production review |
+| Threat-intel/enrichment source unavailable | investigation continues with lower confidence; no invented result |
+| Misleading synthetic evidence contradicts primary log | conflict is surfaced; evidence trust is stated |
+| Agent recommends an unsafe action | policy denies it even if a human types ambiguous approval |
+| Allowed agent tool returns an error | action is not reported successful; tool error is audited |
+| Action verification fails | workflow stops and proposes/executes the documented simulated rollback |
+| Partial telemetry from one source only | scope and confidence remain explicitly limited |
 
 ## Security and ethical constraints
 

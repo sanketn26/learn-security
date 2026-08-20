@@ -13,6 +13,7 @@ labs/data/
 labs/logs/
 labs/cases/
 .pytest_cache/
+site/
 
 # OS / editor
 .DS_Store

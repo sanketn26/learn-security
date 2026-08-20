@@ -17,7 +17,7 @@ with confidence, and to treat coverage as a hypothesis about telemetry.
 
 ## Key concepts
 
-See also [COURSE.md section 6](../COURSE.md).
+See also [COURSE.md section 6](../course.md).
 
 **ATT&CK is a knowledge base**, maintained by MITRE, of adversary behavior
 drawn from public reporting. [attack.mitre.org](https://attack.mitre.org/).
@@ -85,7 +85,7 @@ Modules 4 and 7. Lab up. `LAB_MODE=true`.
    | DET-004 | | | | | |
    | DET-005 | | | | | |
 
-5. Copy the table into `capstone/attack-coverage.md` (create when you start
+5. Copy the table into `docs/capstone/attack-coverage.md` (create when you start
    the capstone; a stub is provided).
 6. Add a **gap** row: a behavior the sim does not generate (for example
    persistence). Write “no data source” rather than painting the cell.

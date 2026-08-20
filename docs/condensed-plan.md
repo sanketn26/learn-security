@@ -1,6 +1,6 @@
 # One-page condensed learning plan
 
-**Goal:** In ~90 hours, go from “strong engineer, weak security ops” to
+**Goal:** In ~100 hours, go from “strong engineer, weak security ops” to
 shipping a tiny defensive platform you can explain end to end.
 
 **Daily habit (30–45 min):** read one ATT&CK technique *or* threat-model one
@@ -17,6 +17,7 @@ PR. Do not install a new tool instead.
 | Detections + IR | 10 | Incident report + RCA |
 | Agentic SOC | 8 | 403 without APPROVE; grounded summary |
 | Architecture + future | 6 | Review + judgment memo |
+| ML/AI + availability + human factor | 10 | Model threat-model; login timing; DET-001/004 narratives |
 | Capstone polish | 12 | Rubric ≥ 80 |
 
 **Do:** local only; dummy data; write residual risk.

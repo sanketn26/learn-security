@@ -109,7 +109,7 @@ always in scope.
 
 ### Prerequisites
 
-Docker, course repo. Read [docs/ethics.md](../docs/ethics.md).
+Docker, course repo. Read [docs/ethics.md](../ethics.md).
 
 ### Steps
 

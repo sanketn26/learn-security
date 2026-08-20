@@ -11,7 +11,7 @@ lab output (screenshots or command transcripts of **local** services).
 
 ## Summative
 
-The [capstone](../capstone/README.md) rubric (100 points). Pass at 80+ with
+The [capstone](capstone/README.md) rubric (100 points). Pass at 80+ with
 all acceptance checkboxes.
 
 ## Integrity

@@ -1,5 +1,12 @@
 # Modules
 
+Before each module, read the same-numbered section in the
+[visual learning guide](../visual-learning-guide.md). It supplies the
+course's recurring Acme Notes mental model, normal/attack/evidence/improvement
+flows, and the experiment record to complete during the lab. The module file
+then supplies precise terminology, commands, expected outputs, cleanup,
+knowledge checks, and authoritative reading.
+
 Work in order. Each file is a complete lesson: concepts, lab, questions,
 assignment, reading.
 
@@ -19,3 +26,6 @@ assignment, reading.
 | 12 | [Agentic SOC](12-agentic-soc.md) |
 | 13 | [Security architecture](13-security-architecture.md) |
 | 14 | [The future of cybersecurity](14-future.md) |
+| 15 | [ML/AI system security](15-ml-ai-security.md) |
+| 16 | [Availability and denial of service](16-availability-and-dos.md) |
+| 17 | [Phishing, social engineering, insider risk](17-human-factor-attacks.md) |

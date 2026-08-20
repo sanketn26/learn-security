@@ -5,7 +5,7 @@ Isolated Docker Compose lab for this course. All published ports bind to
 egress). Simulated attacks must target loopback; `attack-sim/simulate.py`
 exits if they do not.
 
-**AUTHORIZED LAB USE ONLY.** Read [../docs/ethics.md](../docs/ethics.md).
+**AUTHORIZED LAB USE ONLY.** Read [ethics.md](ethics.md).
 
 ## Architecture
 

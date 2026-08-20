@@ -7,6 +7,46 @@ ticket speak “alerts, cases, severity, containment.” If you cannot walk an
 event from log line to case to fix, you will either ignore the SOC or drown
 it. This module is the operating model.
 
+## Visual overview
+
+```mermaid
+flowchart TB
+  T[Telemetry] --> D[Detection]
+  D --> A[Alert]
+  A --> TRI[Triage]
+  TRI -->|benign / false positive| TUNE[Tune with expiry and evidence]
+  TRI --> INV[Investigation]
+  INV --> INC[Incident]
+  INC --> CON[Contain]
+  CON --> ERA[Eradicate cause]
+  ERA --> REC[Recover]
+  REC --> LEARN[Lessons + control change]
+```
+
+!!! note "Intuition"
+    The `TUNE` branch is easy to skim past but it's where most SOCs quietly
+    fail: every alert triaged as a false positive is a fork in the road. Take
+    the lazy fork (silently dismiss) enough times and you get alert fatigue;
+    take the disciplined fork (tune the rule, with an expiry so the exception
+    doesn't outlive its reason) and the signal-to-noise ratio actually
+    improves over time instead of decaying.
+
+| SIEM | EDR | NDR | SOAR |
+| --- | --- | --- | --- |
+| Correlates stored events | Endpoint behavior and response | Network behavior/metadata | Orchestrates defined workflows |
+| Broad context, data-cost risk | Host depth, agent dependency | Useful where host visibility is weak | Speeds repetition, amplifies bad logic |
+
+Measure MTTD/MTTA/MTTR with explicit start/end definitions, plus fidelity,
+investigation quality, and control effectiveness. Ticket closure alone rewards
+the wrong behavior and contributes to fatigue.
+
+!!! tip "Hint"
+    Before quoting an MTTR number, ask "detected-to-contained, or
+    reported-to-closed?" Teams that optimize the metric instead of the
+    outcome tend to gravitate toward whichever start/end pair makes the
+    number look best, which is exactly the "ticket closure rewards the wrong
+    behavior" trap the last sentence is warning about.
+
 ## Learning objectives
 
 - Explain why a SOC exists and how work flows through tiers.

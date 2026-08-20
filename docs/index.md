@@ -15,8 +15,8 @@ identities, databases, and logs—and adds one security question at a time:
    software-engineering language and tells you what you can safely skip.
 2. Complete [Setup and first lab](setup.md). It includes a no-Docker preview,
    so setup is not a gate to understanding the system.
-3. Begin [Module 1](modules/01-security-foundations.md). Before each module,
-   read the matching picture in the [visual guide](visual-learning-guide.md).
+3. Begin [Module 1](modules/01-security-foundations.md). Each module opens
+   with a **Visual overview** — read that first, then the module text.
 
 !!! warning "Authorized lab use only"
     Run offensive-looking exercises only against this repository's local,

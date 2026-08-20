@@ -11,6 +11,41 @@ fraud scoring, or an LLM — this is the module that treats them as production
 systems with their own attack surface, not as a black box someone else
 secures.
 
+## Visual overview
+
+```mermaid
+flowchart LR
+  DATA[Training data] --> TRAIN[Training job]
+  TRAIN --> REG[Model registry]
+  REG --> SERVE[Serving API]
+  CALLER[Caller / app] -->|query| SERVE
+  SERVE -->|prediction| CALLER
+  DATA -. poisoned examples .-> TRAIN
+  CALLER -. heavy querying .-> STEAL[Reconstructed copy]
+  SERVE -. crafted input .-> MISCLASS[Wrong decision, normal-looking input]
+```
+
+!!! note "Intuition"
+    Redraw this as Module 5's supply-chain diagram with different labels —
+    `developer→source→CI→artifact→registry→runtime` becomes
+    `data→training→registry→serving`. The shapes of the attacks are
+    familiar too: poisoning is tampering with the "source," extraction is
+    theft via the public "runtime" API, and a crafted input is Module 4's
+    "data becomes code" pattern with the model as the unsafe interpreter.
+
+| Attack | Targets | Looks like | Primary control |
+| --- | --- | --- | --- |
+| Data poisoning | Training pipeline integrity | A backdoored or biased model, discovered late | Provenance + eval on trusted held-out data |
+| Model extraction | Confidentiality/availability of the model | A very active, very ordinary-looking API client | Rate limiting + query auditing |
+| Adversarial input | Serving-time integrity | A normal-looking input, wrong output | Robustness testing, not encryption |
+| Excessive agency | Blast radius of a wrong output | A correct-sounding action with real consequences | Tool-scoped policy + human approval (Module 12) |
+
+!!! tip "Hint"
+    "Encrypt the model file" answers a question nobody asked. Model
+    extraction only requires **query access** to a public API — the file
+    never has to leave the server. Defend the query path (rate limits,
+    auditing, watermarking), not the artifact at rest.
+
 ## Learning objectives
 
 - Apply the Module 1 asset/boundary/threat/control lens to a model instead

@@ -6,6 +6,43 @@ Architecture is the set of defaults that remain when you are not looking:
 how services authenticate, where secrets live, what CI will sign, what the
 SOC can see. Tools do not substitute for this. Compliance does not either.
 
+## Visual overview
+
+```text
+INSECURE
+Internet -> API (shared secret, broad DB, broad egress) -> shared database
+              +---------------------------------------> metadata
+CI (long-lived prod key) -> mutable image tag -> cluster-admin deployment
+
+IMPROVED
+Internet -> gateway -> API (audience identity, object policy) -> scoped data
+                       +--deny--> metadata
+                       +-------> protected audit pipeline
+CI OIDC -> signed immutable artifact -> admission -> non-root workload
+```
+
+!!! note "Intuition"
+    Notice every line in `IMPROVED` is narrower than its counterpart in
+    `INSECURE` — broad database access becomes scoped data, a long-lived key
+    becomes short-lived OIDC, a mutable tag becomes a signed immutable
+    artifact. "More secure" in this course almost always means "the same
+    capability, with a tighter, more specific, more revocable boundary
+    around it" — not an extra product bolted on top.
+
+Annotate every production diagram with trust boundaries, identity paths,
+data classification, allowed network paths, enforcement points, telemetry,
+and owners. State trade-offs: aggressive blocking vs availability;
+centralized authorization vs failure domain; logging vs privacy/cost;
+encryption vs inspection; isolation vs operability; least privilege vs
+delivery speed. The output is a decision with residual risk, not "add WAF."
+
+!!! tip "Hint"
+    If a design review's conclusion is a product name instead of a sentence
+    about residual risk, the review didn't finish. "Add a WAF" doesn't say
+    what risk remains after adding it, for whom, or under what failure mode —
+    "add a WAF, which reduces but doesn't eliminate injection risk, and does
+    nothing for BOLA" does.
+
 ## Learning objectives
 
 - Design a service with explicit identity, secrets, segmentation, and

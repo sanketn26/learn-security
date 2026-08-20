@@ -72,8 +72,9 @@ the cause and effect yourself.
 
 ## How to study a module
 
-1. Read the matching section in the [visual guide](visual-learning-guide.md).
-2. Read “Why it matters” and the learning objectives in the module.
+1. Read the module's "Why it matters" and its **Visual overview** section
+   (diagrams, intuition, hints) first.
+2. Read the learning objectives.
 3. Skim unfamiliar key concepts; use the glossary instead of stopping to
    memorize them.
 4. Predict normal and abnormal outcomes before running commands.

@@ -7,6 +7,54 @@ cannot explain what a TCP connection, a listening port, a uid, or a timestamp
 means, you cannot investigate your own service. Cloud and Kubernetes add
 layers; they do not remove Linux or IP.
 
+## Visual overview
+
+```mermaid
+sequenceDiagram
+  participant C as Client
+  participant DNS as DNS resolver
+  participant G as Gateway
+  participant A as API process
+  participant F as Files / sockets
+  C->>DNS: resolve api.acme.test
+  DNS-->>C: address
+  C->>G: TCP connect + TLS handshake
+  G->>A: HTTP request on service port
+  A->>F: read config / open DB / append log
+  A-->>C: HTTP response
+```
+
+!!! note "Intuition"
+    One HTTP request is really four or five separate systems briefly agreeing
+    to cooperate: a name lookup, a network handshake, a process doing file and
+    socket I/O, and eventually a human-meaningful response. Each of those
+    systems keeps its *own* logs, and none of them alone tells the whole
+    story — which is exactly why the "one view usually misses" row below
+    matters so much.
+
+```text
+user/uid --owns--> process --opens--> socket
+                         +--reads--> file / env
+                         +--writes-> application log
+```
+
+| View | Sees well | Usually misses |
+| --- | --- | --- |
+| Network | endpoints, timing, bytes, DNS, TLS metadata | encrypted body, object authorization |
+| Host | process, uid, files, syscalls, local sockets | upstream intent and full distributed path |
+| Application | route, actor, object, decision, business result | kernel activity unless instrumented |
+
+Normal: one DNS answer, TLS session, authorized read, 200. Abnormal: repeated
+login failures or API→metadata traffic. Evidence: DNS/network metadata,
+gateway access log, process/socket state, application audit event. Improvement:
+deny needless egress and join views with UTC timestamps and correlation IDs.
+
+!!! tip "Hint"
+    If you can only instrument one layer, instrument the application layer
+    first — it is the only one of the three that knows *who* did *what* to
+    *which object*. Network and host telemetry tell you a request happened;
+    only the app layer tells you whether it should have been allowed.
+
 ## Learning objectives
 
 - Explain TCP/IP, DNS, HTTP(S), TLS, routing, ports, proxies, and firewalls

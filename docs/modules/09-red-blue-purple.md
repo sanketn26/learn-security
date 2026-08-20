@@ -8,6 +8,40 @@ validating a detection after a bug bash (purple). Professional red teaming
 is **authorized, scoped, evidenced, and reported**. This module practices
 that discipline in the lab.
 
+## Visual overview
+
+```mermaid
+flowchart LR
+  RED[Red: simulate behavior] --> TEL[Telemetry]
+  TEL --> BLUE[Blue: detect]
+  BLUE --> INV[Investigate]
+  INV --> GAP[Gap identified]
+  GAP --> FIX[Control or rule improved]
+  FIX --> RED
+```
+
+!!! note "Intuition"
+    This is a loop, not a one-time exercise — notice the arrow returns to
+    Red at the end. Purple teaming isn't a separate team so much as a
+    discipline: red and blue deliberately closing the loop together instead
+    of working in isolation and comparing reports months later.
+
+| Red | Blue | Purple |
+| --- | --- | --- |
+| Authorized path finding under RoE | Prevent, detect, respond, recover | Hypothesis-driven validation together |
+| Produces path, evidence, impact | Produces controls, alerts, cases, recovery | Produces measured coverage delta |
+| Failure: scope creep | Failure: alert theatre | Failure: mapping without replay |
+
+The safe experiment is: predict DET-003 → simulate local SSRF → inspect event
+and alert → block metadata → replay → add visibility for the blocked attempt.
+
+!!! tip "Hint"
+    Notice the experiment doesn't stop at "block metadata." The last step —
+    replay, and confirm you now have visibility into the *blocked* attempt —
+    is the part people skip. A control that blocks silently is one incident
+    away from someone removing it because "nothing ever happens," since no
+    one can see it working.
+
 ## Learning objectives
 
 - Describe adversary-style phases without turning them into a cookbook for

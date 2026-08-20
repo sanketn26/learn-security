@@ -13,6 +13,39 @@ simulate email-based social engineering the way `simulate.py` simulates
 SSRF — but it changes how you read every detection in this course, so it
 belongs here rather than being skipped.
 
+## Visual overview
+
+```mermaid
+sequenceDiagram
+  participant Alice
+  participant Fake as Fake login page
+  participant Attacker
+  participant API as Notes API
+  Alice->>Fake: real password + real MFA approval
+  Fake-->>Attacker: relayed credential + session
+  Attacker->>API: request using Alice's session
+  Note over API: authenticates as Alice — correctly
+```
+
+!!! note "Intuition"
+    Every arrow after "Fake-->>Attacker" is indistinguishable, at the API,
+    from Alice using her own account. This is why Module 3's "a valid token
+    is input to authorization, not proof of permission" line matters so
+    much here: authentication succeeding is not evidence the *request*
+    reflects what Alice intended.
+
+| Scenario | Access was | Detected by | Fixed by |
+| --- | --- | --- | --- |
+| Phishing | Never legitimately authorized | Unusual source/pattern for a known identity | Credential rotation, phishing-resistant MFA |
+| Insider misuse | Legitimately authorized | Access with no business justification | Least privilege, audit review — not a technical control |
+
+!!! tip "Hint"
+    The same alert can be either row of that table. Keep both hypotheses
+    open (Module 11) until evidence — not the alert — tells you which one
+    you're in; picking the wrong response (rotating a credential that was
+    never stolen, or missing an insider because "the login looked normal")
+    wastes the response window.
+
 ## Learning objectives
 
 - Distinguish phishing (credential/access theft via deception) from insider

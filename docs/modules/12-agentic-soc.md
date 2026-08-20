@@ -8,6 +8,58 @@ security and distributed-systems** problem: tools, policy, memory, humans,
 audit. Established: copilots and SOAR. Emerging: multi-step agents.
 Unsupported: claims that agents replace analysts.
 
+## Visual overview
+
+```text
+Chatbot -> copilot -> workflow automation -> tool-using agent -> bounded autonomy
+          increasing tools, state, and delegated decision scope ---------->
+```
+
+!!! note "Intuition"
+    This spectrum is really a spectrum of *blast radius if the reasoning is
+    wrong*, not a spectrum of how smart the system is. A chatbot that gives a
+    bad answer wastes an analyst's time. A tool-using agent that gives a bad
+    answer and can also act on it can cause an incident. The diagram below
+    exists because the fix isn't "make the model smarter" — it's "put a
+    policy engine and a human between reasoning and any action with
+    consequences."
+
+```mermaid
+flowchart TB
+  ANALYST[Analyst] --> AGENT[Agent / LLM]
+  AGENT --> PLAN[Planner]
+  AGENT --> CTX[Context + bounded memory]
+  PLAN --> POLICY[Policy engine]
+  POLICY --> TOOLS[Tool gateway]
+  TOOLS --> SIEM[SIEM read]
+  TOOLS --> EDR[Simulated response]
+  TOOLS --> TI[Threat intel]
+  SIEM --> EVID[(Evidence store)]
+  TOOLS --> AUDIT[(Audit log)]
+  POLICY -->|sensitive proposal| APPROVE[Human approval]
+  APPROVE --> EXEC[Controlled execution]
+  EXEC --> VERIFY[Verify + rollback if needed]
+```
+
+| Rule automation | LLM copilot | Bounded agent |
+| --- | --- | --- |
+| Deterministic steps | Drafts/summarizes for a human | Selects allowed tools within policy |
+| Predictable, brittle | Flexible language, may hallucinate | Larger blast radius; needs audit and approvals |
+
+Treat logs, retrieved documents, playbooks, and tool output as differently
+trusted inputs. Evaluate precision, recall, groundedness, action correctness,
+containment safety, latency, and cost. Test prompt injection in a synthetic
+log, unavailable enrichment, misleading evidence, denied approval, tool
+failure, verification failure, and rollback.
+
+!!! tip "Hint"
+    The vulnerable input in "test prompt injection in a synthetic log" is
+    easy to underestimate: it means a *log line itself* — content an
+    attacker already controls, like a username or user-agent string — can
+    contain text crafted to look like an instruction to the model reading
+    it. This is Module 4's "data becomes code" pattern again, just with an
+    LLM as the interpreter instead of a SQL engine or a browser.
+
 ## Learning objectives
 
 - Distinguish chatbot, copilot, workflow automation, and autonomous agent.

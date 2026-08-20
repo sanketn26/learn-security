@@ -17,10 +17,10 @@ Labs are legal, local, and instrumented. Simulated adversary activity runs
 only against an intentionally vulnerable compose stack bound to loopback.
 Offensive steps are marked **AUTHORIZED LAB USE ONLY**.
 
-Start here, then open the matching section of the
-[visual learning guide](visual-learning-guide.md) before each module.
-The guide repeatedly shows normal behavior, broken behavior, evidence, and
-the improved architecture for the same Acme Notes system. Ethics:
+Start here, then open [Module 1](modules/01-security-foundations.md). Each
+module opens with a **Visual overview** that repeatedly shows normal
+behavior, broken behavior, evidence, and the improved architecture for the
+same Acme Notes system, before the module's precise terms and lab. Ethics:
 [docs/ethics.md](ethics.md). Lab: [docs/lab-guide.md](lab-guide.md).
 
 ---
@@ -208,10 +208,11 @@ Full teaching notes, labs, knowledge checks, and assignments live in
 objectives, concepts, architecture connection, lab, mistakes, cleanup, five
 questions, engineering assignment, further reading.
 
-The visual-first pass and experiment worksheet live in
-[docs/visual-learning-guide.md](visual-learning-guide.md). Read its
-matching numbered section first; then use the module notes for precise terms,
-commands, expected results, failure modes, cleanup, and references.
+Each module opens with a **Visual overview** — read that first — then use
+the rest of the module for precise terms, commands, expected results,
+failure modes, cleanup, and references. The
+[experiment record worksheet](exercises.md#experiment-record-worksheet)
+lives in the exercise index.
 
 | # | File | Core engineering connection |
 | --- | --- | --- |

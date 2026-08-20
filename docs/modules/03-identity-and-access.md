@@ -8,6 +8,80 @@ by twelve microservices. Authentication answers “who is this?” Authorization
 answers “what may they do to *this* object, *now*?” Mixing them up produces
 `if (loggedIn) return note`.
 
+## Visual overview
+
+```mermaid
+sequenceDiagram
+  User->>API: username + password
+  API->>IdentityStore: verify slow password hash
+  IdentityStore-->>API: identity + attributes
+  API-->>User: short-lived signed token
+  User->>API: GET /notes/2 + token
+  API->>API: authenticate token
+  API->>Policy: authorize actor=alice, object=note:2, action=read
+  Policy-->>API: deny (owner=bob)
+```
+
+!!! note "Intuition"
+    Notice the diagram deliberately ends in a **deny**. Authentication proved
+    Alice is Alice — that part succeeded. The request still fails, because
+    authentication only answers "who are you," never "are you allowed to
+    touch *this* object." Treating a valid token as if it were a yes is the
+    single most common access-control bug in real APIs (it has its own name:
+    BOLA/IDOR, covered in Module 4).
+
+```mermaid
+stateDiagram-v2
+  [*] --> Issued
+  Issued --> Active: signature, issuer, audience, time valid
+  Active --> Expired: exp reached
+  Active --> Revoked: response / compromise
+  Expired --> [*]
+  Revoked --> [*]
+```
+
+!!! tip "Hint"
+    A token's lifecycle has two exits, not one. Teams routinely build the
+    `Expired` path (just let `exp` pass) and forget the `Revoked` path
+    (actively invalidate a token *before* it would have expired, e.g. on
+    logout or after a suspected leak). If your system has no revocation
+    story, a stolen long-lived token stays valid until its natural expiry no
+    matter what you do.
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant C as Client
+  participant AS as Authorization server / OIDC provider
+  participant API as Resource API
+  U->>C: choose sign in
+  C->>AS: authorization request + PKCE challenge
+  AS->>U: authenticate + consent
+  AS-->>C: authorization code
+  C->>AS: code + PKCE verifier
+  AS-->>C: access token + ID token
+  C->>API: access token
+```
+
+!!! note "Intuition"
+    This is the "log in with..." button, unrolled. The client (your app)
+    never sees the user's password — it only ever gets a short-lived
+    authorization code, which it then exchanges for a token. PKCE exists
+    specifically so that even if the authorization code leaks in transit
+    (e.g. via a mobile deep link), the code alone is useless without the
+    verifier secret the client generated for itself.
+
+| Authentication | Authorization |
+| --- | --- |
+| Who/what is calling? | May this identity perform this action on this object now? |
+| Password, MFA, certificate, signed token | RBAC, ABAC, ownership, policy |
+| Failure: forged/stolen identity | Failure: valid Alice reads Bob's note |
+
+Human identity usually begins with an interactive login and MFA; workload
+identity begins with attested runtime context and receives a short-lived,
+audience-bound credential. Both need lifecycle, least privilege, audit, and
+revocation. A valid token is input to authorization, not proof of permission.
+
 ## Learning objectives
 
 - Separate authentication, authorization, sessions, and tokens.

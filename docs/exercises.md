@@ -2,8 +2,8 @@
 
 Every exercise is a controlled engineering experiment. Record a hypothesis,
 normal result, safe abnormal result, evidence, control, replay result, and
-cleanup. Use the worksheet at the end of the
-[visual guide](visual-learning-guide.md).
+cleanup. Use the [experiment record worksheet](#experiment-record-worksheet)
+below.
 
 | Module | Required exercise | Starting level | Main output |
 | --- | --- | --- | --- |
@@ -21,6 +21,9 @@ cleanup. Use the worksheet at the end of the
 | 12 | Test a bounded SOC assistant | Advanced | Audited recommendation/approval run |
 | 13 | Review the platform architecture | Advanced | Findings + architecture decision |
 | 14 | Write a future-facing judgment memo | Reflective | Established/emerging risk memo |
+| 15 | Threat-model an added ML feature; audit an agent's tools | Advanced | Trust-boundary diagram + audit note |
+| 16 | Time the login endpoint under load | Intermediate | Cost-asymmetry measurement |
+| 17 | Write competing narratives for two alerts | Advanced | Phishing vs. insider writeup |
 
 ## Exercise safety gate
 
@@ -32,4 +35,24 @@ Before any step labeled **AUTHORIZED LAB USE ONLY**, confirm all three:
 
 If any check fails, stop. Reading source, diagrams, logs, and synthetic
 fixtures remains a safe alternative.
+
+## Experiment record worksheet
+
+Copy this for every module:
+
+| Field | Your record |
+| --- | --- |
+| Question | |
+| Hypothesis | |
+| Scope and safety boundary | local compose + loopback only |
+| Starting state | LAB_MODE, running services, clean/dirty logs |
+| Normal observation | response + relevant telemetry |
+| Safe abnormal stimulus | provided simulator/scenario only |
+| Expected evidence/detection | event fields + rule id |
+| Actual result | |
+| Control applied | |
+| Replay comparison | |
+| Failure mode tested | missing/malformed/delayed/duplicate/unsafe recommendation/etc. |
+| Cleanup / rollback | command and resulting state |
+| Engineering decision | production change + residual risk |
 

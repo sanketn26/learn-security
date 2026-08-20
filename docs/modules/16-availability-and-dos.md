@@ -9,6 +9,41 @@ proper pass: resource exhaustion, volumetric abuse, and asymmetric-cost
 attacks, using the same lab you already ran for Module 9's brute-force
 scenario, viewed through a different lens.
 
+## Visual overview
+
+```mermaid
+flowchart LR
+  A[Attacker: cheap request] --> EP[Endpoint]
+  EP --> WORK[Expensive work: slow hash / query / render]
+  WORK --> R[Response]
+  EP -. no rate limit .-> WORK
+```
+
+!!! note "Intuition"
+    Module 1's asset question already named "unavailable" as a first-class
+    harm, next to "disclosed" and "changed" — this module finally spends
+    time on it. The interesting failure isn't always a flood of traffic;
+    it's one request that costs the attacker a cent and costs your server a
+    dollar. Scaling out doesn't fix a bad cost ratio — it just makes losing
+    money at a bigger scale.
+
+```text
+Volumetric:         many cheap requests -> exhaust bandwidth/connections
+Asymmetric-cost:     few expensive requests -> exhaust CPU/memory per request
+                      (e.g. a login endpoint's slow password hash runs on
+                       every attempt, valid or not)
+```
+
+!!! tip "Hint"
+    A rate limit placed *after* the expensive work already ran only stops
+    the next request, not the cost of this one. Ask "what runs before I can
+    even say no" — that's where the limit has to sit.
+
+The same telemetry — a burst of `login_failure` events — can mean password
+guessing (Module 3's credential-access lens) or an availability attack
+(this module's lens). The fix (rate limiting) helps both; the incident
+response does not.
+
 ## Learning objectives
 
 - Distinguish volumetric denial of service from asymmetric-cost (algorithmic

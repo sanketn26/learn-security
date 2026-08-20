@@ -6,6 +6,49 @@ Tool names churn. Fundamentals compound. This module separates **established
 practice**, **emerging architecture**, and **speculation**. No timeline
 promises. You will leave with a short list of skills worth investing in.
 
+## Visual overview
+
+```mermaid
+flowchart LR
+  E[Established] --> EM[Emerging]
+  EM --> EX[Experimental]
+  EX --> SP[Speculative]
+  E -.->|"proven, deploy with confidence"| E
+  SP -.->|"marketing claim, verify before repeating"| SP
+```
+
+!!! note "Intuition"
+    Confidence labels are a discipline for reading vendor and news claims,
+    not just an academic exercise. When you hear "AI will replace the SOC,"
+    the useful question isn't agree/disagree — it's "which column does this
+    claim actually belong in, and what evidence would move it one column to
+    the left?"
+
+| Established | Emerging | Experimental | Speculative |
+| --- | --- | --- | --- |
+| least privilege, threat modeling, detection-as-code, supply-chain controls | agent-assisted investigation, AI-app security practice, security data platforms | bounded autonomous containment in narrow environments, privacy-preserving analytic prototypes | broad unsupervised SOC replacement, precise quantum timelines |
+
+```text
+new component: model / vector store / agent / tool
+        |
+        v
+same questions: identity? authority? untrusted input? evidence? failure mode?
+```
+
+AI may change attacker cost and defender workflow; dependencies, identities,
+cloud-native control planes, deepfakes, fraud, privacy analytics, and
+post-quantum migration all change at different rates. Recheck authoritative
+sources before acting. Ten years from now, boundaries, least privilege,
+secure defaults, evidence quality, incident learning, and clear risk decisions
+will still matter.
+
+!!! tip "Hint"
+    Run that five-question checklist on Module 12's agentic SOC diagram —
+    it's the same checklist, applied. That's not a coincidence: it's meant
+    to show you the "new component" box in this diagram is the same box as
+    `AGENT` a few modules ago, and the questions don't change just because
+    the component is newer.
+
 ## Learning objectives
 
 - Discuss AI-assisted offense/defense without hype.

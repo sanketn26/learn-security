@@ -8,6 +8,64 @@ storage, and signed artifacts. Most “crypto failures” in OWASP
 **using the wrong primitive, rolling your own, or encrypting instead of
 hashing passwords** — not an academic break of AES.
 
+## Visual overview
+
+!!! note "Intuition"
+    Skip the math and ask one question per primitive: *"what does possessing
+    the key let you prove or do that someone without it can't?"* A hash needs
+    no key and proves nothing about origin — it only proves content didn't
+    change *if you already trust the hash you're comparing against*. That
+    caveat is the whole reason signatures exist.
+
+| Primitive | Visual model | Reversible? | Solves |
+| --- | --- | --- | --- |
+| Hash | message → fingerprint | No | change detection when expected hash is trusted |
+| Encryption | plaintext + key ⇄ ciphertext | Yes, with key | confidentiality |
+| MAC | message + shared key → tag | Verification uses same secret | integrity/authenticity among key holders |
+| Signature | message + private key → signature; public key verifies | Signature is not decryption | origin/integrity relative to key custody |
+
+```text
+Symmetric:   Alice [same secret K] <---- encrypted bulk data ----> Bob [K]
+Asymmetric:  public key may be shared; private key stays with its owner
+Hybrid:      asymmetric exchange authenticates/derives a symmetric session key
+```
+
+!!! tip "Hint"
+    TLS is hybrid for a practical reason, not a theoretical one: asymmetric
+    crypto is slow and expensive per byte, symmetric crypto is fast. So every
+    HTTPS connection you make does a small amount of expensive asymmetric
+    work once, just to safely agree on a symmetric key, then switches to
+    cheap symmetric encryption for the actual data. That's what the handshake
+    below is doing.
+
+```mermaid
+sequenceDiagram
+  Client->>Server: ClientHello + supported algorithms
+  Server-->>Client: ServerHello + certificate + key share
+  Client->>Client: validate name, dates, chain to trusted root
+  Client->>Server: key share + Finished
+  Server-->>Client: Finished
+  Note over Client,Server: authenticated encrypted session
+```
+
+```text
+leaf certificate -> signed by intermediate CA -> signed by trusted root
+hostname + validity + usage + revocation/validation policy must also pass
+
+registration: password + unique salt -> slow password KDF -> stored verifier
+login:        candidate + stored salt -> same KDF -> constant-time compare
+```
+
+!!! note "Intuition"
+    "Slow" is a feature, not a limitation, for password hashing. A fast hash
+    (like the ones used for file integrity) lets an attacker with a stolen
+    database try billions of password guesses per second. A deliberately slow
+    KDF (bcrypt/scrypt/Argon2) makes each guess expensive, which is the actual
+    defense — the algorithm choice *is* the control.
+
+Crypto does not authorize Alice to Bob's note, preserve deleted data, stop
+SSRF, make a compromised endpoint trustworthy, or repair poor key custody.
+
 ## Learning objectives
 
 - Distinguish hashing, MACs, signatures, symmetric/asymmetric encryption,

@@ -10,6 +10,45 @@ Many SOCs still teach the Rev. 2 loop (prepare → detect/analyze →
 contain/eradicate/recover → post-incident). Use both: the loop for muscle
 memory, CSF for “IR is not only the IR team.”
 
+## Visual overview
+
+```mermaid
+flowchart LR
+  H[Threat hypothesis] --> T[Required telemetry]
+  T --> L[Detection logic]
+  L --> TEST[Test fixtures / replay]
+  TEST --> A[Alert]
+  A --> F[Analyst feedback]
+  F --> L
+```
+
+!!! note "Intuition"
+    A detection rule is code, and code without tests degrades silently. The
+    `TEST` node is not optional polish — it's the difference between "I wrote
+    a rule that I believe detects SSRF" and "I have a fixture that proves
+    this rule fires on SSRF and stays quiet on normal traffic."
+
+```text
+Detection -> validate -> scope -> contain -> eradicate -> recover -> learn
+```
+
+| Signature/IOC | Anomaly | Behavior |
+| --- | --- | --- |
+| Known value/pattern | Deviation from baseline | Meaningful sequence/action |
+| Precise but brittle | Finds novelty but can be noisy | More resilient, needs context |
+
+Preserve originals, inventory evidence, state competing hypotheses, build a
+UTC timeline, separate root cause from contributing controls, and verify
+recovery by replay. Sigma expresses log-query ideas portably; YARA describes
+content patterns. Neither is a complete investigation.
+
+!!! tip "Hint"
+    "State competing hypotheses" is the step most people skip under time
+    pressure, and it's the one most likely to save you from an embarrassing
+    correction later. Write down the boring explanation ("scheduled job,"
+    "known test traffic") alongside the alarming one before you start
+    digging — it costs one sentence and it is often the answer.
+
 ## Learning objectives
 
 - Write detection logic as rules with thresholds and stated assumptions.

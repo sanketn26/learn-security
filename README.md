@@ -6,10 +6,9 @@ are defended, how security operations run, how to investigate events, and how
 to build a small end-to-end monitoring and response platform on a laptop.
 
 **Start with the [onboarding guide](docs/onboarding.md)**, then read
-[COURSE.md](docs/course.md) (roadmap) and use the
-[visual learning guide](docs/visual-learning-guide.md) before each matching
-module, then complete Modules 1–17 and the
-[capstone](docs/capstone/README.md).
+[COURSE.md](docs/course.md) (roadmap). Each of Modules 1–17 opens with a
+**Visual overview** (diagrams, intuition, hints) before its text; complete
+them in order, then the [capstone](docs/capstone/README.md).
 
 Labs are local, defensive, and isolated. Read [docs/ethics.md](docs/ethics.md)
 before starting. Offensive steps are **AUTHORIZED LAB USE ONLY**.
@@ -30,7 +29,6 @@ curl -s http://127.0.0.1:8080/.well-known/lab
 | Setup and first lab | [docs/setup.md](docs/setup.md) |
 | Learning paths | [docs/learning-paths.md](docs/learning-paths.md) |
 | Course overview and comparisons | [docs/course.md](docs/course.md) |
-| Visual-first system walkthrough | [docs/visual-learning-guide.md](docs/visual-learning-guide.md) |
 | Ethics and scope | [docs/ethics.md](docs/ethics.md) |
 | Lab environment | [docs/lab-guide.md](docs/lab-guide.md) |
 | Modules | [docs/modules/](docs/modules/) |

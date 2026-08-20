@@ -8,6 +8,58 @@ from public, and a scheduler that will run whatever image you allowed. Shared
 responsibility means **you** still own AuthZ, secrets, what your image
 contains, and what your workloads can call.
 
+## Visual overview
+
+!!! note "Intuition"
+    The shared-responsibility table below is the most-skipped, most
+    expensive-to-skip idea in cloud security. Nobody gets breached because
+    AWS's hypervisor had a bug; people get breached because "the platform
+    handles security" quietly became "nobody configured RBAC, admission, or
+    network policy," and the provider was never responsible for those in the
+    first place.
+
+| Layer | Provider/platform owns | Engineering team still owns |
+| --- | --- | --- |
+| Physical / managed control plane | facilities, hardware, defined service plane | configuration and consumption |
+| Cluster / workload | scheduler mechanics vary by service | RBAC, admission, images, secrets, network policy |
+| Application / data | none of the business rule | AuthZ, classification, retention, audit |
+
+```mermaid
+flowchart TB
+  CI[CI workload identity] --> REG[Signed image registry]
+  REG --> APIS[Kubernetes API]
+  DEV[Developer identity] --> APIS
+  APIS --> AUTHN[Authenticate]
+  AUTHN --> RBAC[RBAC authorize]
+  RBAC --> ADMIT[Admission policy]
+  ADMIT --> POD[Pod: non-root, read-only, caps dropped]
+  POD -->|scoped service account| CLOUD[Cloud identity exchange]
+  POD -. denied .-> IMDS[Instance metadata]
+  POD --> AUDIT[Audit + runtime telemetry]
+```
+
+!!! tip "Hint"
+    That dotted line to instance metadata is doing a lot of work — it is the
+    same SSRF-to-metadata attack from Module 4, just drawn one layer down
+    the stack. If an application-layer SSRF bug exists *and* the pod can
+    still reach cloud metadata, the two weaknesses chain into full cloud
+    credential theft. Blocking metadata access at the pod/network layer is a
+    control that survives even if the application bug isn't caught in time.
+
+```text
+container process
+  +-- namespaces: what it can see
+  +-- cgroups: what it can consume
+  +-- capabilities/seccomp: what it can ask the kernel to do
+  +-- mounts: what host/data it can change
+  (shared host kernel: a container is not a VM)
+```
+
+Supply chain: developer → source → dependency resolution → CI identity →
+artifact → signature/provenance → registry → admission → runtime. A compromise
+at any stage can arrive as an apparently normal deployment; provenance,
+least-privilege CI, admission, and runtime evidence are complementary.
+
 ## Learning objectives
 
 - Explain shared responsibility without pretending the provider secures your

@@ -8,6 +8,56 @@ made explicit, with an adversary and a business impact in mind. Without shared
 vocabulary, teams argue past each other (“is this a vulnerability or a risk?”)
 and ship controls that do not match the actual threat.
 
+## Visual overview
+
+```mermaid
+flowchart LR
+  Internet((Untrusted user)) -->|input + token| API[Notes API]
+  subgraph Service_boundary[Service trust zone]
+    API --> DB[(Notes)]
+    API --> SECRET[JWT secret]
+  end
+  API -. unexpected outbound input .-> IMDS[Metadata]
+  API --> LOG[Audit log]
+```
+
+!!! note "Intuition"
+    Before you learn the vocabulary (asset, threat, risk...), learn to see
+    the picture: an untrusted arrow coming in, a trusted zone it lands in,
+    and a dotted line showing where that zone should *not* be able to reach.
+    Almost every vulnerability in this course is a version of "an arrow that
+    should have stopped at the boundary didn't."
+
+| Lens | Concrete question |
+| --- | --- |
+| Asset | What would hurt if disclosed, changed, or unavailable? |
+| Attack surface | Which routes, dependencies, identities, and admin paths are reachable? |
+| Boundary | Where does trust or ownership change? |
+| Vulnerability | Which weakness exists? |
+| Threat | Who or what could cause harm? |
+| Risk | How likely and harmful is that scenario here? |
+| Control | What changes likelihood or impact? |
+| Residual risk | What remains after the control? |
+
+```text
+Before: Internet --> API (LAB_MODE) --> every note + metadata + broad secret
+After:  Internet --> gateway --> authorized object only
+                              +--> metadata denied
+                              +--> scoped identity + protected audit stream
+```
+
+!!! tip "Hint"
+    Walk the table top to bottom on any system you look at, in order. Skipping
+    straight to "what's the vulnerability?" without first naming the asset and
+    the boundary is the single most common way people misjudge how serious a
+    finding actually is — you cannot rate risk on something you haven't first
+    identified as an asset.
+
+Attacker view: find an input whose implied trust exceeds the caller's actual
+authority. Defender view: observe identity, object, decision, source, and
+outcome. Engineering lesson: a trust boundary without an enforced decision is
+only a line on a diagram.
+
 ## Learning objectives
 
 - Use CIA, identity, and risk language precisely.

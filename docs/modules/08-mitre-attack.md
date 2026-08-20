@@ -7,6 +7,38 @@ without a 40-page email. It is also how organizations fake progress: coloring
 cells on a matrix. You will learn to map **observed events** to techniques
 with confidence, and to treat coverage as a hypothesis about telemetry.
 
+## Visual overview
+
+```mermaid
+flowchart LR
+  GOAL[Adversary goal] --> TAC[Tactic — the why]
+  TAC --> TECH[Technique — the how]
+  TECH --> SUB[Sub-technique — specific variant]
+  SUB --> PROC[Procedure — exact commands/tools used]
+  TECH --> DS[Required data source]
+  DS --> HYP[Detection hypothesis]
+  HYP --> MIT[Mitigation]
+```
+
+!!! note "Intuition"
+    Read ATT&CK bottom-up in practice, even though it's drawn top-down here.
+    You rarely start from "the adversary's goal" — you start from a
+    suspicious *procedure* you observed, work out which technique it maps to,
+    and only then reason about tactic-level intent. The framework is a shared
+    vocabulary for comparing notes with other defenders, not a checklist to
+    fill in from the top.
+
+Red uses ATT&CK to name authorized emulation; blue to organize observations
+and controls; analysts to classify with uncertainty; hunters to form testable
+hypotheses; detection engineers to state telemetry requirements. A green
+matrix cell proves none of prevention, detection fidelity, or response quality.
+
+!!! tip "Hint"
+    "We have a detection mapped to this technique" and "we would actually
+    catch this technique in production" are different claims. The matrix
+    cell only proves the first one. Module 9's replay loop is how you test
+    the second.
+
 ## Learning objectives
 
 - Explain tactics, techniques, sub-techniques, procedures, software, groups,

@@ -8,6 +8,47 @@ has been the most serious web risk in OWASP Top 10:2021 and remains
 APIs make it worse: clients are untrusted, object IDs are in the path, and
 there is no HTML form to hide fields.
 
+## Visual overview
+
+!!! note "Intuition"
+    Nearly every vulnerability class in this module is the *same bug*
+    wearing a different costume: data that was supposed to stay inert data
+    gets treated as instructions, a destination, or a permission by whatever
+    reads it next. Once you see that pattern, you stop needing to memorize a
+    dozen unrelated attack names — you just ask "where does untrusted input
+    change from *data* to *control* here?"
+
+Use this same frame for injection, BOLA, SSRF, XSS, CSRF, deserialization,
+file handling, rate limits, and business-flow abuse:
+
+```text
+NORMAL:      typed input -> validation -> authorization -> safe interpreter -> result
+MANIPULATED: input ------> missing decision / unsafe interpretation -------> impact
+                                      |                         |
+                                      +---- audit evidence -----+
+```
+
+| Case | Normal path | Manipulated path | Evidence | Primary control |
+| --- | --- | --- | --- | --- |
+| Injection | value → bound SQL parameter | value becomes SQL syntax | query error, unusual search | parameterization |
+| BOLA/IDOR | token → owner check → note | valid token + another id → note | actor/owner mismatch | object authorization |
+| SSRF | server fetches allowlisted service | URL selects metadata/internal host | outbound destination, fetch result | egress allowlist + segmentation |
+| XSS | text → context encoding | text becomes browser script | stored input, CSP report | contextual output encoding |
+| CSRF | intentional state change + token | browser auto-sends cookie cross-site | origin, CSRF failure | SameSite + CSRF token |
+| Deserialization | strict data schema | bytes instantiate behavior | parser/type errors | safe parser + allowlisted schema |
+| File handling | generated id + isolated storage | name traverses or executable upload runs | path, MIME, scan result | server naming + isolation |
+
+!!! tip "Hint"
+    For each row, say out loud what the "authorization" step actually checks.
+    For BOLA it's "does this actor own this object" — for SSRF it's "is this
+    destination on the allowlist." If you cannot name the exact check, that's
+    usually because the check doesn't exist yet, which is the vulnerability.
+
+Attacker view: make data become code, identity become authority, or a server
+become a proxy. Defender view: join actor, input class, object, downstream
+destination, decision, and response. Repair in `LAB_MODE=false`, replay the
+same request, and compare both response and telemetry.
+
 ## Learning objectives
 
 - Explain injection, broken access control, SSRF, XSS, CSRF, insecure

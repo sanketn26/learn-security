@@ -8,6 +8,43 @@ is a product feature with privacy, cost, and integrity constraints. OWASP
 renamed the category to include **alerting**: great logs with no alert are
 a forensic nice-to-have after the breach.
 
+## Visual overview
+
+!!! note "Intuition"
+    Treat your logging pipeline like a product with its own users (analysts,
+    detections, auditors) and its own quality bar — not an afterthought that
+    "just captures what happened." A detection rule is only as good as the
+    field it depends on; if that field is sometimes missing, sometimes
+    malformed, or arrives five minutes late, the rule silently degrades and
+    nobody notices until an incident.
+
+```mermaid
+flowchart TB
+  APP[Applications] --> COL[Collectors]
+  END[Endpoints] --> COL
+  CLOUD[Cloud] --> COL
+  ID[Identity] --> COL
+  NET[Network] --> COL
+  COL --> NORM[Normalize + validate]
+  NORM --> STORE[(Security data platform)]
+  STORE --> SEARCH[Search / hunt]
+  STORE --> DET[Detection]
+  DET --> ALERT[Alerts]
+```
+
+Event = occurrence; log = record; telemetry = measurement stream; evidence =
+relevant data plus trustworthy handling; alert = detection output needing
+attention; incident = adverse situation requiring coordinated handling.
+Test missing fields, malformed JSON, duplicate delivery, clock skew, and a
+collector outage—not only the happy path.
+
+!!! tip "Hint"
+    Pick one detection rule you care about and trace its one required field
+    all the way back to the producing application. If you can't point to the
+    exact line of code that emits that field, you don't actually know whether
+    the rule will fire when it needs to — you're trusting an assumption, not
+    a verified pipeline.
+
 ## Learning objectives
 
 - Distinguish events, telemetry, logs, metrics, traces, audit trails, and

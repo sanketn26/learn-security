@@ -7,10 +7,10 @@ allowlists, detection rules — assumes an attacker starts from *outside* with
 *no* valid credential. In most real breaches that assumption is false on
 day one: the attacker starts with Alice's password because Alice typed it
 into a fake page, or the "attacker" is a legitimately authenticated employee
-misusing access they were actually granted. This module is deliberately
-**not** hands-on the way Modules 1–13 are — there is no safe, local way to
-simulate email-based social engineering the way `simulate.py` simulates
-SSRF — but it changes how you read every detection in this course, so it
+misusing access they were actually granted. This module is a paper lab on alerts you already have — like Modules 14–15 —
+not a new container. There is no email-phishing simulator in this repo
+(that is a scope choice, not a claim that a local fake login page is
+impossible). It changes how you read every detection in this course, so it
 belongs here rather than being skipped.
 
 ## Visual overview
@@ -36,8 +36,8 @@ sequenceDiagram
 
 | Scenario | Access was | Detected by | Fixed by |
 | --- | --- | --- | --- |
-| Phishing | Never legitimately authorized | Unusual source/pattern for a known identity | Credential rotation, phishing-resistant MFA |
-| Insider misuse | Legitimately authorized | Access with no business justification | Least privilege, audit review — not a technical control |
+| Phishing | Illegitimate *grant*; the resulting session is valid | Unusual source/pattern for a known identity | Credential rotation, phishing-resistant MFA |
+| Insider misuse | Legitimately authorized | Access with no business justification | Least privilege (technical blast-radius cap) plus audit review (operational) |
 
 !!! tip "Hint"
     The same alert can be either row of that table. Keep both hypotheses
@@ -124,12 +124,15 @@ No new containers; this reuses alerts you can already generate.
    herself, having forgotten her password, retrying it — and note what
    *additional* evidence (source IP reputation, geographic distance between
    attempts, time-of-day pattern) would let you tell them apart.
-3. For DET-004, write two competing narratives: (a) a bug lets a non-admin
-   token reach an admin route, (b) an admin account was phished and the
-   attacker is now probing available endpoints. Note that the *technical*
-   fix (authorization check) is identical either way, but the *incident*
-   response is not — (b) requires credential rotation and scope review,
-   (a) does not.
+3. For DET-004, write two competing narratives that can **actually produce
+   that event** (`broken_function_authz` fires only when `role != admin`):
+   (a) a bug lets Alice’s non-admin token reach `/admin/users`, (b) Alice’s
+   **non-admin** token was stolen (phished session) and the attacker is
+   probing admin routes. A phished *admin* would list users without this
+   alert — that is a third story, for a different event. Note that the
+   *technical* fix (function-level check) is the same for (a) and (b), but
+   the *incident* response is not — (b) requires credential rotation and
+   scope review; (a) does not.
 4. State, for each narrative, one control that would have prevented it
    regardless of which story is true (hint: rate limiting from Module 16
    helps DET-001 either way; least privilege helps DET-004's insider
@@ -182,9 +185,9 @@ data alone.
 "valid token is not proof of permission" idea from Module 3, applied to the
 human holding the token. (2) A one-time code can be relayed in real time by
 a proxying attacker; a hardware key's response is bound to the origin and
-cannot be relayed. (3) Whether the access was ever authorized in the first
-place — phishing steals unauthorized access, insider misuse abuses
-authorized access. (4) Least privilege — how much authority that actor
+cannot be relayed. (3) Whether the *grant* was legitimate — phishing produces a valid
+session from an illegitimate grant; insider misuse abuses access that was
+actually given. Telemetry of a successful login looks the same. (4) Least privilege — how much authority that actor
 holds if they go wrong. (5) Because the response differs (credential
 rotation and scope review vs. an authorization bug fix), and picking the
 wrong one wastes the response window without addressing the real cause.

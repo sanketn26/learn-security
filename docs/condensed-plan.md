@@ -30,7 +30,7 @@ because “we have detections.”
 make lab-up
 python3 labs/attack-sim/simulate.py --scenario all
 curl -s -X POST http://127.0.0.1:8090/ingest
-curl -s http://127.0.0.1:8091/investigate -H 'Content-Type: application/json' \
+curl -s -X POST http://127.0.0.1:8091/investigate -H 'Content-Type: application/json' \
   -d '{"alert_id":"<id>"}'
 make lab-reset
 ```

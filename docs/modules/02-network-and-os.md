@@ -65,8 +65,9 @@ deny needless egress and join views with UTC timestamps and correlation IDs.
 
 ## Key concepts
 
-**TCP/IP.** Packets are routed by IP; TCP gives ports, handshake, streams.
-Your API is a process bound to `0.0.0.0:8080` inside a container, published to
+**TCP/IP.** Packets are routed by IP. Transport protocols (TCP and UDP)
+add ports, and TCP adds a handshake and a byte stream. Your API is a
+process bound to `0.0.0.0:8080` inside a container, published to
 `127.0.0.1:8080` on the host. That publish path is a trust boundary: only
 loopback should reach it in this lab.
 
@@ -108,8 +109,9 @@ disappear if you `docker compose down -v` carelessly during an investigation.
                                          +-- append JSONL  /logs
 ```
 
-If you only tail Grafana, you may miss that the process still has a network
-path to metadata.
+If you only watch an infrastructure dashboard (metrics, optional Grafana
+later — not in this compose file), you may miss that the process still has
+a network path to metadata.
 
 ## Architecture connection
 
@@ -129,10 +131,29 @@ Lab up. Optional: `ss` or `netstat`, `docker logs`.
 ### Steps
 
 1. `./labs/scripts/lab-up.sh`
-2. On the host: `ss -ltnp | grep 8080` — confirm bind is `127.0.0.1`.
+2. On the host, confirm the bind is loopback:
+
+   ```bash
+   # Linux
+   ss -ltnp | grep 8080
+   # macOS
+   lsof -nP -iTCP:8080 -sTCP:LISTEN
+   ```
+
 3. `docker inspect lab-notes-api --format '{{json .NetworkSettings.Networks}}'`
-   — note `labnet` IP `172.30.0.20` and that labnet is internal.
-4. `docker exec lab-notes-api ps aux` and `docker exec lab-notes-api ls -l /data /logs`
+   — note `labnet` IP `172.30.0.20`. “Internal” is a **network** property:
+
+   ```bash
+   docker network inspect learn-security-labnet --format '{{.Internal}} {{json .IPAM.Config}}'
+   ```
+
+4. The slim image may not include `ps`. Use:
+
+   ```bash
+   docker exec lab-notes-api id
+   docker exec lab-notes-api ls -l /data /logs
+   ```
+
 5. Login and generate one event:
 
    ```bash
@@ -145,22 +166,24 @@ Lab up. Optional: `ss` or `netstat`, `docker logs`.
 7. Optional packets (loopback only):
 
    ```bash
-   sudo tcpdump -i lo -n port 8080 -c 20
+   # Linux loopback is lo; macOS is lo0. Capture only loopback.
+   sudo tcpdump -i lo -n port 8080 -c 20    # Linux
+   sudo tcpdump -i lo0 -n port 8080 -c 20   # macOS
    ```
 
    Stop after 20 packets. You should see TCP to localhost, not to the internet.
 
-8. From inside the API container, confirm it can resolve mock-imds and cannot
-   reach the public internet (internal network):
+8. From inside the API container, resolve the metadata hostname:
 
    ```bash
    docker exec lab-notes-api python -c "import socket; print(socket.getaddrinfo('mock-imds',80)[0][-1])"
-   docker exec lab-notes-api python -c "import socket; socket.setdefaulttimeout(3); socket.getaddrinfo('example.com',80)"
    ```
 
-   The second command should fail to resolve or connect because `labnet` is
-   internal. (The API container is also on `edgenet`; if DNS leaks, still do
-   not attempt to contact real systems.)
+   notes-api is **also on `edgenet`**, a normal bridge. `getaddrinfo('example.com')`
+   may succeed (DNS leak). That does not mean you should contact the public
+   internet — do not. The bulkhead that actually blocks `/fetch` to the world
+   is the application allowlist, not “the container is on an internal network.”
+   See [lab guide](../lab-guide.md) and [How defenders think](../how-defenders-think.md).
 
 ### Expected observations
 

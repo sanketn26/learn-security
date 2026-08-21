@@ -180,10 +180,14 @@ def evaluate() -> list[str]:
                 pass
             buckets.setdefault(group_key(event, rule.get("group_by", ["actor"])), []).append(event)
         for key, bucket in buckets.items():
+            window = rule.get("window_seconds", 3600)
+            # Event-time window: relative to the newest event in the bucket,
+            # not wall clock. Delayed ingest still fires DET-001.
+            latest = max(parse_ts(e.get("ts")) for e in bucket)
             recent = [
                 e
                 for e in bucket
-                if now - parse_ts(e.get("ts")) <= rule.get("window_seconds", 3600)
+                if latest - parse_ts(e.get("ts")) <= window
             ]
             if len(recent) < rule.get("threshold", 1):
                 continue
@@ -276,7 +280,12 @@ def get_alert(alert_id: str) -> dict[str, Any]:
 
 
 @app.get("/events")
-def list_events(event: str | None = None, q: str | None = None, limit: int = 100) -> dict[str, Any]:
+def list_events(
+    event: str | None = None,
+    q: str | None = None,
+    limit: int = 100,
+    order: str = "desc",
+) -> dict[str, Any]:
     ingest()
     conn = connect()
     sql = "SELECT ts, event, raw FROM events WHERE 1=1"
@@ -287,7 +296,8 @@ def list_events(event: str | None = None, q: str | None = None, limit: int = 100
     if q:
         sql += " AND raw LIKE ?"
         args.append(f"%{q}%")
-    sql += " ORDER BY id DESC LIMIT ?"
+    direction = "ASC" if order.lower() == "asc" else "DESC"
+    sql += f" ORDER BY ts {direction}, id {direction} LIMIT ?"
     args.append(min(limit, 500))
     rows = conn.execute(sql, args).fetchall()
     conn.close()
@@ -419,7 +429,7 @@ ALLOWED_ACTIONS = {
     "disable_lab_mode": "Set LAB_MODE=false and restart notes-api (operator performs this).",
     "revoke_token_notice": "Record that JWT_SECRET should be rotated.",
     "block_actor": "Record a local containment note for the actor. No network block is applied.",
-    "snapshot_logs": "Mark logs as evidence-preserved in the case timeline.",
+    "snapshot_logs": "Recorded a simulated preservation note in SOC audit. Does not copy files; run labs/scripts/preserve-logs.sh.",
 }
 
 

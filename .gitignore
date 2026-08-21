@@ -12,6 +12,7 @@ labs/data/
 **/*.sqlite
 labs/logs/
 labs/cases/
+labs/evidence/
 .pytest_cache/
 site/
 

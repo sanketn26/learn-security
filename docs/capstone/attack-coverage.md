@@ -1,7 +1,9 @@
 # ATT&CK coverage matrix (draft)
 
-Fill during module 8 and the capstone. Confirm IDs on https://attack.mitre.org/.
-Coverage here is **visibility of lab procedures**, not organizational security.
+Fill during module 8 and the capstone from **observed alerts**, then confirm
+IDs on https://attack.mitre.org/. The rows below are a *shape example* from
+`labs/detections/rules.yaml`, not a completed assignment. Coverage here is
+**visibility of lab procedures**, not organizational security.
 
 | Detection | Data source | Tactic | Technique ID | Technique | Confidence | Limitation / gap |
 | --- | --- | --- | --- | --- | --- | --- |

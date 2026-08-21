@@ -50,6 +50,11 @@ control change, and before/after result in the
 A command completing successfully is not the learning outcome; explaining
 the changed system behavior is.
 
+When a module tells you *what* to run, also open
+[How defenders think](../how-defenders-think.md): invert the path, name the
+blast radius, write the detection as a testable claim, and ask whether a
+bulkhead or a smaller surface would have beaten a smarter alert.
+
 ## The reference system
 
 ```mermaid

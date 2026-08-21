@@ -13,21 +13,29 @@ exits if they do not.
 flowchart TB
     workstation["learner workstation"] -- "127.0.0.1:8080 / 8090 / 8091" --> edgenet
 
-    subgraph edgenet["edgenet"]
+    subgraph edgenet["edgenet — localhost publish, may have DNS/egress"]
         direction LR
         api["notes-api"]
         soc["soc-lite"]
         agent["agentic-soc"]
     end
 
-    edgenet --> labnet
+    api --- labnet
+    soc --- labnet
+    agent --- labnet
 
-    subgraph labnet["labnet (internal, 172.30.0.0/24)"]
+    subgraph labnet["labnet (internal, 172.30.0.0/24) — east-west, no internet"]
         imds["mock-imds (synthetic metadata)"]
     end
 
     labnet --> volumes["volumes: logs, sqlite, cases"]
 ```
+
+notes-api, soc-lite, and agentic-soc are **dual-homed** (edgenet + labnet).
+`labnet` being `internal: true` does not prove the API process has no DNS
+or egress: edgenet is a normal bridge. The `/fetch` allowlist is the
+application rail. See [How defenders think](how-defenders-think.md) —
+bulkheads only count if they actually partition the failure.
 
 ## Resource requirements
 
@@ -66,7 +74,7 @@ curl -s http://127.0.0.1:8090/alerts | python3 -m json.tool
 
 # Agentic assistant (no response action without APPROVE)
 ALERT_ID=$(curl -s http://127.0.0.1:8090/alerts | python3 -c "import sys,json; print(json.load(sys.stdin)['alerts'][0]['id'])")
-curl -s http://127.0.0.1:8091/investigate -H 'Content-Type: application/json' \
+curl -s -X POST http://127.0.0.1:8091/investigate -H 'Content-Type: application/json' \
   -d "{\"alert_id\":\"$ALERT_ID\"}" | python3 -m json.tool
 ```
 
@@ -79,8 +87,8 @@ curl -s http://127.0.0.1:8091/investigate -H 'Content-Type: application/json' \
 | mock-imds | Synthetic cloud metadata | Static JSON file | Required for SSRF lab |
 | soc-lite | Log ingest, detections, cases | `jq` + files | Required from module 7 |
 | agentic-soc | Policy-bound assistant | Manual playbook reading | Required from module 12 |
-| attack-sim | Authorized local traffic generator | curl | Required from module 9 |
-| curl, jq, python3 | Investigation | — | Required |
+| attack-sim | Authorized local traffic generator | curl | Required from module 4 (used again in 7+) |
+| curl, python3 | Investigation | jq (optional, nicer JSON) | Required |
 | tcpdump / tshark | Packet capture on docker bridge | Compose logs only | Optional |
 | Trivy / Grype | Image and FS scanning | `pip-audit` | Optional |
 | kind or k3d | Local Kubernetes | Skip module 5 k8s lab | Optional |
@@ -93,9 +101,9 @@ curl -s http://127.0.0.1:8091/investigate -H 'Content-Type: application/json' \
 
 The **lab safety rail** remains on in both modes: `/fetch` cannot target hosts
 outside the compose allowlist (`mock-imds`, `metadata.internal`, and other
-compose service names). The notes-api container is also attached to `edgenet`
-so it can publish loopback ports; do not treat Docker attachment as egress
-proof. The allowlist is the application rail.
+compose service names) and only `http` on ports `80`, `8080`, `8090`, or
+`8091`. In `LAB_MODE=false` the OpenAPI UI (`/docs`, `/openapi.json`) is
+also removed — that is attack-surface reduction, not a network bulkhead.
 
 **No-Docker / venv alternative:** run `mock-imds` on `PORT=18080`, set
 `LAB_FETCH_EXTRA_HOSTS=127.0.0.1` only on your workstation, and still bind

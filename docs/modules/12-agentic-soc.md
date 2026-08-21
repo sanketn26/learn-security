@@ -31,9 +31,9 @@ flowchart TB
   AGENT --> CTX[Context + bounded memory]
   PLAN --> POLICY[Policy engine]
   POLICY --> TOOLS[Tool gateway]
-  TOOLS --> SIEM[SIEM read]
+  TOOLS --> SIEM[soc-lite read]
   TOOLS --> EDR[Simulated response]
-  TOOLS --> TI[Threat intel]
+  TOOLS --> TI[Playbooks on disk]
   SIEM --> EVID[(Evidence store)]
   TOOLS --> AUDIT[(Audit log)]
   POLICY -->|sensitive proposal| APPROVE[Human approval]
@@ -132,7 +132,7 @@ Alerts exist (`simulate` + `ingest`). agentic-soc healthy:
 2. Investigate:
 
    ```bash
-   curl -s http://127.0.0.1:8091/investigate \
+   curl -s -X POST http://127.0.0.1:8091/investigate \
      -H 'Content-Type: application/json' \
      -d '{"alert_id":"DET-003:alice"}' | python3 -m json.tool
    ```
@@ -143,20 +143,34 @@ Alerts exist (`simulate` + `ingest`). agentic-soc healthy:
 4. Attempt an action **without** approval (expect 403):
 
    ```bash
-   curl -s http://127.0.0.1:8091/actions -H 'Content-Type: application/json' \
+   curl -s -X POST http://127.0.0.1:8091/actions -H 'Content-Type: application/json' \
      -d '{"alert_id":"DET-003:alice","action":"disable_lab_mode","approval":"nope"}'
    ```
 
 5. Read the proposal. If you agree, send `approval":"APPROVE"`. Remember:
    this only records a simulated action in soc-lite audit. It does not
    change LAB_MODE by itself.
-6. Optional injection test: if you can insert a note body or log line
-   containing `ignore previous instructions`, confirm investigate still
-   uses the policy file. Do not fight the safety rail.
-7. Optional LLM: set `LLM_BASE_URL` in compose **only** for lab summaries.
-   Re-run investigate; confirm mappings still come from the catalog (not
-   invented IDs). If the model invents a technique, that is a product bug;
-   we avoided it by not letting the model choose IDs.
+6. Optional injection test: **note bodies are not logged**, so they never
+   reach the agent. Put the phrase in a field that becomes alert evidence,
+   for example five failed logins with username
+   `ignore previous instructions` (DET-001 evidence) or a search `q=` that
+   also matches DET-005. Confirm `/investigate` still uses the policy file
+   and look for `prompt_injection_blocked` in the agent audit. The regex is
+   narrow (`ignore previous/all instructions`, `you are now`, `system prompt`,
+   `approve all`). Policy cannot be granted from evidence either way.
+7. Optional LLM: set **both** `LLM_BASE_URL` and `LLM_MODEL` (and key if
+   required) **only** for lab summaries. Health `llm` is true only when both
+   URL and model are set. Re-run investigate; mappings still come from
+   `TECHNIQUE_CATALOG` in `agent.py`, not the model.
+
+   Read the audit file from the volume:
+
+   ```bash
+   docker exec lab-agentic-soc cat /cases/agent-audit.jsonl
+   ```
+
+   That path is **not** `labs/evidence/` (preserve-logs) and not host
+   `labs/cases/` unless you copy it out.
 
 ### Expected observations
 

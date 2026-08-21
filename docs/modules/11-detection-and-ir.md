@@ -102,8 +102,15 @@ were not already looking for.
 urgency (active vs historical). Dummy payroll note → practice as high.
 
 **Evidence preservation and chain of custody.** Copy, hash, write who/when,
-do not edit originals. Lab: `preserve-logs.sh`. This is not courtroom-grade
+do not edit originals. Lab: `preserve-logs.sh` writes
+`labs/evidence/evidence-*` (survives `lab-reset`). The script copies; **you**
+hash (`shasum labs/evidence/evidence-*/**`). This is not courtroom-grade
 forensics; it teaches the habit.
+
+**Quarantine vs eradicate.** Isolate the suspected identity or egress path
+*while you still have the evidence* — disable `LAB_MODE` or block `/fetch`
+to metadata without `down -v`. Eradicate after you know the cause (owner
+check, rotate JWT). See [How defenders think](../how-defenders-think.md).
 
 **Containment / eradication / recovery.**
 Contain: stop the bleeding (disable LAB_MODE, rotate JWT secret).
@@ -136,15 +143,27 @@ Prefer a fresh story:
 ./labs/scripts/lab-up.sh
 python3 labs/attack-sim/simulate.py --scenario all
 curl -s -X POST http://127.0.0.1:8090/ingest
-./labs/scripts/preserve-logs.sh
+./labs/scripts/preserve-logs.sh   # writes labs/evidence/, survives lab-reset
 ```
 
 ### Steps
 
 1. List alerts; open one case for “possible account misuse / data exposure.”
-2. Build a **timeline** (table: time, event, actor, object, source). Use
-   `/events` ordered by `ts`. Include login_success, cross_user_note_access,
-   ssrf_metadata_access, login_failure bursts.
+2. Build a **timeline** (table: time, event, actor, object, source). Default
+   `GET /events` is **newest-first** (`order=desc`). For a chronology:
+
+   ```bash
+   curl -s 'http://127.0.0.1:8090/events?order=asc&limit=500'
+   ```
+
+   Or query one event type at a time (`?event=cross_user_note_access&order=asc`)
+   and sort `ts` yourself. Default limit is 100. Include login_success,
+   cross_user_note_access, ssrf_metadata_access, login_failure bursts.
+
+   The sim concatenates six failures **and then** real logins for other
+   scenarios. H2 (“password guessed then success”) will *look* supported.
+   The true lab story is H3 (you ran `simulate.py`). In production you would
+   need MFA/device evidence you do not have here.
 3. Hypotheses:
    - H1: Alice is malicious insider
    - H2: Alice’s dummy password was guessed (DET-001 then success?)
@@ -160,9 +179,13 @@ curl -s -X POST http://127.0.0.1:8090/ingest
    evidence copy.
 6. Write `incidents/lab-incident.md` (you create) with:
    summary, severity, timeline, ATT&CK, RCA (root = missing object AuthZ
-   + fetch allowlist), fix, residual risk, detection gaps.
-7. Purple: re-run idor against LAB_MODE=false; confirm 404; note whether
-   an **attempt** detection exists.
+   and an application that would fetch metadata; the **lab safety rail**
+   allowlist is always on — do not call that the missing control), fix,
+   residual risk, detection gaps.
+7. Purple: reset, bring the API up with `LAB_MODE=false` so hashes match,
+   re-run idor; confirm **404** (not 403 — existence hiding). Blocked IDOR
+   logs `authz_failure` / `idor_blocked`, not `cross_user_note_access`. Note
+   whether an **attempt** detection exists (it does not, unless you add one).
 
 ### Expected observations
 

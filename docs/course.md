@@ -22,6 +22,7 @@ module opens with a **Visual overview** that repeatedly shows normal
 behavior, broken behavior, evidence, and the improved architecture for the
 same Acme Notes system, before the module's precise terms and lab. Ethics:
 [docs/ethics.md](ethics.md). Lab: [docs/lab-guide.md](lab-guide.md).
+How to invent the next control: [how-defenders-think.md](how-defenders-think.md).
 
 ---
 
@@ -70,10 +71,11 @@ commercial SIEM.
 | Self-paced | 9–15 weeks | as available | 85–105 hours |
 | Intensive | 3 weeks | 25–30 hours | ~85 hours |
 
-Modules 1–6 are foundations and hardening. Modules 7–12 are operations.
-Modules 13–14 integrate architecture and judgment. Modules 15–17 are
-extended lenses (ML/AI systems, availability, human factor) that reuse the
-same lab and method rather than adding new labs. The capstone follows.
+Modules 1–6 are foundations and hardening. Modules 7–11 are operations.
+Module 12 (agentic SOC) sits with architecture in Part III because the
+failure mode is a design problem. Modules 13–14 integrate architecture and
+judgment. Modules 15–17 are extended lenses (ML/AI systems, availability,
+human factor) on the same stack. The capstone is week 13.
 
 ### Learning outcomes
 
@@ -141,12 +143,16 @@ flowchart TB
     end
 ```
 
+notes-api, soc, and agent are also attached to labnet (dual-homed). `internal:
+true` on labnet does not by itself prove the API has no DNS. The `/fetch`
+allowlist is the application rail.
+
 - Published ports bind to loopback only.
 - `labnet` is `internal: true`.
 - `/fetch` has a **lab safety rail** that allowlists compose hostnames even
   when `LAB_MODE=true`.
 - `attack-sim` exits unless the target host is `127.0.0.1` / `localhost`.
-- Dummy secrets are prefixed `lab-` / `LABFAKE`. They are not cloud credentials.
+- Dummy secrets are prefixed `lab-secret-*`, `lab-jwt-*`, or `LABFAKE`. They are not cloud credentials.
 
 ### Final capstone
 
@@ -540,7 +546,7 @@ All labs are local. Index:
 | Lab | Module | Command / artifact |
 | --- | --- | --- |
 | Threat model notes-api | 01 | Diagram in your notes; compare `labs/notes-api/app.py` |
-| Processes, ports, logs | 02 | `docker compose`, `ss`, JSONL tail |
+| Processes, ports, logs | 02 | `docker compose`, `ss` or `lsof`, JSONL tail |
 | JWT and role checks | 03 | Login as alice; inspect token; `/admin/users` |
 | IDOR, injection, fix | 04 | `simulate.py --scenario idor` then `LAB_MODE=false` |
 | SSRF to mock IMDS | 05 | `simulate.py --scenario ssrf` |
@@ -553,8 +559,12 @@ All labs are local. Index:
 | Agentic investigate | 12 | `POST /investigate` then optional `APPROVE` |
 | Architecture review | 13 | Capstone architecture doc |
 | Judgment memo | 14 | One page: what you will not automate |
+| Smart-search threat model + agent audit | 15 | Paper lab on existing files |
+| Time `/login` under bcrypt | 16 | `LAB_MODE=false` after reset |
+| Competing narratives on DET-001/004 | 17 | Phishing vs insider vs BFLA |
 
-Global cleanup: `./labs/scripts/lab-reset.sh`.
+Global cleanup: `./labs/scripts/lab-reset.sh`. Host copies in `labs/evidence/`
+are kept.
 
 ---
 

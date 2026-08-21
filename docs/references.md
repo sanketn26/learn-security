@@ -11,7 +11,7 @@ Prefer primary sources when they conflict with blogs. Access dates: 2026-08.
 
 ## Identity
 
-- [NIST SP 800-63 Digital Identity](https://pages.nist.gov/800-63-3/)
+- [NIST SP 800-63-4 Digital Identity](https://pages.nist.gov/800-63-4/) (supersedes 800-63-3)
 - [RFC 6749 OAuth 2.0](https://www.rfc-editor.org/rfc/rfc6749)
 - [OpenID Connect Core](https://openid.net/specs/openid-connect-core-1_0.html)
 - [OWASP Authentication / Authorization cheat sheets](https://cheatsheetseries.owasp.org/)

@@ -63,11 +63,12 @@ mandate to execute them):
 
 | Phase | Lab stand-in | Not in this course |
 | --- | --- | --- |
-| Reconnaissance | Read `/health` and OpenAPI-less routes in source | Scanning the internet |
-| Initial access | Stolen dummy password / T1190 on the app | Phishing your coworkers |
-| Execution | HTTP client | Dropping payloads |
+| Reconnaissance | Read `/health` and, in `LAB_MODE`, `/docs` + `/openapi.json` (FastAPI leaves these on — that **is** surface) | Scanning the internet |
+| Initial access | Known lab password (sim logs in as Alice) / later T1190 on SSRF or injection. Telemetry looks like **valid accounts**, not theft | Phishing your coworkers |
+| Execution | HTTP from the **attacker laptop** — do not map that as T1059 on the victim host | Dropping payloads |
 | Persistence | *gap* (discuss only) | Implanting services |
-| Privilege escalation | `/admin/users` while user | Kernel exploits |
+| Privilege escalation | *not what `/admin/users` is* — Alice never becomes admin | Kernel exploits |
+| Broken function AuthZ | `GET /admin/users` as user → DET-004 / T1087 Discovery | — |
 | Discovery | list users, notes ids | AD enumeration |
 | Lateral movement | *gap* | SSH to other hosts |
 | Collection | GET Bob’s note | Mailbox dump |
@@ -77,8 +78,8 @@ mandate to execute them):
 
 **Rules of engagement (RoE).** Written scope, allowed techniques, forbidden
 actions (exfil of real data, destructive tests), time window, emergency
-stop, evidence handling, who is authorized. The lab RoE is: compose stack,
-loopback, `simulate.py` only, no extra tools against other hosts.
+stop, evidence handling, who is authorized. The lab RoE is: compose stack, loopback, `simulate.py` and curl against
+`127.0.0.1` lab ports, no extra tools against other hosts.
 
 **Reporting.** Path, evidence (request ids, screenshots of local HTTP),
 impact, mapped techniques, recommended fixes, **not** a dump of exploits.
@@ -119,14 +120,22 @@ Lab up, `LAB_MODE=true`.
 5. Confirm DET-003 exists. Open a case:
 
    ```bash
-   curl -s http://127.0.0.1:8090/cases -H 'Content-Type: application/json' \
+   curl -s -X POST http://127.0.0.1:8090/cases -H 'Content-Type: application/json' \
      -d '{"title":"SSRF metadata","alert_ids":["DET-003:alice"],"severity":"critical"}'
    ```
 
    If the alert id grouping key differs, copy it from `/alerts`.
-6. **Improve a control:** set `LAB_MODE=false` and recreate notes-api (reset
-   if logins break). Re-run SSRF sim. Expect HTTP 400 and `ssrf_blocked` or
-   no metadata body.
+6. **Improve a control:** from repo root, reset so hashes match the new mode,
+   then bring the API up secure:
+
+   ```bash
+   ./labs/scripts/lab-reset.sh
+   cd labs && LAB_MODE=false docker compose up -d --build && cd ..
+   ```
+
+   Recreate-without-reset leaves SHA-256 hashes in sqlite. Re-run SSRF sim.
+   Expect HTTP 400 and event `ssrf_blocked` (not `ssrf_metadata_access`).
+   `/docs` should also be gone — surface reduction.
 7. Re-ingest. Note: DET-003 may not fire if the event name changed to
    `ssrf_blocked`. **That is a detection gap for the *blocked* attempt** —
    add a rule or record it as “prevention worked, hunt for attempts still

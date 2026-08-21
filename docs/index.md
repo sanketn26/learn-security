@@ -92,9 +92,12 @@ hide:
 
 1. Read [Onboarding](onboarding.md). It translates the course vocabulary into
    software-engineering language and tells you what you can safely skip.
-2. Complete [Setup and first lab](setup.md). It includes a no-Docker preview,
+2. Skim [How defenders think](how-defenders-think.md). That page is how you
+   invent a control, a detection, or a quarantine switch — not another
+   glossary.
+3. Complete [Setup and first lab](setup.md). It includes a no-Docker preview,
    so setup is not a gate to understanding the system.
-3. Begin [Module 1](modules/01-security-foundations.md). Each module opens
+4. Begin [Module 1](modules/01-security-foundations.md). Each module opens
    with a **Visual overview** — read that first, then the module text.
 
 ## What you will build
@@ -117,6 +120,7 @@ investigation, response, and architectural repair.
 | If you are... | Go to... |
 | --- | --- |
 | New to security terminology | [Onboarding](onboarding.md) |
+| Want the thinking layer, not more terms | [How defenders think](how-defenders-think.md) |
 | Ready to install and test the lab | [Setup](setup.md) |
 | Short on time | [Learning paths](learning-paths.md) |
 | Looking for a practical task | [Exercise index](exercises.md) |

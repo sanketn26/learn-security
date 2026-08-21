@@ -101,9 +101,15 @@ signed by a CA you trust. TLS uses certificates to authenticate the server
 (and sometimes the client), then symmetric keys for the session. TLS does
 not mean the API authorized the request.
 
-**Password hashing.** Slow, salted, memory-hard if you can: Argon2id,
-bcrypt, scrypt. Parameters should hurt GPUs. `hashlib.sha256(password)` is
-what LAB_MODE does — a teaching anti-pattern.
+**Password hashing.** Slow and salted. **Argon2id** and **scrypt** are
+memory-hard (RAM costs hurt GPUs). **bcrypt** is CPU-hard with a small
+fixed memory (~4 KiB) — still far better than SHA-256, not in the
+memory-hard set. Parameters should hurt attackers. `hashlib.sha256(password)`
+is what LAB_MODE does — a teaching anti-pattern. A unique **salt** means
+each row hashes differently, so one precomputed rainbow table cannot cover
+the whole database. `alice-lab-password` is an unusual string and may not
+appear in a public table; the lesson is *fast unsalted hashes invite
+precomputation and offline guessing*, not “this exact password is listed.”
 
 **Randomness.** Use `secrets` / OS CSPRNG (`getrandom`), not `random`.
 Session ids, tokens, keys, CSRF values.
@@ -139,16 +145,21 @@ Local Python. No network required. Optional `pynacl`.
 
 ### Prerequisites
 
-`python3`. `pip install pynacl` for the signature half.
+`python3`. Password and HMAC run without extra packages. `pip install pynacl`
+is required only for the Ed25519 half (`nacl` is imported inside that
+function so the rest of the demo still runs).
 
 ### Steps
 
 1. Read `labs/notes-api/app.py` `hash_password` / `verify_password`.
 2. Run `python3 labs/crypto/demo.py`.
-3. Compute why unsalted SHA-256 of `alice-lab-password` is searchable in
-   a rainbow table; do **not** build one. State the reason in your notes.
-4. Inspect a lab JWT header (`alg`: HS256). Write down what leaks if
-   `JWT_SECRET` is in compose env and someone can `docker inspect`.
+3. Explain why unsalted SHA-256 invites rainbow tables and fast offline
+   guessing. Do **not** build a table. Salt + slowness are the actual
+   controls; this specific lab password need not appear in a public list.
+4. Inspect a lab JWT **header** (`alg`: HS256). Decode the first segment
+   the same way as Module 3 (base64url + padding). Write down what leaks if
+   `JWT_SECRET` is in compose env and someone can `docker inspect`: they can
+   **mint any token** because HS256 verifiers share the signing secret.
 5. Optional: with `LAB_MODE=false` (after reset so hashes match), confirm
    bcrypt hashes in sqlite:
 
@@ -203,6 +214,6 @@ cost parameters later.
 
 - [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
 - [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)
-- [NIST SP 800-63B](https://pages.nist.gov/800-63-3/sp800-63b.html) (authenticator assurance)
+- [NIST SP 800-63B-4](https://pages.nist.gov/800-63-4/sp800-63b.html) (authenticator assurance)
 - [RFC 7519 JWT](https://www.rfc-editor.org/rfc/rfc7519) and [RFC 8725 JWT BCP](https://www.rfc-editor.org/rfc/rfc8725)
 - [libsodium / PyNaCl docs](https://pynacl.readthedocs.io/)

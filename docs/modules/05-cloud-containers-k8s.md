@@ -12,11 +12,11 @@ contains, and what your workloads can call.
 
 !!! note "Intuition"
     The shared-responsibility table below is the most-skipped, most
-    expensive-to-skip idea in cloud security. Nobody gets breached because
-    AWS's hypervisor had a bug; people get breached because "the platform
+    expensive-to-skip idea in cloud security. Hypervisor bugs are rare; people get breached because "the platform
     handles security" quietly became "nobody configured RBAC, admission, or
     network policy," and the provider was never responsible for those in the
-    first place.
+    first place. You still own object AuthZ, IAM, images, and what your
+    workload can call.
 
 | Layer | Provider/platform owns | Engineering team still owns |
 | --- | --- | --- |
@@ -82,10 +82,21 @@ logging. SaaS vs PaaS vs IaaS shifts the line; it never includes “our IDOR.”
 roles over access keys in repos.
 
 **Metadata services (IMDS).** Link-local HTTP that issues **temporary cloud
-credentials** to the workload. SSRF or a compromised process that can reach
-IMDS inherits the instance/task role. Mitigations: IMDSv2/hop limit, block
-link-local from app containers, use scoped task roles, isolate admin
-metadata. This lab’s `mock-imds` is a **synthetic** stand-in with dummy keys.
+credentials** to the workload so the instance need not bake long-lived keys.
+SSRF or a compromised process that can reach IMDS inherits the instance/task
+role. Two *different* mitigations:
+
+- **IMDSv2** — the client must `PUT /latest/api/token` and send
+  `X-aws-ec2-metadata-token` on later GETs. Naive one-line GET SSRF (this
+  lab’s `/fetch`) fails.
+- **Hop limit (TTL)** on the token *response* packet — default 1 so the
+  packet dies if forwarded. **Containers often need hop limit 2–3** or the
+  task cannot use IMDS and may fall back to v1.
+
+This lab’s `mock-imds` is **IMDSv1-style**: unauthenticated GET, dummy keys.
+Compose still **allows** notes-api to reach it on labnet; `LAB_MODE=false`
+only adds the application block. The dotted “denied” line in the diagram is
+the *desired* bulkhead, not what the default stack enforces.
 
 **Network segmentation and security groups.** Packet filters. Necessary,
 insufficient. NetworkPolicy in Kubernetes is the analog.
@@ -163,8 +174,9 @@ Default lab. Optional: `kind` or `k3d`, `trivy`.
    docker compose -f labs/compose.yaml config | less
    ```
 
-   Note: the teaching API runs as default image user. Record one hardening
-   you would add (USER in Dockerfile, cap drop).
+   Empty `User` means uid 0 (root). Record one hardening you would add
+   (`USER` in the Dockerfile, cap drop, read-only rootfs). Run compose
+   commands from the **repo root** (`-f labs/compose.yaml`).
 
 3. Optional image scan (your local images, not a third-party attack):
 
@@ -179,6 +191,10 @@ Default lab. Optional: `kind` or `k3d`, `trivy`.
    kubectl run notes --image=nginx --port=80
    kubectl auth can-i '*' '*' --as system:serviceaccount:default:default
    kind delete cluster --name learn-sec
+
+   This optional step **pulls nginx from Docker Hub** (needs internet).
+   Default SA typically cannot `*` `*`. You still created a workload with
+   **no admission policy** — that is the gap.
    ```
 
    Observe that the default SA cannot do everything (good) and that you still
@@ -218,10 +234,13 @@ privilege for *deployments*, not for *business objects*.
 5. Why is a cluster-admin kubeconfig on a laptop a detection problem as well
    as a prevention problem?
 
-**Answers:** (1) You (the application/platform owner). (2) Forces a header
-token / prevents simple proxied GETs from one-hop SSRF. (3) Object ownership.
-(4) Tags move; digests identify content. (5) Stolen laptop or malware inherits
-full cluster control; you need authn logs and short-lived creds.
+**Answers:** (1) You (the application/platform owner). (2) IMDSv2 requires a
+PUT-issued header token, which blocks naive GET SSRF; hop-limit 1 is a
+separate TTL control that stops extra hops (and often breaks containers
+unless raised). (3) Object ownership. (4) Tags move; digests identify
+content. A pin does not make malicious-but-pinned bits safe, and it is not
+a signature. (5) Stolen laptop or malware inherits full cluster control; you
+need authn logs and short-lived creds.
 
 ## Engineering assignment
 

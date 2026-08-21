@@ -2,7 +2,8 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-DEST="$ROOT/labs/cases/evidence-$STAMP"
+# Keep evidence off the compose volume path that lab-reset wipes (labs/cases).
+DEST="$ROOT/labs/evidence/evidence-$STAMP"
 mkdir -p "$DEST"
 docker exec lab-notes-api sh -c 'cat /logs/notes-api.jsonl' > "$DEST/notes-api.jsonl" || true
 curl -s http://127.0.0.1:8090/alerts > "$DEST/alerts.json" || true

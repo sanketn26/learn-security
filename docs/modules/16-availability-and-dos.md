@@ -40,7 +40,7 @@ Asymmetric-cost:     few expensive requests -> exhaust CPU/memory per request
     even say no" — that's where the limit has to sit.
 
 The same telemetry — a burst of `login_failure` events — can mean password
-guessing (Module 3's credential-access lens) or an availability attack
+guessing (Modules 8–9 credential-access / DET-001) or an availability attack
 (this module's lens). The fix (rate limiting) helps both; the incident
 response does not.
 
@@ -155,6 +155,12 @@ lab-only alerts, cases, and data; preserve anything you need first.
    trivial rejection (a malformed JSON body, which fails before hashing
    runs). The failed-but-well-formed attempt should cost close to the same
    as the successful one — the slow KDF from Module 6 runs either way.
+
+   Time a failed login for a **non-existent user**. In this app, missing
+   users skip bcrypt (`row is None` short-circuit) — cheaper, and a
+   user-enumeration oracle. That is why step 3 specifies `alice`. A
+   production login should dummy-hash on unknown users. Confirm
+   `"lab_mode"` is JSON `false` (spacing may vary; look at the field).
 4. Run the existing six-request brute-force scenario and calculate its
    approximate requests per second from the elapsed time:
 

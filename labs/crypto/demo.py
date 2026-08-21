@@ -5,12 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import os
 import secrets
-
-from nacl.encoding import HexEncoder
-from nacl.signing import SigningKey
-
 
 def demo_password() -> None:
     password = "alice-lab-password"
@@ -28,6 +23,12 @@ def demo_mac_and_signature() -> None:
     message = b"alert_id=DET-003&status=contained"
     tag = hmac.new(key, message, hashlib.sha256).hexdigest()
     print("hmac-sha256:", tag)
+
+    try:
+        from nacl.encoding import HexEncoder
+        from nacl.signing import SigningKey
+    except ImportError as exc:
+        raise ImportError("pip install pynacl  # optional for the signature demo") from exc
 
     signing_key = SigningKey.generate()
     signed = signing_key.sign(message, encoder=HexEncoder)

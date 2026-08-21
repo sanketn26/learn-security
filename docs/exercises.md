@@ -55,4 +55,11 @@ Copy this for every module:
 | Failure mode tested | missing/malformed/delayed/duplicate/unsafe recommendation/etc. |
 | Cleanup / rollback | command and resulting state |
 | Engineering decision | production change + residual risk |
+| Surface you could delete | route/tool/identity that need not exist |
+| Bulkhead that would have limited this | identity / network / store / approval |
+| Detection claim (one sentence) | event, field, window clock, grouping key |
+| Quarantine switch | what you would isolate without destroying evidence |
+
+The last four rows are the [thinking guide](how-defenders-think.md) in
+worksheet form. Fill them even when the module does not ask.
 

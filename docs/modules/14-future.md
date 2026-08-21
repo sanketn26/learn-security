@@ -33,6 +33,7 @@ new component: model / vector store / agent / tool
         |
         v
 same questions: identity? authority? untrusted input? evidence? failure mode?
+        (companion to onboarding's five questions — this set is for new boxes)
 ```
 
 AI may change attacker cost and defender workflow; dependencies, identities,

@@ -127,7 +127,7 @@ def main() -> None:
     for name in names:
         print(f"\n=== {name} ===")
         SCENARIOS[name](args.base)
-    print("\nNext: curl -s http://127.0.0.1:8090/ingest | python -m json.tool")
+    print("\nNext: curl -s -X POST http://127.0.0.1:8090/ingest | python3 -m json.tool")
 
 
 if __name__ == "__main__":

@@ -55,10 +55,15 @@ See also [COURSE.md section 6](../course.md).
 drawn from public reporting. [attack.mitre.org](https://attack.mitre.org/).
 It is not PCI, not a NIST control catalog, not a product requirement list.
 
-**Tactic.** Goal at that step: Initial Access, Execution, Persistence,
+**Tactic.** Goal at that step. Enterprise ATT&CK currently has **14**
+columns (confirm on the site; the knowledge base is versioned):
+
+Reconnaissance, Resource Development, Initial Access, Execution, Persistence,
 Privilege Escalation, Defense Evasion, Credential Access, Discovery, Lateral
-Movement, Collection, Command and Control, Exfiltration, Impact (Enterprise
-columns; confirm current list on the site).
+Movement, Collection, Command and Control, Exfiltration, Impact.
+
+This lab barely touches Reconnaissance, Resource Development, Persistence,
+Lateral Movement, and C2 — write “no data source,” do not paint those cells.
 
 **Technique / sub-technique.** How, at two levels of granularity. IDs like
 `T1190`, `T1552.005`.
@@ -138,8 +143,14 @@ Modules 4 and 7. Lab up. `LAB_MODE=true`.
    | DET-004 | | | | | |
    | DET-005 | | | | | |
 
-5. Copy the table into `docs/capstone/attack-coverage.md` (create when you start
-   the capstone; a stub is provided).
+Alert ids are `{rule_id}:{group_key}`. DET-001 groups by `src_ip` (for
+example `DET-001:172.30.0.1`), not `alice`. DET-002–005 group by `actor`
+(`DET-003:alice`). If a leftover `LAB_MODE=false` volume is still mounted,
+IDOR/SSRF success events will not appear — reset first.
+
+5. Copy **your** table into `docs/capstone/attack-coverage.md`. The stub
+   already contains starter mappings so you can see the shape; replace them
+   with what you observed. Do not treat the stub as an answer key.
 6. Add a **gap** row: a behavior the sim does not generate (for example
    persistence). Write “no data source” rather than painting the cell.
 

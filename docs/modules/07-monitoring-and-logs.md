@@ -76,7 +76,11 @@ your own). soc-lite cheats by ingesting JSON the app already owns.
 timelines.
 
 **Correlation IDs.** One `trace_id` from ingress through DB. The lab sets a
-UUID per event; a production app should propagate the incoming header.
+**new UUID per audit line**, not per request. Related events from one
+session do not share an id. Production should propagate an incoming header.
+
+Login events log `username` + `src_ip`; most others log `actor`. Score a
+real line against that difference.
 
 **Retention.** Security vs privacy vs cost. “Keep everything forever” fails
 budget and GDPR-like duties. “Keep 24h” fails slow attacks. Define tiers.
@@ -124,8 +128,8 @@ Lab up. `curl`, `python3`.
 
    ```bash
    curl -s -X POST http://127.0.0.1:8090/ingest | python3 -m json.tool
-   curl -s 'http://127.0.0.1:8090/events?event=login_failure' | python3 -m json.tool | head
-   curl -s 'http://127.0.0.1:8090/events?q=ssrf_metadata' | python3 -m json.tool | head
+   curl -s 'http://127.0.0.1:8090/events?event=login_failure&order=asc' | python3 -m json.tool | head
+   curl -s 'http://127.0.0.1:8090/events?q=ssrf_metadata&order=desc' | python3 -m json.tool | head
    ```
 
 3. Inspect raw JSONL:
@@ -137,7 +141,18 @@ Lab up. `curl`, `python3`.
 4. Score one event against a quality checklist: `ts`, `event`, `actor` or
    `username`, `src_ip`, `trace_id`. Note missing fields.
 5. Preserve a copy: `./labs/scripts/preserve-logs.sh` (creates
-   `labs/cases/evidence-*`). Do not edit the copy.
+   `labs/evidence/evidence-*` on the host, **not** deleted by `lab-reset`).
+   Do not edit the copy.
+
+   DET-001’s window is **event time** (span between first and last
+   `login_failure` in the bucket), not “how long ago I ingested.” Delayed
+   ingest still fires. Grouping is `src_ip` (often the Docker gateway).
+   `GET /alerts` also ingests and evaluates; a later `POST /ingest` may
+   report `new_alerts: []` because the alert already exists.
+
+   Write DET-001 as a detection *claim* (see
+   [How defenders think](../how-defenders-think.md)): field, window clock,
+   grouping key, what happens if the collector is down.
 6. Optional: query with Python/sqlite mentally equivalent to Sigma-like
    “selection: event: login_failure | count by src_ip > 5”.
 

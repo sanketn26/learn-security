@@ -43,6 +43,7 @@ LAB_FETCH_ALLOWLIST = {
     "soc-lite",
     "agentic-soc",
 }
+LAB_FETCH_ALLOW_PORTS = {80, 8080, 8090, 8091}
 # Optional extra names for the venv/no-Docker path. Never add public hosts.
 LAB_FETCH_ALLOWLIST.update(
     h.strip().lower()
@@ -50,7 +51,15 @@ LAB_FETCH_ALLOWLIST.update(
     if h.strip()
 )
 
-app = FastAPI(title="Lab Notes API", version="0.1.0")
+# OpenAPI UI is an extra attack surface. LAB_MODE leaves it on so you can
+# see it; secure mode removes /docs, /redoc, and /openapi.json.
+app = FastAPI(
+    title="Lab Notes API",
+    version="0.1.0",
+    docs_url="/docs" if LAB_MODE else None,
+    redoc_url="/redoc" if LAB_MODE else None,
+    openapi_url="/openapi.json" if LAB_MODE else None,
+)
 
 
 def utcnow() -> str:
@@ -93,7 +102,11 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, stored: str) -> bool:
     if LAB_MODE:
         return hash_password(password) == stored
-    return bcrypt.checkpw(password.encode(), stored.encode())
+    try:
+        return bcrypt.checkpw(password.encode(), stored.encode())
+    except ValueError:
+        # Stored verifier is not bcrypt (usually leftover LAB_MODE SHA-256).
+        return False
 
 
 def init_db() -> None:
@@ -310,6 +323,9 @@ def _lab_fetch_allowed(url: str) -> tuple[bool, str]:
     host = (parsed.hostname or "").lower()
     if host not in LAB_FETCH_ALLOWLIST:
         return False, "host"
+    port = parsed.port if parsed.port is not None else 80
+    if port not in LAB_FETCH_ALLOW_PORTS:
+        return False, "port"
     return True, "ok"
 
 
@@ -321,7 +337,7 @@ async def fetch(url: str, authorization: str | None = Header(default=None)) -> J
       LAB_MODE=true  -> application does not block metadata.internal
       LAB_MODE=false -> application blocks metadata and non-allowlisted hosts
 
-    Safety rail (always on): only lab compose hostnames, http, limited ports.
+    Safety rail (always on): only lab compose hostnames, http, ports 80/8080/8090/8091.
     """
     user = current_user(authorization)
     allowed, reason = _lab_fetch_allowed(url)

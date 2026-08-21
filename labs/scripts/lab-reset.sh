@@ -5,4 +5,4 @@ cd "$ROOT/labs"
 echo "Stopping lab and deleting volumes (logs, sqlite, cases)..."
 docker compose down -v
 rm -rf data logs cases
-echo "Lab state wiped."
+echo "Lab state wiped. Host copies under labs/evidence/ are kept."

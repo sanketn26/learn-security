@@ -37,16 +37,20 @@ curl -s http://127.0.0.1:8080/.well-known/lab
 curl -s http://127.0.0.1:8080/health
 ```
 
-Expected characteristics:
+Typical bodies (keys may be reordered):
 
-```text
-host: 127.0.0.1
-purpose: intentionally vulnerable learning lab
-lab_mode: true
-credentials: synthetic only
+```json
+{"warning":"AUTHORIZED LAB USE ONLY","scope":"local Docker compose network learn-security-labnet","do_not":"use against any system you do not own"}
+{"ok":true,"lab_mode":true}
 ```
 
-Stop if the target is not loopback (`127.0.0.1` or `localhost`). Read the
+Checklist, not JSON fields:
+
+- the URL host is loopback (`127.0.0.1` or `localhost`);
+- `lab_mode` is true on `/health`;
+- credentials in later labs are synthetic only.
+
+Stop if the target is not loopback. Read the
 [ethics and scope rules](ethics.md) before generating abnormal behavior.
 
 ## Your first observation
@@ -84,7 +88,11 @@ caller -> API -> data
           events -> detection -> alert
 ```
 
-This is enough to begin Module 1. Return to the runnable lab before Module 4.
+This is enough to begin Module 1 on paper. Modules 2–3 are richer with the
+stack up; return to the runnable lab no later than Module 4.
+
+Next: [How defenders think](how-defenders-think.md), then
+[Module 1](modules/01-security-foundations.md).
 
 ## Troubleshooting
 
@@ -104,7 +112,10 @@ make lab-reset    # stop and wipe lab-only volumes
 ```
 
 `make lab-reset` is destructive to the local lab state, including generated
-alerts and cases. Preserve evidence first when a later exercise asks you to.
+alerts and cases. It does **not** delete host copies under `labs/evidence/`
+created by `preserve-logs.sh`. Preserve first when a later exercise asks you
+to, then reset.
 
-Next: [Module 1 — Security foundations](modules/01-security-foundations.md).
+Next: [How defenders think](how-defenders-think.md), then
+[Module 1 — Security foundations](modules/01-security-foundations.md).
 

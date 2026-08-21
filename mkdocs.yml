@@ -69,6 +69,7 @@ nav:
   - Start Here:
       - Welcome: index.md
       - Onboarding: onboarding.md
+      - How defenders think: how-defenders-think.md
       - Setup and first lab: setup.md
       - Learning paths: learning-paths.md
       - Safety and ethics: ethics.md

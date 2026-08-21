@@ -75,10 +75,12 @@ before trust" instinct as signature checking in Module 5.
 
 **Model theft / extraction.** An adversary with only query access can
 reconstruct a close approximation of a model by querying it heavily and
-training a copy on the input/output pairs. This is an availability-and-
-confidentiality problem solved by rate limiting, query auditing, and
-watermarking — not by encrypting the model file, which does nothing once
-the API is public.
+training a copy on the input/output pairs. That is primarily a
+**confidentiality** problem (the model is the secret). Heavy querying can
+also become unbounded consumption (availability). Encrypting the model
+*file* still matters against registry/backup theft — a different path.
+Query-access extraction is not solved by at-rest encryption; it is solved
+by rate limits, query auditing, and watermarking.
 
 **Adversarial examples.** Inputs crafted to be misclassified while looking
 normal to a human (or normal-looking log lines crafted to look like
@@ -100,7 +102,7 @@ which changes classification and retention decisions from Module 7.
 
 ## Architecture connection
 
-Draw the same trust-boundary diagram as Module 1, with three new boxes:
+Draw the same trust-boundary diagram as Module 1, with **four** new boxes:
 `Training data` → `Training job` → `Model registry` → `Serving API`. Ask the
 Module 1 questions at each boundary: what would hurt if this were disclosed,
 changed, or unavailable; who can write to it; what does a caller's token

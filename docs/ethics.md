@@ -21,8 +21,9 @@ unauthorized access.
    a pentest toolkit.
 
 4. **Do not steal credentials, deploy malware, or evade law enforcement.**
-   Simulated “secrets” in this repo are dummy values (`lab-secret-*`). Treat
-   even dummy secrets as if they were real while they live on disk.
+   Simulated “secrets” in this repo are dummy values (`lab-secret-*`,
+   `lab-jwt-*`, `LABFAKE*`). Treat even dummy secrets as if they were real
+   while they live on disk.
 
 5. **Mark offensive material as authorized lab use only.**
    Scripts under `labs/attack-sim/` refuse non-local targets. Do not patch

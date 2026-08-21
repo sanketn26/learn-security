@@ -11,12 +11,12 @@ there is no HTML form to hide fields.
 ## Visual overview
 
 !!! note "Intuition"
-    Nearly every vulnerability class in this module is the *same bug*
-    wearing a different costume: data that was supposed to stay inert data
-    gets treated as instructions, a destination, or a permission by whatever
-    reads it next. Once you see that pattern, you stop needing to memorize a
-    dozen unrelated attack names — you just ask "where does untrusted input
-    change from *data* to *control* here?"
+    Most classes in this module share a pattern: data that was supposed to stay
+    inert gets treated as instructions, a destination, or a permission.
+    Injection, SSRF, XSS, and unsafe deserialization are that pattern.
+    BOLA is slightly different — a *missing decision* (no owner check), not
+    an interpreter gone wild. Still ask "where did untrusted input become
+    control?" and, for BOLA, "which decision never ran?"
 
 Use this same frame for injection, BOLA, SSRF, XSS, CSRF, deserialization,
 file handling, rate limits, and business-flow abuse:
@@ -72,8 +72,13 @@ same request, and compare both response and telemetry.
 a substitute for parameterized queries or AuthZ. Allowlists beat blocklists.
 
 **Injection (A05:2025).** Untrusted data becomes interpreted code: SQL,
-command, LDAP, template, **prompt**. The lab `/search` concatenates SQL in
-LAB_MODE.
+command, LDAP, template. **Prompt injection** (untrusted text treated as
+instructions by a model) is the same pattern with a different interpreter;
+Module 12/15 go deep. The lab `/search` concatenates SQL in LAB_MODE.
+
+This lab uses `Authorization: Bearer` headers, so **CSRF is not the lesson**
+(browsers do not auto-send that header across sites). Cookie sessions would
+still need `SameSite` and anti-CSRF tokens.
 
 **Broken access control (A01:2025).** Missing or wrong AuthZ. Includes IDOR,
 forced browsing, CSRF as a confused-user pattern, and SSRF was rolled into
@@ -148,7 +153,9 @@ Source: [OWASP API Security](https://owasp.org/API-Security/editions/2023/en/0x1
 - Allowlist outbound URLs; block IMDS and link-local.
 - Explicit output encoding on HTML boundaries.
 - Typed DTOs; deny unknown fields (mass assignment).
-- Fail closed on AuthZ errors; do not leak existence if that is policy.
+- Fail closed on AuthZ errors; do not leak existence if that is policy
+  (this lab’s secure-mode IDOR returns **404**, not 403, so Alice cannot
+  enumerate Bob’s ids from the status code).
 - Structured security logs for AuthZ failures (A09).
 - Dependency pinning + scan in CI (A03) — not sufficient alone.
 
@@ -186,22 +193,38 @@ Put object AuthZ next to the data.
    cd labs && LAB_MODE=false docker compose up -d --force-recreate notes-api
    ```
 
-   Recreate wipes in-memory nothing; sqlite already has hashes from **previous**
-   mode. If login fails, reset: `../labs/scripts/lab-reset.sh` then
-   `LAB_MODE=false docker compose up -d --build`.
+   Recreate does not wipe the sqlite volume. Hashes from **previous** mode
+   stay. If login fails, from `labs/`: `../labs/scripts/lab-reset.sh` then
+   `LAB_MODE=false docker compose up -d --build` (reset deletes volumes,
+   then you must re-seed in secure mode). Leftover SHA-256 verifiers used to
+   500 on bcrypt; the API now fails those logins as 401.
 
-5. Re-run `idor`, `admin`, `ssrf`, `injection`. Expect 404/403/400 and no
-   Bob data, no metadata body, no extra rows.
+5. Re-run the four scenarios. Expected **secure-mode** HTTP:
+
+   | Scenario | Status | Body |
+   | --- | --- | --- |
+   | `idor` `GET /notes/2` | **404** | `not found` (hides whether the note exists) |
+   | `admin` | **403** | `forbidden` |
+   | `ssrf` to mock-imds | **400** | `destination blocked` |
+   | `injection` | **200** | parameterized `LIKE`; the payload is a literal string, usually **no extra owners** |
+
+   Injection is not a 4xx. `/fetch` to `http://soc-lite:8090/` can still
+   succeed — secure mode blocks **metadata hosts**, not every SSRF. OpenAPI
+   at `/docs` disappears in secure mode (surface reduction).
 
 6. Set `LAB_MODE=true` again if later modules need vulnerable mode, or leave
-   false and use reset at the start of module 9.
+   false and use reset at the start of module 7 or 9. Always run compose
+   commands from `labs/` or pass `-f labs/compose.yaml` from the repo root.
 
 ### Expected observations
 
-LAB_MODE true: Alice reads Bob’s note; admin list leaked; search can return
-Bob’s titles with the provided payload; fetch returns dummy IMDS JSON.
-LAB_MODE false: those should fail. Safety rail blocks non-lab hosts in both
-modes.
+LAB_MODE true: Alice reads Bob’s note; admin list leaked; the provided
+search payload is `LIKE '%' OR owner = 'bob' OR title LIKE '%'`, which
+returns **all** titles (Alice, Bob, and admin), not only Bob’s; fetch
+returns dummy IMDS JSON (`LABFAKEACCESSKEYID`).
+LAB_MODE false: IDOR 404, admin 403, SSRF-to-IMDS 400, injection 200 without
+cross-user rows. Safety rail blocks non-lab hosts **and non-allowlisted
+ports** in both modes. `/fetch` to other compose services is still possible.
 
 ### Security lessons
 

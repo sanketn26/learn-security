@@ -45,7 +45,7 @@ flowchart LR
 | M8 Agent | Day 6 | `/investigate` + denied then approved action |
 | M9 Review | Day 7 | Architecture doc + residual risk |
 
-12-week cohort: use week 12. Intensive: last 3 days.
+13-week cohort: use week 13. Intensive: last 3 days.
 
 ## Acceptance criteria
 

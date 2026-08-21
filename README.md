@@ -7,7 +7,8 @@ DevOps, and ML engineers. You will learn how modern attacks work, how systems
 are defended, how security operations run, how to investigate events, and how
 to build a small end-to-end monitoring and response platform on a laptop.
 
-**Start with the [onboarding guide](docs/onboarding.md)**, then read
+**Start with the [onboarding guide](docs/onboarding.md)** and
+[How defenders think](docs/how-defenders-think.md), then read
 [COURSE.md](docs/course.md) (roadmap). Each of Modules 1–17 opens with a
 **Visual overview** (diagrams, intuition, hints) before its text; complete
 them in order, then the [capstone](docs/capstone/README.md).
@@ -29,6 +30,7 @@ curl -s http://127.0.0.1:8080/.well-known/lab
 | Resource | Path |
 | --- | --- |
 | Beginner onboarding | [docs/onboarding.md](docs/onboarding.md) |
+| How defenders think | [docs/how-defenders-think.md](docs/how-defenders-think.md) |
 | Setup and first lab | [docs/setup.md](docs/setup.md) |
 | Learning paths | [docs/learning-paths.md](docs/learning-paths.md) |
 | Course overview and comparisons | [docs/course.md](docs/course.md) |

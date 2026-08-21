@@ -94,7 +94,8 @@ revocation. A valid token is input to authorization, not proof of permission.
 
 **Authentication (AuthN).** Establishing identity: password, passkey, OIDC
 id_token, mTLS certificate, workload identity. In the lab, `/login` returns
-a JWT after a dummy password check.
+a JWT after verifying the seeded lab password (unsalted SHA-256 in
+`LAB_MODE` — weak, not fictional).
 
 **Authorization (AuthZ).** A decision: allow or deny an action on a resource.
 Must happen on the server for every object. UI hiding a button is not AuthZ.
@@ -183,20 +184,40 @@ Lab running with `LAB_MODE=true` (default).
    TOKEN=$(curl -s http://127.0.0.1:8080/login -H 'Content-Type: application/json' \
      -d '{"username":"alice","password":"alice-lab-password"}' \
      | python3 -c "import sys,json; print(json.load(sys.stdin)['token'])")
-   python3 - <<PY
+   export TOKEN
+   python3 - <<'PY'
    import os, base64, json
-   token = os.environ["TOKEN"] if False else """$TOKEN"""
-   payload = token.split(".")[1] + "=="
-   print(json.dumps(json.loads(base64.urlsafe_b64decode(payload)), indent=2))
+
+   def b64url(seg: str) -> dict:
+       pad = "=" * (-len(seg) % 4)
+       return json.loads(base64.urlsafe_b64decode(seg + pad))
+
+   token = os.environ["TOKEN"]
+   header, payload, _sig = token.split(".")
+   print("header:", json.dumps(b64url(header), indent=2))
+   print("payload:", json.dumps(b64url(payload), indent=2))
    PY
    ```
 
-2. Observe missing `exp` in lab mode (weak session).
+   Decoding is **not** verifying. Anyone with the token can read `sub` and
+   `role`. This lab mints its own HS256 JWT; that is **not** OAuth/OIDC.
+
+2. Observe missing `exp` in lab mode (weak session). There is still no
+   revocation path — see the unused `Revoked` state in the diagram.
 3. Call `/whoami` and `/admin/users` with Alice’s token. In LAB_MODE the
    admin route succeeds — broken function-level authorization.
+
+   ```bash
+   curl -s http://127.0.0.1:8080/whoami -H "Authorization: Bearer $TOKEN"
+   curl -s http://127.0.0.1:8080/admin/users -H "Authorization: Bearer $TOKEN"
+   ```
+
+   Expect `username`/`role` from whoami, and a user list (`alice`, `bob`,
+   `admin`) from the admin route.
 4. Login as Bob; confirm Bob cannot be Alice by comparing `sub`.
 5. Read `issue_token` and `current_user` in `labs/notes-api/app.py`. List
-   three production fixes: `exp`, `aud`/`iss`, bcrypt, owner checks.
+   production fixes (`exp`, `aud`/`iss`, bcrypt, owner checks) — more than
+   three is fine.
 
 Do **not** try to brute-force real passwords or reuse this token outside
 localhost.
@@ -228,7 +249,7 @@ If you copied tokens into a scratch file, delete it. `lab-down` optional.
 
 1. User is logged in and the UI omits the delete button. Is that authorization?
 2. Difference between OAuth access token and OIDC id_token (conceptually)?
-3. Why does MFA not fix DET-002 (cross-user note access)?
+3. Why does MFA not fix later DET-002 (cross-user note access)?
 4. Why is IMDS a service-identity concern?
 5. Name one RBAC check and one ABAC check in notes-api when LAB_MODE=false.
 
@@ -250,4 +271,4 @@ Note one failure mode. No production credential dumps.
 - [OWASP Authorization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)
 - [RFC 6749 OAuth 2.0](https://www.rfc-editor.org/rfc/rfc6749)
 - [OpenID Connect Core](https://openid.net/specs/openid-connect-core-1_0.html)
-- [NIST SP 800-63 Digital Identity](https://pages.nist.gov/800-63-3/)
+- [NIST SP 800-63-4 Digital Identity](https://pages.nist.gov/800-63-4/)

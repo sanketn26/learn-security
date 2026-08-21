@@ -125,11 +125,18 @@ Dirty lab with alerts (run simulate + ingest if empty).
 7. Simulated containment (still no production change):
 
    ```bash
-   curl -s http://127.0.0.1:8090/actions/simulate -H 'Content-Type: application/json' \
+   curl -s -X POST http://127.0.0.1:8090/actions/simulate -H 'Content-Type: application/json' \
      -d '{"action":"snapshot_logs","target":"notes-api","approval":"APPROVE","actor":"l2-analyst"}'
    ```
 
-   Try once **without** APPROVE; expect 403.
+   `snapshot_logs` writes a SOC **audit row**. It does not copy files — use
+   `preserve-logs.sh` for a real snapshot (`labs/evidence/`).
+
+   Try `"approval":"nope"`; expect **403**. Omitting the `approval` field
+   entirely is **422** (validation), not 403. Unknown `action` on this
+   endpoint is **400**. Alert ids in path/body look like `DET-003:alice`
+   (colon is fine). A case with the wrong `alert_ids` still opens; those
+   alerts stay `new`.
 8. Record MTTA-like time: wall clock from first alert `created_at` to case
    open. This is a toy measurement.
 

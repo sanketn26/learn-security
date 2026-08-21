@@ -50,6 +50,14 @@ scanning, and LLM exercises can all be skipped.
 Do not memorize acronyms on first contact. Use the [glossary](glossary.md),
 then return to the concrete request or system diagram.
 
+A second, overlapping checklist lives in
+[How defenders think](how-defenders-think.md) — invert the path, follow blast
+radius, name the cheapest path to the asset, attack your own detection
+claim, and prefer a smaller system to a smarter control. Use both. The five
+questions above orient you on a page; the thinking guide is how you invent
+a control, a detection, or a quarantine switch that the page does not
+already name.
+
 ## A gentle preview without Docker
 
 Imagine Alice sends `GET /notes/2` with a valid login token. Note 2 belongs

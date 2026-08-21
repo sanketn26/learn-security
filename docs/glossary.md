@@ -62,4 +62,22 @@
 | Trust boundary | Where trust level changes. |
 | TLP | FIRST Traffic Light Protocol for sharing sensitivity. |
 | Vulnerability | A weakness that can be abused. |
-| Zero trust | Strategy: authenticate and authorize each request; assume breach. |
+| Attack surface reduction | Deleting or default-denying reachable interfaces you do not need, cheaper than detecting their abuse. |
+| Bulkhead | A partition that limits blast radius: one identity, network, store, process, or tool cannot take down the rest. |
+| Event time | Clock of the original event (`ts` in the log). Detection windows should use this, not ingest wall-clock. |
+| Processing time | Clock when the pipeline saw the event. Delayed ingest makes processing-time windows lie. |
+| Quarantine | Isolate a suspected identity, workload, tenant, or tool so it cannot cause further harm while evidence is preserved. Not the same as delete/kill. |
+| STRIDE | Spoofing, tampering, repudiation, information disclosure, denial of service, elevation of privilege — a prompt for “what can go wrong.” |
+| Prompt injection | Untrusted text (prompt, log, document) interpreted as instructions by a model. |
+| Phishing-resistant MFA | Origin-bound authenticators (passkeys / WebAuthn / hardware keys) that cannot be relayed in real time the way OTP can. |
+| PQC | Post-quantum cryptography; NIST-selected algorithms intended to resist cryptographically relevant quantum computers. |
+| Hybrid TLS | Handshake that agrees both a classical and a PQC shared secret so either remaining strong is enough. |
+| SLSA | Supply-chain levels for software artifacts (provenance), not a certificate. |
+| Sigma | Portable log-detection rule format; this lab’s YAML is Sigma-like, not a Sigma backend. |
+| YARA | Pattern language for files/memory; not for JSON API logs. |
+| Volumetric DoS | Overwhelm capacity with request or packet volume. |
+| Algorithmic-complexity DoS | Cheap requests that force expensive work (slow hash, catastrophic regex). |
+| Model extraction | Reconstructing a model from query access, without stealing the file. |
+| Data poisoning | Tampering with training or fine-tuning data so future behavior is attacker-shaped. |
+| Adversarial example | Input crafted to be misclassified while looking ordinary. |
+| IMDSv2 | Session-oriented instance metadata: PUT a token, then GET with that header. Distinct from hop-limit TTL. |

@@ -64,6 +64,22 @@ delivery speed. The output is a decision with residual risk, not "add WAF."
 objects, least-privilege outbound, structured audit events, fail closed,
 timeouts, bounded retries (so you do not amplify incidents).
 
+**Safety-minded design (bulkheads and surface).** Read
+[How defenders think](../how-defenders-think.md) before this review. For
+every box ask: if it is wrong or compromised, what is the largest thing it
+still *cannot* do? Independent answers (object AuthZ, no IMDS route, logs
+off-box, approval on respond tools) are bulkheads. “Add a WAF” is not.
+
+Prefer deleting `/fetch` or `/docs` to detecting their abuse. Prefer a
+quarantine switch (disable this identity, this tenant, this egress, this
+agent tool) to a single “turn the API off” lever. Audience (`aud`) per
+callee beats a shared JWT among services: a stolen notes-api token should
+not mint calls to the SOC.
+
+Pinning a digest verifies **bytes**. It does not prove a good signer, and
+it does not make malicious-but-pinned content safe. Signing + admission is
+a different bulkhead.
+
 **Secrets management.** Generate, distribute, rotate, revoke. Runtime
 injection beats images. Separate prod from lab. JWT_SECRET in compose is
 acceptable only as a lab smell you would ticket.
@@ -162,10 +178,13 @@ None.
 4. Why are retries a security concern?
 5. Where should threat modeling sit in an SDLC?
 
-**Answers:** (1) Any workload in the VPC can call you. (2) App allowlist +
-no network route / IMDSv2 + least-privilege role. (3) Compromised signer or
-malicious but pinned content. (4) Amplification and confusion with attacks.
-(5) Design review, before code freeze, updated when threats change.
+**Answers:** (1) Any workload in the VPC can call you. (2) Count two
+*independent* controls: application allowlist **and** no network route to
+IMDS (IMDSv2 + least-privilege role are additional layers). (3) A digest pin
+does not stop malicious-but-pinned bits; compromised *signer* is a
+provenance/signing problem the pin does not claim to solve. (4) Amplification
+and confusion with attacks. (5) Design review, before code freeze, updated
+when threats change.
 
 ## Engineering assignment
 

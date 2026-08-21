@@ -72,8 +72,10 @@ only a line on a diagram.
 Confidentiality: only the intended parties can read Bob’s note.
 Integrity: Bob’s note is not silently altered.
 Availability: the notes API answers when authorized users need it.
-Most incidents hit more than one. Ransomware hits C and A; a corrupt deploy
-hits I and A.
+Most incidents hit more than one. Crypto-ransomware hits **integrity**
+(unauthorized encryption) and **availability** (you cannot use the files).
+Double extortion adds **confidentiality** when data is also stolen. A corrupt
+deploy hits I and A.
 
 **Vulnerability, threat, risk, exploit, attack, incident, breach.**
 
@@ -119,10 +121,12 @@ industry is moving toward memory-safe languages for new systems code.
 **CWE vs CVE.** [CWE](https://cwe.mitre.org/) (Common Weakness Enumeration)
 names the *class* — CWE-89 is "SQL Injection" as a category. [CVE](https://cve.mitre.org/)
 names one *instance* — a specific vulnerability in a specific version of a
-specific product. The table above is a small, informal CWE; production
-vulnerability management usually references CWE IDs directly. Same
-relationship as "threat" (a class of harm) vs. "the specific incident that
-happened to you."
+specific product. The table above is an informal *origin* taxonomy (design vs implementation vs
+operations). It is **not** CWE. [CWE](https://cwe.mitre.org/) IDs name
+specific weakness types (CWE-89 SQL injection, CWE-639 authorization bypass
+through user-controlled key). Production vulnerability management usually
+references those IDs. CWE:CVE is class:instance, like “SQL injection” vs
+“CVE-2024-… in product X version Y.”
 
 **Asset.** Something of value: Bob’s note, the JWT signing secret, availability
 of `/login`, analyst time, your reputation. Threat-model assets, not only hosts.
@@ -134,6 +138,17 @@ crossing a boundary is untrusted until your code decides otherwise.
 **Attack surface.** The set of reachable interfaces: HTTP routes, debug
 endpoints, CI, dependencies, admin functions, metadata service. Reducing
 surface is often cheaper than detecting abuse of a surface you did not need.
+The lab API’s surface includes `/login`, `/notes`, `/notes/{id}`, `/search`,
+`/admin/users`, `/fetch`, `/whoami`, `/health`, `/.well-known/lab`, and in
+`LAB_MODE` also `/docs` and `/openapi.json`. Production diagrams in this
+module that start at “Internet” are the *shape* of a real service; this lab
+publishes only `127.0.0.1`.
+
+**Bulkhead.** A partition so one flooded compartment does not sink the ship:
+object AuthZ, a network that cannot reach IMDS, logs off the app host, an
+agent that cannot act without approval. Defense in depth is *independent*
+bulkheads, not five identical walls. See
+[How defenders think](../how-defenders-think.md).
 
 **Control.** A measure that changes risk: owner check, TLS, rate limit, log +
 alert, backup. Controls fail. Plan for that.
@@ -165,7 +180,21 @@ attack trees) are optional. The activity is not.
 STRIDE (spoofing, tampering, repudiation, information disclosure, denial of
 service, elevation of privilege) is a mnemonic for “what can go wrong,” from
 Microsoft’s public threat-modeling practice. Use it if it helps you enumerate;
-do not force every box.
+do not force every box. PASTA is a seven-stage process that starts from
+business objectives; an attack tree is a diagram of AND/OR paths to a goal.
+The activity (what can go wrong, what will we do) matters more than the
+brand of worksheet.
+
+IDOR / BOLA means a valid identity is allowed to touch the *wrong object*
+(Alice’s token, Bob’s note). SSRF means the server is tricked into fetching
+a URL using *its* network position. IMDS is the instance metadata service
+that hands cloud credentials to a workload. JWT is a signed bundle of claims,
+not encryption. Those four are taught in Modules 3–5; they appear here so
+the diagram is readable.
+
+sqlite in this lab is a **file in the same container**, not a network hop.
+The API→DB arrow is still a trust boundary (the process can read every row);
+it is not the same kind of boundary as API→mock-imds (a TCP call).
 
 ## Architecture connection
 
@@ -211,6 +240,13 @@ Docker, course repo. Read [docs/ethics.md](../ethics.md).
    passwords).
 7. State residual risk in one sentence: *If we only add detection and never
    owner checks, we will reliably notice theft after it happens.*
+8. Run the 10-minute drill in
+   [How defenders think](../how-defenders-think.md) on notes-api: delete one
+   surface on paper (`/fetch` or `/docs`), name the blast radius of a stolen
+   Alice token, and write one quarantine switch you wish existed.
+
+`simulate.py` and DET-002 appear as *vocabulary* in the concept table. Do
+not try to fire DET-002 until Module 7; this lab is the diagram.
 
 ### Expected observations
 

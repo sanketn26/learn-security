@@ -65,6 +65,23 @@ Checklist, not JSON fields:
 Stop if the target is not loopback. Read the
 [ethics and scope rules](ethics.md) before generating abnormal behavior.
 
+## No git installed? Skip the clone
+
+`check-setup.sh` only needs the `labs/` files on disk — the stack is built
+from source, not pulled as pre-built images — so a plain tarball works
+just as well as `git clone` and doesn't require `git` at all:
+
+```bash
+curl -fsSL https://github.com/sanketn26/learn-security/archive/refs/heads/main.tar.gz | tar -xz
+cd learn-security-main
+./labs/scripts/check-setup.sh
+```
+
+This downloads and extracts an archive, then runs a script that's already
+sitting on your disk for you to read first — not a blind `curl | bash`.
+If you plan to come back and contribute changes, `git clone` is still the
+better choice; this is for a fast first look.
+
 ## Your first observation
 
 ```bash
@@ -131,6 +148,7 @@ LLM runtime).
 | Health endpoint not ready | `docker compose -f labs/compose.yaml logs notes-api` | Wait for build/startup; retry health |
 | Login data behaves unexpectedly | Previous volumes/mode | `make lab-reset`, then `make lab-up` (wipes lab-only state) |
 | Laptop is resource constrained | Memory/CPU use | Run only the default stack; skip kind and local LLM |
+| Container fails to start with a bind-mount error mentioning a `rules.yaml` or similar file | You extracted/cloned the repo under `/tmp` or another path your Docker VM doesn't share (common with Colima; Docker Desktop usually shares the whole filesystem) | Move the repo under your home directory and retry — `docker compose up` |
 
 ## Cleanup and rollback
 

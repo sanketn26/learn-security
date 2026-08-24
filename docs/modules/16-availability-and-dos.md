@@ -39,10 +39,8 @@ Asymmetric-cost:     few expensive requests -> exhaust CPU/memory per request
     the next request, not the cost of this one. Ask "what runs before I can
     even say no" — that's where the limit has to sit.
 
-The same telemetry — a burst of `login_failure` events — can mean password
-guessing (Modules 8–9 credential-access / DET-001) or an availability attack
-(this module's lens). The fix (rate limiting) helps both; the incident
-response does not.
+The same telemetry can mean two different incidents — see "Detection
+overlaps but the response differs" below.
 
 ## Learning objectives
 
@@ -72,11 +70,10 @@ for every guess, correct or not.
 
 **Asymmetric cost is the interesting case for engineers.** A volumetric
 flood is an infrastructure/capacity problem (rate limiting, autoscaling,
-upstream scrubbing). An asymmetric-cost attack is an *application design*
-problem: something in your own request-handling logic costs disproportionately
-more for the server than for the caller, and no amount of horizontal scaling
-fixes a design where each attacker dollar buys more of your compute than
-theirs.
+upstream scrubbing) — someone else's team usually owns the fix. Asymmetric
+cost is an *application design* problem you own: it lives in your own
+request-handling logic, so it is scaling, not spending, that fails to fix
+it.
 
 **Missing controls compound.** The lab's `/login` route has no rate limit,
 no lockout, and no CAPTCHA-equivalent challenge — the same gap Module 9
@@ -201,15 +198,13 @@ hash *and* a rate limit, not one instead of the other.
 ### Common mistakes
 
 - Concluding "rate limiting is a DevOps/infra problem" and stopping there —
-  the asymmetric-cost half of this module is an application-logic decision
-  (what work happens before rejection is possible) that infra alone cannot
-  fix.
+  see "asymmetric cost is the interesting case for engineers" above.
 - Testing only the volumetric case and missing that a handful of well-
   placed expensive requests can be worse than a large number of cheap ones.
 - Adding a rate limit only on `/login` success, which does nothing for the
   cost already paid on every failure.
 - Treating "we take backups" as a finished control without ever running a
-  restore drill — an RPO/RTO nobody has tested is a guess, not a number.
+  restore drill — see "disaster recovery is a different property" above.
 
 ### Cleanup
 

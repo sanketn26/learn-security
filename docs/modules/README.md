@@ -55,6 +55,42 @@ When a module tells you *what* to run, also open
 blast radius, write the detection as a testable claim, and ask whether a
 bulkhead or a smaller surface would have beaten a smarter alert.
 
+## The security reasoning loop
+
+The learning loop above is *how you experiment*. This is *how you reason
+about any specific weakness*, once you have one in front of you — the
+question sequence every module below applies to its own material, and the
+one the exit-criteria checklist at the end of each module checks you
+against:
+
+1. **Asset or capability.** What does an attacker actually want here?
+2. **Security invariant.** What must always be true, in one sentence
+   ("a user may access only objects they own or have been delegated")?
+3. **Trust boundary.** Where does an untrusted actor meet a trusted
+   component — the same boundaries named in the reference-system diagram
+   below?
+4. **Violation.** How can the invariant be broken without tripping a check
+   that isn't there?
+5. **Evidence.** If the invariant is violated, what does that leave behind
+   in a log, a token, a database row, a network flow?
+6. **Detection.** Can that evidence be turned into a testable claim — and
+   does that claim survive a fixture and a replay?
+7. **Response.** What immediate, reversible action limits damage once the
+   evidence is confirmed?
+8. **Repair.** What permanent architectural change removes the weakness,
+   rather than only catching it?
+
+!!! note "Intuition"
+    Steps 5–7 (evidence, detection, response) are how you catch a violation
+    of the invariant after the fact. Step 8 is how you stop needing to catch
+    it at all. A course — and a real security program — needs both, but they
+    are not substitutes for each other: a detection rule for cross-user
+    access does not fix the missing authorization check that let it happen.
+
+Module 4 (application/API) walks this loop in full against a single
+concrete invariant. Later modules invoke it by name rather than
+re-deriving it.
+
 ## The reference system
 
 ```mermaid

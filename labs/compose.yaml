@@ -111,3 +111,25 @@ services:
     depends_on:
       - soc-lite
     restart: unless-stopped
+
+  # Optional CLI toolbox (trivy, tshark, kubectl, jq, sqlite3) — never
+  # starts with a plain `docker compose up`. See labs/toolbox/README.md.
+  toolbox:
+    build: ./toolbox
+    image: ghcr.io/sanketn26/learn-security-toolbox:latest
+    container_name: lab-toolbox
+    profiles: ["toolbox"]
+    hostname: toolbox
+    # Required for tcpdump/tshark to capture as the non-root `learner`
+    # user (see labs/toolbox/Dockerfile's setcap + wireshark group).
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    networks:
+      labnet: {}
+      edgenet: {}
+    volumes:
+      - ../:/workspace/learn-security:ro
+    working_dir: /workspace/learn-security
+    stdin_open: true
+    tty: true

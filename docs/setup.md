@@ -13,11 +13,26 @@ scenarios until the safety check passes.
 | Lightweight host path | Containers are unavailable | Python virtual environments; see [lab guide](lab-guide.md) |
 
 Git and `jq` are helpful but not required. Kubernetes, packet-capture tools,
-image scanners, and an LLM are optional later.
+image scanners, and an LLM are optional later — or skip installing them
+entirely and use the [optional toolbox image](#optional-toolbox-image)
+below, which has them preloaded.
 
 ## Standard setup
 
-From the repository root:
+One command checks your required dependencies, starts the stack, and
+verifies the safety banner:
+
+```bash
+make check-setup
+```
+
+It fails fast with an install hint if Docker, `docker compose`, Python 3,
+or curl is missing, so you know what to fix before anything starts. Expected
+on success: Compose starts `notes-api`, `mock-imds`, `soc-lite`, and
+`agentic-soc`, and the script prints the safety banner and `lab_mode: true`.
+First build may take several minutes.
+
+To do the same steps by hand instead:
 
 ```bash
 docker info
@@ -26,9 +41,6 @@ curl --version
 chmod +x labs/scripts/*.sh
 make lab-up
 ```
-
-Expected: Compose starts `notes-api`, `mock-imds`, `soc-lite`, and
-`agentic-soc`. First build may take several minutes.
 
 Verify the safety boundary:
 
@@ -93,6 +105,22 @@ stack up; return to the runnable lab no later than Module 4.
 
 Next: [How defenders think](how-defenders-think.md), then
 [Module 1](modules/01-security-foundations.md).
+
+## Optional toolbox image
+
+Modules 2, 5, and 8 mention optional tools (`tshark`/`tcpdump`, `trivy`,
+`kubectl`, `jq`, `sqlite3`) you don't need to install on your host. A
+preloaded Alpine image has them, gated behind a compose profile so it never
+starts by default:
+
+```bash
+cd labs
+docker compose --profile toolbox run --rm toolbox
+```
+
+See [labs/toolbox/README.md](https://github.com/sanketn26/learn-security/blob/main/labs/toolbox/README.md)
+for what's in it and what's deliberately left out (no Docker socket, no
+LLM runtime).
 
 ## Troubleshooting
 

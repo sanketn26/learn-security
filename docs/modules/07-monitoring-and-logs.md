@@ -70,7 +70,37 @@ name, actor, object, result, src, `trace_id`, and a stable schema. Avoid
 unstructured `logger.info(f"user {u} got note {n}")` as your only record.
 
 **Normalization.** Mapping vendor fields to a common schema (OCSF, ECS, or
-your own). soc-lite cheats by ingesting JSON the app already owns.
+your own). soc-lite cheats by ingesting JSON the app already owns — a real
+collector has to parse whatever format each source actually speaks first.
+
+**Vendor event formats you'll actually meet.** Not every source emits
+clean JSON. A large share of firewalls, IDS/IPS, and network appliances
+still speak formats built for a pre-JSON world:
+
+- **Syslog (RFC 5424)** — the oldest common transport, mostly unstructured
+  free text after a standard header (priority, timestamp, hostname).
+- **CEF (Common Event Format)** — ArcSight-originated, still a de facto
+  standard many SIEMs ingest natively. A syslog-style header followed by
+  `CEF:Version|Vendor|Product|Version|SignatureID|Name|Severity|Extension`,
+  where `Extension` is `key=value` pairs from a fixed dictionary (`src=`,
+  `dst=`, `suser=`, `act=`, with `cs1=`/`cs1Label=` as vendor-specific
+  escape hatches when the dictionary doesn't have a field they need):
+
+  ```text
+  CEF:0|Acme|NotesGateway|1.0|100|Cross-user object read|7|src=203.0.113.4 suser=alice duser=bob act=blocked
+  ```
+
+- **LEEF** — IBM QRadar's near-equivalent to CEF.
+- **OCSF / ECS** — modern, JSON-native open schemas most pipelines built
+  after ~2020 normalize *into*, superseding CEF/LEEF for anything new.
+
+The reason this matters even in a JSON-native app: **you cannot correlate
+or write one detection rule across two sources that don't share field
+names.** A real collector's first job is a parser layer that turns
+CEF/LEEF/syslog/cloud-API-JSON into one target schema — normalization
+(above) is that layer's output, not its input. soc-lite skips this step
+because notes-api already emits the target schema directly; a collector
+in front of an off-the-shelf firewall would not have that luxury.
 
 **Timestamps.** UTC, monotonic enough to order, NTP sane. Clock skew wrecks
 timelines.
@@ -188,6 +218,30 @@ Keep evidence if you will do module 11; otherwise `lab-reset` later.
 **Answers:** (1) Log/audit. Metrics lack object id. (2) Order incidents across
 regions. (3) Password, token. (4) Alerting and actionability, not storage.
 (5) Containment can destroy or flood evidence.
+
+## Exit criteria
+
+You pass this module when you can:
+
+- ✓ Predict what fields a given violation (e.g. cross-user object access)
+  should produce in the log, before looking at the pipeline's output.
+- ✓ Trace one detection rule's required field back to the exact line of
+  application code that emits it.
+- ✓ Distinguish event, telemetry, log, metric, trace, audit trail, and
+  evidence from each other.
+- ✓ Score a real log line against a quality checklist (timestamp, event,
+  actor, object, result, source, correlation id) and name what's missing.
+- ✓ Read a CEF line and identify which fields would need to move into a
+  common schema before it could join a detection rule with a JSON source.
+- ✓ Explain why a correlation id assigned per log line instead of per
+  request breaks investigation, using this lab's own pipeline as the
+  example.
+- ✓ State one privacy or retention tradeoff and the residual risk it
+  leaves.
+- ✓ Write a detection rule as a testable claim (field, window clock,
+  grouping key, collector-down behavior) rather than a vague description.
+- ✓ Defend one tradeoff: why shipping logs off the app host is a control,
+  not just good hygiene.
 
 ## Engineering assignment
 

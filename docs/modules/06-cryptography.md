@@ -40,13 +40,38 @@ Hybrid:      asymmetric exchange authenticates/derives a symmetric session key
 
 ```mermaid
 sequenceDiagram
-  Client->>Server: ClientHello + supported algorithms
-  Server-->>Client: ServerHello + certificate + key share
-  Client->>Client: validate name, dates, chain to trusted root
-  Client->>Server: key share + Finished
+  Client->>Server: ClientHello + supported versions + cipher suites + key_share
+  Server-->>Client: ServerHello + key_share
+  Server-->>Client: EncryptedExtensions
+  Server-->>Client: Certificate
+  Server-->>Client: CertificateVerify
   Server-->>Client: Finished
-  Note over Client,Server: authenticated encrypted session
+  Client->>Client: validate name, dates, chain to trusted root, CertificateVerify signature
+  Client->>Server: Finished
+  Note over Client,Server: encrypted application data
 ```
+
+TLS 1.3 does this in one round trip: the client guesses a key-exchange
+group and sends `key_share` in the *first* message, so the server can
+derive a shared secret and start encrypting everything after its
+`ServerHello` — `EncryptedExtensions` onward is already protected, not just
+the "application data" that follows. (TLS 1.2 took an extra round trip and
+allowed weaker, non-forward-secret key exchanges; 1.3 removed those.)
+
+That single handshake is doing three separable cryptographic jobs, each
+solving a different problem:
+
+| Job | Mechanism | Produces |
+| --- | --- | --- |
+| Ephemeral key agreement | `key_share` exchange (ECDHE / hybrid KEM) | shared key material, fresh per connection |
+| Server authentication | Certificate + `CertificateVerify` signature | proof the server holds the private key for that hostname's cert |
+| Application-data protection | Symmetric AEAD, keyed from the shared secret | confidentiality **and** integrity of the actual bytes |
+
+Losing sight of that separation is how people reason incorrectly about
+TLS: a valid handshake proves *the server you're talking to controls a
+trusted private key*, not that the request is authorized, not that the
+data at rest is encrypted, and not that a compromised endpoint is safe to
+trust.
 
 ```text
 leaf certificate -> signed by intermediate CA -> signed by trusted root
@@ -84,8 +109,11 @@ who share the key. Both sides are equal: the verifier could have forged the
 tag.
 
 **Digital signature.** Asymmetric: private key signs, public key verifies.
-Non-repudiation relative to the private key holder (in the engineering
-sense: they signed it, or their key leaked).
+A valid signature demonstrates control of the corresponding private key
+under the assumed trust model — nothing more. Legal or organizational
+non-repudiation is a broader, separate claim that additionally depends on
+identity proofing, key custody, revocation, audit evidence, policy, and
+process; a signature alone does not establish it.
 
 **Symmetric encryption.** One key encrypts and decrypts (AES-GCM). Use AEAD
 (authenticated encryption). Do not use ECB. Do not invent nonces.
@@ -202,6 +230,29 @@ None beyond not committing generated keys. Delete any scratch private keys.
 **Answers:** (1) No. (2) Slow/salted; resists offline guessing. (3) Some
 libraries accepted unsigned tokens as valid. (4) No. (5) Not a CSPRNG;
 predictable tokens.
+
+## Exit criteria
+
+You pass this module when you can:
+
+- ✓ Name which primitive (hash, MAC, signature, symmetric/asymmetric
+  encryption) solves a given problem, and which ones a fast unsalted hash
+  does *not* solve.
+- ✓ State the security invariant TLS gives you ("the server holds the
+  private key for this hostname's trusted certificate") and where its
+  guarantee stops.
+- ✓ Separate TLS's three jobs — key agreement, server authentication,
+  application-data protection — and say which one a given failure breaks.
+- ✓ Predict that HTTPS to `/notes/2` does not fix IDOR, and explain why in
+  terms of the invariant TLS does and does not enforce.
+- ✓ Distinguish a valid signature (proof of private-key control) from legal
+  non-repudiation (identity proofing, custody, revocation, audit, policy).
+- ✓ Explain why slow, salted password hashing is a control, not a
+  formality.
+- ✓ Investigate a leaked `JWT_SECRET` and state its blast radius for HS256
+  vs RS256/EdDSA issuance.
+- ✓ Defend one tradeoff: why KMS/HSM-managed keys with short-lived app
+  access beat keys embedded in application config.
 
 ## Engineering assignment
 

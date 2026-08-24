@@ -191,14 +191,12 @@ Default lab. Optional: `kind` or `k3d`, `trivy`.
    kubectl run notes --image=nginx --port=80
    kubectl auth can-i '*' '*' --as system:serviceaccount:default:default
    kind delete cluster --name learn-sec
-
-   This optional step **pulls nginx from Docker Hub** (needs internet).
-   Default SA typically cannot `*` `*`. You still created a workload with
-   **no admission policy** — that is the gap.
    ```
 
-   Observe that the default SA cannot do everything (good) and that you still
-   created a workload without admission policy (gap).
+   This optional step **pulls nginx from Docker Hub** (needs internet).
+   Default SA typically cannot `*` `*` — that's the good news. The gap is
+   that you still created the workload with **no admission policy** to stop
+   it in the first place.
 
 5. Write three CI rules you would enforce: pin digest, no privileged, no
    `LAB_MODE` in prod.

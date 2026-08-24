@@ -190,6 +190,24 @@ Persistence / lateral movement / C2. (5) Prefer ATLAS/OWASP; only map
 Enterprise if a specific technique truly fits the observed host/API
 behavior.
 
+## Exit criteria
+
+You pass this module when you can:
+
+- ✓ State the difference between tactic (why) and technique (how) without
+  looking at the diagram.
+- ✓ Map an observed alert to a technique from the evidence it produced, not
+  from the vulnerability's OWASP name.
+- ✓ Name a data source you would need but do not have, and write "no data
+  source" instead of guessing a mapping.
+- ✓ Explain what a green coverage-matrix cell does and does not prove.
+- ✓ Rank two indicator types by Pyramid of Pain durability and say why one
+  costs an attacker more to evade.
+- ✓ Distinguish "we have a detection mapped to this technique" from "we
+  would catch this technique in production."
+- ✓ Defend one tradeoff: why a behavioral TTP-based detection is more work
+  to write than an IP/hash-based one, and why it survives longer.
+
 ## Engineering assignment
 
 Pick one production alert type you have seen (or invent from notes-api).

@@ -288,6 +288,26 @@ an identity; cluster-local still includes every compromised pod. (3) Encryption
 at rest, redaction. (4) You detect theft; data already left. (5) The job gets
 push rights only to the intended repo/tag, short-lived OIDC, no prod data.
 
+## Exit criteria
+
+You pass this module when you can:
+
+- ✓ Draw a trust-boundary diagram for a small service and name the asset
+  at risk on each boundary.
+- ✓ State a security invariant in one sentence, without using the word
+  "vulnerability."
+- ✓ Classify a given weakness into design, implementation, configuration,
+  cryptographic, availability, or process origin — and say who should have
+  caught it.
+- ✓ Predict what evidence a violated invariant should leave behind before
+  being shown the log.
+- ✓ Distinguish prevention (a bulkhead) from detection (an alert) for a
+  given control.
+- ✓ Write a residual-risk statement that is not "we're OWASP-compliant."
+- ✓ Propose one control and name what it does *not* fix.
+- ✓ Defend one tradeoff: why least privilege costs more up front than a
+  broad grant, and why that cost is worth paying.
+
 ## Engineering assignment
 
 Write a one-page threat model for a service you own at work **without** testing

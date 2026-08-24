@@ -107,6 +107,8 @@ nav:
       - Incident-report template: capstone/incident-report.md
       - Purple-team template: capstone/purple-report.md
       - Architecture-review template: capstone/architecture-review.md
+      - Containment-runbook template: capstone/containment-runbook.md
+      - Security-decision-record template: capstone/security-decision-record.md
   - Reference:
       - Lab guide: lab-guide.md
       - Glossary: glossary.md

@@ -324,18 +324,35 @@ detection-as-code.
 owners), metrics that reward closing tickets rather than reducing risk,
 burnout, and automation that acts on bad data.
 
-### SIEM vs EDR vs NDR vs SOAR
+### SIEM vs EDR vs NDR vs XDR vs SOAR
 
-| | SIEM | EDR | NDR | SOAR |
-| --- | --- | --- | --- | --- |
-| Stands for | Security information and event management | Endpoint detection and response | Network detection and response | Security orchestration, automation, and response |
-| Primary data | Logs and events from many systems | Process, file, memory, host telemetry | Packets, flows, east-west/north-south | Tickets, alerts, and tool APIs |
-| Strength | Correlation across identity, app, cloud | Visibility on the host; containment of a process | Sees what endpoints do not log | Consistent execution of playbooks |
-| Weakness | Garbage-in; cost of ingest; detections lag new TTPs | Blind if you cannot run an agent; not the network | Encryption and volume; privacy | Automating a bad process faster |
-| Lab stand-in | soc-lite + JSONL | none required (optional auditd/osquery later) | optional tcpdump on docker bridge | agentic-soc + `/actions/simulate` |
+| | SIEM | EDR | NDR | XDR | SOAR |
+| --- | --- | --- | --- | --- | --- |
+| Stands for | Security information and event management | Endpoint detection and response | Network detection and response | Extended detection and response | Security orchestration, automation, and response |
+| Primary data | Logs and events from many systems | Process, file, memory, host telemetry | Packets, flows, east-west/north-south | Endpoint + network + cloud + identity, correlated by the platform | Tickets, alerts, and tool APIs |
+| Strength | Correlation across identity, app, cloud | Visibility on the host; containment of a process | Sees what endpoints do not log | Cross-domain correlation and analytics built in, not assembled by hand | Consistent execution of playbooks |
+| Weakness | Garbage-in; cost of ingest; detections lag new TTPs | Blind if you cannot run an agent; not the network | Encryption and volume; privacy | Correlation quality bounded by what's actually ingested; vendor-native deployments add lock-in risk | Automating a bad process faster |
+| Lab stand-in | soc-lite + JSONL | none required (optional auditd/osquery later) | optional tcpdump on docker bridge | none — see note below | agentic-soc + `/actions/simulate` |
 
 No category “covers ATT&CK.” Coverage is a property of **detections +
 visibility + response**, not of a purchase.
+
+XDR is not a new data source; it is a product category built around
+cross-domain correlation and shared detection analytics across endpoint,
+network, cloud, and identity telemetry — the same SIEM-style correlation
+idea, sold with the analytics built in rather than assembled by hand. A
+common commercial model is **vendor-native** XDR, where one vendor's own
+EDR/network/cloud/identity sensors are pre-integrated and correlation
+works out of the box — trading integration effort for lock-in to that
+vendor's sensor coverage. Many XDR platforms also ingest third-party
+telemetry through connectors, but that still requires real integration and
+normalization work; "no integration work" describes the vendor-native
+tradeoff, not something true of XDR as a category. There is no separate
+lab stand-in for it: this course's `soc-lite` already correlates
+application (`notes-api`), identity (login events), and egress
+(`ssrf_metadata_access`) telemetry from one pipeline — the same
+cross-domain correlation idea XDR sells as a product, at a scale where you
+can see every wire.
 
 ### IOC-based vs behavior-based detection
 
@@ -577,9 +594,10 @@ artifacts, stretch goals, failure scenarios, and ethical constraints.
 
 You will run the provided stack (or your port of it), document trust
 boundaries, generate authorized simulated activity, map it to ATT&CK, ship
-at least five detections, operate cases, write an incident timeline, perform
-simulated containment and recovery, write a purple-team report, and use the
-agentic assistant with mandatory approval.
+at least eight detections with replay fixtures, operate cases, write an
+incident timeline and containment runbook, perform simulated containment
+and recovery, write a purple-team report, and use the agentic assistant
+with mandatory approval.
 
 ---
 
@@ -622,7 +640,7 @@ See [docs/follow-up-projects.md](follow-up-projects.md).
 The tables in section 5 cover:
 
 1. Red vs Blue vs Purple
-2. SIEM vs EDR vs NDR vs SOAR
+2. SIEM vs EDR vs NDR vs XDR vs SOAR
 3. Prevention vs detection vs response vs recovery
 4. IOC vs behavior
 5. Traditional vs agent-augmented SOC

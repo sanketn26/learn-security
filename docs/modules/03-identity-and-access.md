@@ -140,10 +140,12 @@ beats OTP that can be phished. MFA does not fix IDOR.
 You usually need **both**: roles for functions, attributes for objects.
 
 **Service-to-service identity.** Shared `API_KEY=...` in six repos is not
-identity. Prefer short-lived credentials: cloud workload identity, SPIFFE/
-SPIRE, mTLS with rotation, or OIDC from CI. The mock IMDS in this lab exists
-because cloud SDKs historically fetched **instance role keys** from a
-link-local service — a powerful identity that SSRF can steal.
+identity. Prefer short-lived credentials: cloud workload identity,
+**SPIFFE/SPIRE** (an open standard that issues each workload a short-lived
+cryptographic identity document instead of a shared secret), mTLS with
+rotation, or OIDC from CI. The mock IMDS in this lab exists because cloud
+SDKs historically fetched **instance role keys** from a link-local service —
+a powerful identity that SSRF can steal.
 
 **Common implementation failures.**
 

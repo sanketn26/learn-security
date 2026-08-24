@@ -5,6 +5,11 @@ IDs on https://attack.mitre.org/. The rows below are a *shape example* from
 `labs/detections/rules.yaml`, not a completed assignment. Coverage here is
 **visibility of lab procedures**, not organizational security.
 
+The capstone requires eight detections total: the five below plus three you
+author yourself (see `capstone/README.md`). Add one row per authored
+detection in the same format — data source, tactic, technique, confidence,
+and limitation — rather than a separate table.
+
 | Detection | Data source | Tactic | Technique ID | Technique | Confidence | Limitation / gap |
 | --- | --- | --- | --- | --- | --- | --- |
 | DET-001 | notes-api JSONL `login_failure` | Credential Access | T1110.001 | Password Guessing | high | Misses slow guessing; shared NAT src_ip |

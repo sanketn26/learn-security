@@ -15,14 +15,26 @@ loopback ports. No real cloud accounts, no employer systems, no malware.
 3. Secure logging and audit events (JSONL + soc-lite).
 4. Simulated attack **only** in the isolated lab (`attack-sim`).
 5. ATT&CK mapping of simulated behavior.
-6. At least five detections (`labs/detections/rules.yaml`).
+6. At least **eight detections** in `labs/detections/rules.yaml`: the five
+   provided (DET-001–005) plus at least three you author yourself against
+   event types the provided rules do not already cover — the app already
+   emits `authz_failure` (invalid token, admin-blocked), `fetch_blocked_safety_rail`,
+   `ssrf_blocked`, `search_error`, and `note_create`, none of which have a
+   rule. Each detection, provided or authored, needs a replay fixture (see
+   acceptance criteria) — a rule with no fixture is a belief, not a tested
+   detection.
 7. Alert-triage and case-management workflow (soc-lite cases).
 8. Incident timeline.
-9. Containment and recovery steps (simulated + `LAB_MODE=false` redeploy).
+9. Containment and recovery steps (simulated + `LAB_MODE=false` redeploy),
+   recorded as a containment runbook (`containment-runbook.md`) — the
+   specific sequence executed, not just the generic playbook options.
 10. Purple-team validation report.
 11. Agentic SOC assistant: summarize, retrieve context, propose ATT&CK,
     recommend next steps, **explicit human approval** for simulated actions.
 12. Final architecture document and security review.
+13. At least one security decision record (`security-decision-record.md`)
+    for a control you chose — threat, chosen control, alternative
+    considered, residual risk, detection coverage, operational cost.
 
 ## Milestones
 
@@ -38,7 +50,7 @@ flowchart LR
 | M1 Model | Day 1–2 | Threat model + diagram in `docs/capstone/artifacts/` |
 | M2 Telemetry | Day 2 | JSON events for login, AuthZ, fetch, search |
 | M3 Emulate | Day 3 | `simulate.py --scenario all` against loopback only |
-| M4 Detect | Day 3–4 | Five alerts with technique tags |
+| M4 Detect | Day 3–4 | Eight alerts with technique tags and replay fixtures |
 | M5 Investigate | Day 4–5 | Case + timeline + evidence dir from `preserve-logs.sh` |
 | M6 Respond | Day 5 | Simulated actions with APPROVE; recover with LAB_MODE=false |
 | M7 Purple | Day 6 | Re-test; report TP/FN; one improved rule or control |
@@ -51,12 +63,21 @@ flowchart LR
 
 - [ ] Lab binds only to 127.0.0.1; `simulate.py` still refuses non-local.
 - [ ] Threat model names assets, boundaries, residual risk.
-- [ ] Five detections fire on the provided sim (or documented FN with a fix).
+- [ ] Eight detections fire on the provided or authored sim traffic (or
+      documented FN with a fix): the five provided plus at least three you
+      wrote against previously-unmapped events.
+- [ ] Every detection has a stored JSONL replay fixture that asserts the
+      rule ID fires on the abnormal case and stays quiet on normal traffic
+      (this was a stretch goal; it is now required).
 - [ ] Mappings include tactic, technique id, confidence, limitation.
 - [ ] Case exists with timeline entries.
 - [ ] Evidence snapshot is unmodified after preservation.
 - [ ] At least one control change (`LAB_MODE=false` or a code patch) is
       re-tested.
+- [ ] `containment-runbook.md` records the actual sequence executed, with
+      evidence preserved before containment and a verification step.
+- [ ] At least one `security-decision-record.md` exists for a chosen
+      control, including an alternative considered and residual risk.
 - [ ] Agent cannot simulate an action without `approval=APPROVE`.
 - [ ] Architecture review lists at least five findings.
 - [ ] No real secrets, no extra-scope testing.
@@ -67,13 +88,13 @@ flowchart LR
 | --- | --- | --- |
 | Threat model clarity | 10 | Assets, STRIDE-or-equivalent, residual risk |
 | Telemetry quality | 10 | UTC, event names, actor, object, trace_id |
-| Detection quality | 15 | Five rules, not all IOC-only, documented FPs |
+| Detection quality | 15 | Eight rules with fixtures, not all IOC-only, documented FPs |
 | ATT&CK discipline | 10 | Confidence and “why wrong”; no matrix theatre |
 | Investigation | 15 | Timeline, hypotheses, impact, RCA |
-| Response & recovery | 10 | Approval gate; actual harden; retest |
+| Response & recovery | 10 | Approval gate; runbook with evidence-before-containment order; retest |
 | Purple validation | 10 | Hypothesis, evidence, delta |
 | Agent safety | 10 | Policy, untrusted evidence, no unbounded tools |
-| Architecture writing | 10 | Trade-offs, what not to automate |
+| Architecture writing | 10 | Trade-offs, what not to automate, one decision record |
 
 Score ≥ 80 and all acceptance checkboxes to pass.
 
@@ -83,10 +104,12 @@ Create `docs/capstone/artifacts/` (gitignore it if it contains logs; keep
 shareable Markdown):
 
 - `threat-model.md` — diagram + table
-- `attack-coverage.md` — five-plus-gap matrix
+- `attack-coverage.md` — eight-plus-gap matrix
 - `incident-report.md` — timeline, RCA, comms (lab)
 - `purple-report.md`
 - `architecture-review.md`
+- `containment-runbook.md` — the specific containment sequence you executed
+- `security-decision-record.md` — at least one, for a control you chose
 - `agent-run.json` — saved `/investigate` output (redact if you used a hosted LLM)
 - Optional: evidence tarball **not committed** if it contains dummy secrets
 
@@ -94,8 +117,8 @@ Templates live beside this README.
 
 ## Stretch goals
 
-- Replay tests: store JSONL fixture, assert rule IDs in CI.
-- Add DET-006 for `ssrf_blocked` attempts.
+- Run replay fixtures in CI, not just locally.
+- Push past eight detections toward the full event surface (10-20 total).
 - Non-root USER in notes-api Dockerfile.
 - Rate-limit `/login`.
 - Optional kind deploy with a NetworkPolicy denying metadata.

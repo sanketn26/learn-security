@@ -79,8 +79,25 @@ training a copy on the input/output pairs. That is primarily a
 **confidentiality** problem (the model is the secret). Heavy querying can
 also become unbounded consumption (availability). Encrypting the model
 *file* still matters against registry/backup theft — a different path.
-Query-access extraction is not solved by at-rest encryption; it is solved
-by rate limits, query auditing, and watermarking.
+Query-access extraction is not solved by at-rest encryption.
+
+Controls for this split into two different jobs, and confusing them is how
+"add rate limiting" ends up as the entire security review:
+
+- **Raise the cost of extraction** (make copying expensive, not
+  impossible): authentication, per-caller quotas, rate limits, limiting
+  how much high-information output a single response can carry (e.g.
+  truncating raw logits/probabilities), and general access controls on
+  the serving endpoint.
+- **Detect or attribute copying** (assume some extraction succeeds, and
+  catch it): query auditing for patterns that look like systematic
+  probing rather than normal use, behavioral anomaly detection on query
+  volume/diversity, response fingerprinting, and watermarking where the
+  output format supports it.
+
+Neither list substitutes for the other: raising cost slows a patient
+attacker but does not tell you it happened; detection tells you it
+happened but does not stop the first successful run.
 
 **Adversarial examples.** Inputs crafted to be misclassified while looking
 normal to a human (or normal-looking log lines crafted to look like
@@ -99,6 +116,17 @@ sensitive data can leak fragments of that data through its outputs
 (membership inference, verbatim regurgitation). Treat "the model has seen
 this data" as equivalent to "this data has an additional access path,"
 which changes classification and retention decisions from Module 7.
+
+A trained model may memorize and expose training information, creating a
+**probabilistic read path** to sensitive data — not a deterministic one.
+It is not an addressable database: you cannot `SELECT` a specific record
+out of it, query it with guaranteed recall, delete one row from it on
+request, or reason about its access control the way you would a database
+table. That difference matters operationally: "the model saw this data"
+does not tell you *which* queries will surface it, and "we deleted the
+row" does not mean the model has forgotten it. Plan retention and deletion
+requests around the model's training/retraining cycle, not around a single
+row's lifecycle.
 
 ## Architecture connection
 

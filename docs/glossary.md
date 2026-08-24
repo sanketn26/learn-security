@@ -14,7 +14,9 @@
 | CIA | Confidentiality, integrity, availability. |
 | Containment | Limiting damage while investigation continues. |
 | Control | A measure that changes risk. |
-| Correlation ID | Identifier joining events across components. |
+| CEF | Common Event Format; ArcSight-originated vendor log format still widely emitted by legacy network/security appliances. |
+| Correlation | Joining multiple individually weak events, across sources/time, sharing an actor or asset, into one higher-confidence case. Not the same as a correlation ID. |
+| Correlation ID | Identifier joining events across components (one request, one system). |
 | CVE | Publicly disclosed vulnerability identifier for one specific instance (MITRE/NVD ecosystem). |
 | CVSS | Severity scoring for vulnerabilities; not the same as risk. |
 | CWE | Common Weakness Enumeration; names a *class* of vulnerability (e.g. CWE-89 SQL Injection), not one instance. |
@@ -58,10 +60,12 @@
 | Technique | Adversary method (ATT&CK). |
 | Telemetry | Logs, metrics, traces, and related measurements. |
 | Threat | Potential cause of harm. |
+| Threat intelligence | External data (IOCs, actor TTPs) used to raise or lower alert confidence and priority; an enrichment input, not proof on its own. |
 | Threat model | Structured analysis of what can go wrong and what you will do. |
 | Trust boundary | Where trust level changes. |
 | TLP | FIRST Traffic Light Protocol for sharing sensitivity. |
 | Vulnerability | A weakness that can be abused. |
+| XDR | Extended detection and response; a product category for cross-domain correlation (endpoint + network + cloud + identity) with built-in analytics, not a new data source. Vendor-native (single-vendor, pre-integrated) is a common deployment model, not part of the definition — third-party telemetry can be ingested too, still requiring real integration work. |
 | Attack surface reduction | Deleting or default-denying reachable interfaces you do not need, cheaper than detecting their abuse. |
 | Bulkhead | A partition that limits blast radius: one identity, network, store, process, or tool cannot take down the rest. |
 | Event time | Clock of the original event (`ts` in the log). Detection windows should use this, not ingest wall-clock. |

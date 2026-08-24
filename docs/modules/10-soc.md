@@ -31,10 +31,10 @@ flowchart TB
     doesn't outlive its reason) and the signal-to-noise ratio actually
     improves over time instead of decaying.
 
-| SIEM | EDR | NDR | SOAR |
-| --- | --- | --- | --- |
-| Correlates stored events | Endpoint behavior and response | Network behavior/metadata | Orchestrates defined workflows |
-| Broad context, data-cost risk | Host depth, agent dependency | Useful where host visibility is weak | Speeds repetition, amplifies bad logic |
+| SIEM | EDR | NDR | XDR | SOAR |
+| --- | --- | --- | --- | --- |
+| Correlates stored events | Endpoint behavior and response | Network behavior/metadata | Correlates endpoint+network+cloud+identity, analytics built in | Orchestrates defined workflows |
+| Broad context, data-cost risk | Host depth, agent dependency | Useful where host visibility is weak | Correlation only as good as what's ingested; vendor-native model adds lock-in | Speeds repetition, amplifies bad logic |
 
 Measure MTTD/MTTA/MTTR with explicit start/end definitions, plus fidelity,
 investigation quality, and control effectiveness. Ticket closure alone rewards
@@ -50,7 +50,7 @@ the wrong behavior and contributes to fatigue.
 ## Learning objectives
 
 - Explain why a SOC exists and how work flows through tiers.
-- Use SIEM/EDR/NDR/SOAR as categories, not as shopping lists.
+- Use SIEM/EDR/NDR/XDR/SOAR as categories, not as shopping lists.
 - Name metrics and how they are abused.
 - Run a simple SOC workflow on soc-lite.
 
@@ -74,8 +74,8 @@ cloud; someone is accountable for detection SLAs; someone coordinates IR.
 **Flow.** Alert → triage → enrich → investigate → escalate → contain →
 eradicate → recover → post-incident review.
 
-**SIEM, EDR, NDR, SOAR, TI, cases, VM, detection engineering** — see COURSE
-tables. soc-lite is a toy SIEM + case system.
+**SIEM, EDR, NDR, XDR, SOAR, TI, cases, VM, detection engineering** — see
+COURSE tables. soc-lite is a toy SIEM + case system.
 
 **Alert fatigue.** Too many low-fidelity alerts. Humans learn to click
 “close.” Fix: fewer, better detections; enrichment; suppression with expiry;

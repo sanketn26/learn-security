@@ -57,6 +57,103 @@ become a proxy. Defender view: join actor, input class, object, downstream
 destination, decision, and response. Repair in `LAB_MODE=false`, replay the
 same request, and compare both response and telemetry.
 
+### Worked example: the security reasoning loop, applied to BOLA
+
+The [module index](README.md#the-security-reasoning-loop) defines an
+eight-step loop for reasoning about any weakness. Here it is run in full
+against the BOLA row of the table above, on Acme Notes:
+
+1. **Asset.** Alice's and Bob's private notes.
+2. **Invariant.** A user may access only objects they own or have
+   explicitly been delegated.
+3. **Trust boundary.** Between an authenticated-but-untrusted client
+   (any holder of a valid token) and the notes API's data layer — the
+   `API -->|parameterized SQL| DB` edge in the reference-system diagram.
+4. **Violation.** Authentication succeeds (Alice's token is valid), but the
+   handler never checks that the requested note's `owner` matches the
+   caller — a missing decision, not a broken interpreter.
+5. **Evidence:**
+
+   ```text
+   actor=alice
+   object_owner=bob
+   authorization_result=allowed
+   http_status=200
+   ```
+
+6. **Detection hypothesis.** Alert when a principal successfully accesses
+   an object owned by another principal without a recorded delegation.
+7. **Response.** Revoke or scope down the session token, and flag the
+   accessed objects for the owner to review — reversible, immediate.
+8. **Permanent fix.** Server-side, per-object authorization (`note.owner ==
+   user`) on every read, not just on the routes someone remembered to
+   guard.
+
+!!! note "Why step 8 is not optional"
+    A detection rule for step 6 catches this *after* Alice already read
+    Bob's note. It cannot substitute for step 8 — it can only shorten how
+    long the missing check goes unnoticed.
+
+Same request, two paths, laid out over time — the only difference is one
+line in the API's response and one field in its log:
+
+```mermaid
+sequenceDiagram
+    participant Alice
+    participant API
+    participant DB as Notes DB
+    participant Log as Audit log
+
+    rect rgb(235, 245, 235)
+    note over Alice,Log: NORMAL — Alice reads her own note
+    Alice->>API: GET /notes/1 (token: alice)
+    API->>DB: owner check: note 1 owner == alice?
+    DB-->>API: yes
+    API->>Log: actor=alice owner=alice allowed=true
+    API-->>Alice: 200 Alice's note
+    end
+
+    rect rgb(250, 230, 230)
+    note over Alice,Log: ATTACK — Alice requests Bob's note id
+    Alice->>API: GET /notes/2 (token: alice)
+    API->>DB: owner check never runs
+    API->>Log: actor=alice owner=bob allowed=true
+    API-->>Alice: 200 Bob's note
+    note right of Log: observable evidence — the only visible<br/>difference from the normal path
+    end
+```
+
+That `owner=bob` line only exists because Module 7's pipeline was built to
+carry an `owner` field on every note-access event. If the log only recorded
+`actor` and `status`, this violation would be invisible — a 200 to Alice
+looks identical whether she read her own note or Bob's.
+
+Evidence quality is not uniform across the stack. The same BOLA violation
+looks very different depending on which layer you inspect:
+
+| Layer | Expected evidence for this BOLA |
+| --- | --- |
+| Application | `actor=alice`, `owner=bob` mismatch, `http_status=200` — the only layer where this is unambiguous |
+| Identity | A perfectly valid token, normal login history — nothing wrong here at all |
+| Database | A successful, well-formed read — the query itself is legitimate |
+| Network | Ordinary HTTPS to a route Alice is allowed to call |
+| Host | Likely nothing unusual — no new process, no unusual resource use |
+
+The lesson generalizes past BOLA: most application-security failures do
+not look malicious anywhere except the application layer, because that is
+the only layer that knows what "owner" means. A network or host-based
+detection strategy alone would miss this entirely — which is why Module 7's
+insistence on rich application-level fields, not just infrastructure
+telemetry, is a security requirement, not a nice-to-have.
+
+### Predict the evidence
+
+Before you look at the "Expected observations" section in the lab below,
+answer this: **if the IDOR scenario succeeds, what should appear in the
+API log?** What would distinguish Alice reading Bob's note maliciously
+from a legitimate admin doing the same read? Write down your prediction,
+then compare it against what the lab actually produces.
+
 ## Learning objectives
 
 - Explain injection, broken access control, SSRF, XSS, CSRF, insecure
@@ -256,6 +353,25 @@ checks. (2) SSRF rolled into A01 Broken Access Control. (3) Stops abuse and
 protects cost/availability (API4). (4) Unbounded export of all notes via an
 intended “export” button without per-user quotas. (5) Pickle can invoke
 constructors and lead to RCE.
+
+## Exit criteria
+
+You pass this module when you can:
+
+- ✓ Identify the trust boundary each of injection, BOLA, SSRF, XSS, CSRF,
+  and deserialization crosses.
+- ✓ State the security invariant broken by BOLA in one sentence, without
+  using the word "vulnerability."
+- ✓ Predict what an IDOR read leaves in the API log before being shown it.
+- ✓ Distinguish "authentication succeeded" from "authorization ran" for a
+  given request/response pair.
+- ✓ Investigate a `LAB_MODE=true` vs `LAB_MODE=false` response diff and
+  explain which control changed and why the status code changed with it.
+- ✓ Propose an immediate, reversible response to a confirmed cross-user
+  access (not just the permanent fix).
+- ✓ Explain the permanent architectural fix for BOLA, and why a detection
+  rule alone does not replace it.
+- ✓ Defend one tradeoff: why secure-mode IDOR returns 404 instead of 403.
 
 ## Engineering assignment
 

@@ -7,11 +7,12 @@ allowlists, detection rules — assumes an attacker starts from *outside* with
 *no* valid credential. In most real breaches that assumption is false on
 day one: the attacker starts with Alice's password because Alice typed it
 into a fake page, or the "attacker" is a legitimately authenticated employee
-misusing access they were actually granted. This module is a paper lab on alerts you already have — like Modules 14–15 —
-not a new container. There is no email-phishing simulator in this repo
-(that is a scope choice, not a claim that a local fake login page is
-impossible). It changes how you read every detection in this course, so it
-belongs here rather than being skipped.
+misusing access they were actually granted. It changes how you read every
+detection in this course, so it belongs here rather than being skipped.
+
+Like Modules 14–15, this is a paper lab on alerts you already have, not a
+new container — there is no email-phishing simulator in this repo (a scope
+choice, not a claim that a local fake login page is impossible).
 
 ## Visual overview
 
@@ -61,11 +62,9 @@ sequenceDiagram
 
 **Phishing changes the starting point, not the rest of the kill chain.**
 Once Alice's password is phished, everything downstream — login, token
-issuance, object access — proceeds exactly as it would for Alice herself.
-This is why Module 3's authentication/authorization split matters so much:
-authentication having succeeded (a real password, a real MFA prompt
-approved under pressure) tells you nothing about whether the *request* that
-follows is one Alice intended.
+issuance, object access — proceeds exactly as it would for Alice herself
+(see the intuition note above on why that's Module 3's authn/authz split
+in practice).
 
 **Insider risk is not a technical vulnerability.** DET-004 (broken
 function-level authorization: a non-admin calling an admin endpoint) is a
@@ -76,13 +75,11 @@ customer's notes with no ticket, no case, no reason. No authorization check
 catches that, because the access was authorized. Only audit review, least
 privilege, and anomaly detection on legitimate access patterns catch it.
 
-**Both leave a similar-looking evidence trail with a different response.**
-An unusual burst of note reads by one actor could be an automated scraper
-using a stolen token (phishing case: rotate the credential, review scope of
-compromise) or an employee doing something they are not supposed to
-(insider case: HR/legal process, not a token rotation). The SOC (Module 10)
-has to hold both hypotheses open until evidence — not the alert alone —
-distinguishes them.
+**The two responses diverge sharply.** For the same unusual burst of note
+reads: phishing calls for rotating the credential and reviewing scope of
+compromise; insider misuse calls for HR/legal process, not a token
+rotation. The SOC (Module 10) picks the wrong one if it responds to the
+alert instead of to the hypothesis the evidence actually supports.
 
 **MFA and phishing-resistance are not the same property.** Any MFA raises
 the cost of a phished password alone. *Phishing-resistant* MFA (passkeys,

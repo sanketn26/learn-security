@@ -1,0 +1,49 @@
+name: PR checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docs-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install MkDocs
+        run: pip install -r requirements-docs.txt
+      - name: Build (strict)
+        run: mkdocs build --strict
+
+  compose-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate labs/compose.yaml
+        run: docker compose -f labs/compose.yaml config --quiet
+      - name: Validate toolbox profile resolves
+        run: docker compose -f labs/compose.yaml --profile toolbox config --quiet
+
+  shell-and-python-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Shellcheck lab scripts
+        run: shellcheck labs/scripts/*.sh
+      - name: Bash syntax check
+        run: |
+          for f in labs/scripts/*.sh; do
+            bash -n "$f"
+          done
+      - name: Python syntax check
+        run: find labs -name '*.py' -exec python3 -m py_compile {} +

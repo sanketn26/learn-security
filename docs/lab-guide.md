@@ -47,6 +47,10 @@ bulkheads only count if they actually partition the failure.
 | Optional kind/k3d (module 5) | +2 GiB | +2 GiB | No |
 | Optional local LLM (Ollama) | +4 GiB | model size | No |
 
+Runtime labs use the predict → run → compare loop in
+[How defenders think](how-defenders-think.md). Design and writing labs
+predict findings, then compare. Do not invent extra labs.
+
 ## Quick start
 
 ```bash

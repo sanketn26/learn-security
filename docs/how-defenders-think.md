@@ -44,6 +44,42 @@ that can reach metadata, `/docs` left on in production, a debug port bound
 to `0.0.0.0` — these are attack surface. A WAF in front of a route you do
 not need is theatre. Shrinking the system is a control.
 
+## Explain → Predict → Diagnose → Design → Defend
+
+The five moves above generate the next idea. This sequence is how you
+**prove** you understood a module (same bar as
+[assessment](assessment.md)):
+
+| Move | You can |
+| --- | --- |
+| **Explain** | State the security invariant. Identify the trust boundary. |
+| **Predict** | Predict expected evidence: what appears, what does not, and why. |
+| **Diagnose** | Diagnose a failure from telemetry. |
+| **Design** | Propose prevention **and** detection. |
+| **Defend** | Explain containment. Explain residual risk. |
+
+Passing is not “I ran the command.” It is walking that sequence in your
+own words.
+
+## Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+## Run it
+
+Compare with the prediction.
+
+## Explain the difference
+
+If you were wrong, which assumption was wrong?
+
+Every existing lab already has a place to do this (the steps, then expected
+observations). Write the prediction *before the first observation* — a curl,
+a log line, or a written finding, depending on the lab. Runtime labs
+compare telemetry; design and writing labs compare the diagram or memo.
+If the difference is “I forgot the grouping key” or “I assumed processing time,”
+that is the lesson.
+
 ## Attack surface is a budget
 
 Attack surface is every reachable way to interact: HTTP routes, identity

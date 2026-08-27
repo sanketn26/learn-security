@@ -139,6 +139,14 @@ Your design review should say which arrows are allowed.
 
 You have run modules 4–12 once.
 
+### Before you write this
+
+Predict: (1) which findings you will file (2) which residual risks remain
+after a recommendation (3) why.
+
+Then read the compose file. Compare with your list. If you missed a
+finding, which assumption was wrong?
+
 ### Steps
 
 1. Read `labs/compose.yaml` and list trust boundaries.

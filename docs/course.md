@@ -604,7 +604,7 @@ with mandatory approval.
 ## 10. Assessment plan
 
 See [docs/assessment.md](assessment.md). Short version: each module has
-a five-question check (self-graded) and a short engineering assignment.
+a short knowledge check (self-graded) and a short engineering assignment.
 The capstone is the summative assessment, scored by rubric, not by “number
 of tools installed.”
 

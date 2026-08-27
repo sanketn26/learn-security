@@ -57,11 +57,18 @@ bulkhead or a smaller surface would have beaten a smarter alert.
 
 ## The security reasoning loop
 
-The learning loop above is *how you experiment*. This is *how you reason
-about any specific weakness*, once you have one in front of you — the
-question sequence every module below applies to its own material, and the
-one the exit-criteria checklist at the end of each module checks you
-against:
+The learning loop above is *how you experiment*. Before you run a lab,
+use the same predict → run → compare → explain block as
+[How defenders think](../how-defenders-think.md) and
+[Assessment](../assessment.md): predict which evidence appears, which
+does not, and why; run it; explain any difference by naming the wrong
+assumption.
+
+This is *how you reason about any specific weakness*, once you have one
+in front of you — the question sequence every module below applies to its
+own material, and the one the exit-criteria checklist at the end of each
+module checks you against. Those checklists instantiate the course pass
+bar: **Explain → Predict → Diagnose → Design → Defend**.
 
 1. **Asset or capability.** What does an attacker actually want here?
 2. **Security invariant.** What must always be true, in one sentence
@@ -79,6 +86,12 @@ against:
    evidence is confirmed?
 8. **Repair.** What permanent architectural change removes the weakness,
    rather than only catching it?
+
+Mapped onto the pass bar: **Explain** is steps 1–3 (asset, invariant, trust
+boundary); **Predict** is step 5 (expected evidence); **Diagnose** is
+reading the violation from telemetry (steps 4–6); **Design** is prevention
+(step 8) plus detection (step 6); **Defend** is containment (step 7) plus
+the residual risk you still have to name.
 
 !!! note "Intuition"
     Steps 5–7 (evidence, detection, response) are how you catch a violation

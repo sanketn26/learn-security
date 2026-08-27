@@ -126,6 +126,13 @@ production logs.
 Alerts exist (`simulate` + `ingest`). agentic-soc healthy:
 `curl -s http://127.0.0.1:8091/health`
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. Pick an alert id from `GET http://127.0.0.1:8090/alerts`.

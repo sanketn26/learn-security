@@ -222,6 +222,13 @@ curl -s -X POST http://127.0.0.1:8090/ingest
 ./labs/scripts/preserve-logs.sh   # writes labs/evidence/, survives lab-reset
 ```
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. List alerts; open one case for “possible account misuse / data exposure.”
@@ -356,7 +363,9 @@ alteration or disputed origin of evidence.
 
 ## Exit criteria
 
-You pass this module when you can:
+You pass this module when you can meet the course
+[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
+Defend) on this material:
 
 - ✓ Turn a threat hypothesis into a detection rule backed by a fixture that
   proves it fires on the abnormal case and stays quiet on the normal one.

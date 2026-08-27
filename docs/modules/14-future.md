@@ -122,6 +122,13 @@ vector DBs, tool gateways, and agents. They are APIs with memory.
 
 No extra containers.
 
+### Before you write this
+
+Predict: (1) what you will automate (2) what you will not (3) why.
+
+Then write the memo. Compare with that prediction. If they differ, which
+assumption was wrong?
+
 ### Steps
 
 1. Write one page: *What I will automate in a SOC in the next two years,

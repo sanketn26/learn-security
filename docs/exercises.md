@@ -36,6 +36,10 @@ Before any step labeled **AUTHORIZED LAB USE ONLY**, confirm all three:
 If any check fails, stop. Reading source, diagrams, logs, and synthetic
 fixtures remains a safe alternative.
 
+Runtime exercises use the predict → run → compare loop in
+[How defenders think](how-defenders-think.md). Design and writing
+exercises predict findings, then compare. Do not invent extra labs.
+
 ## Experiment record worksheet
 
 Copy this for every module:
@@ -48,8 +52,9 @@ Copy this for every module:
 | Starting state | LAB_MODE, running services, clean/dirty logs |
 | Normal observation | response + relevant telemetry |
 | Safe abnormal stimulus | provided simulator/scenario only |
-| Expected evidence/detection | event fields + rule id |
+| Expected evidence/detection | event fields + rule id; also what should *not* appear |
 | Actual result | |
+| Prediction vs result | match, or which assumption was wrong |
 | Control applied | |
 | Replay comparison | |
 | Failure mode tested | missing/malformed/delayed/duplicate/unsafe recommendation/etc. |

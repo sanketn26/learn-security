@@ -270,6 +270,13 @@ Put object AuthZ next to the data.
 
 `make lab-up`. Python 3.
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. Confirm banner: `curl -s http://127.0.0.1:8080/.well-known/lab`
@@ -356,7 +363,9 @@ constructors and lead to RCE.
 
 ## Exit criteria
 
-You pass this module when you can:
+You pass this module when you can meet the course
+[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
+Defend) on this material:
 
 - ✓ Identify the trust boundary each of injection, BOLA, SSRF, XSS, CSRF,
   and deserialization crosses.

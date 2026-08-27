@@ -109,6 +109,13 @@ process to notice and coordinate.
 
 Dirty lab with alerts (run simulate + ingest if empty).
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. `curl -s -X POST http://127.0.0.1:8090/ingest`

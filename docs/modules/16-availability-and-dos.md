@@ -122,6 +122,13 @@ Docker/Compose and `curl`. This experiment requires secure mode because the
 default teaching mode deliberately uses fast SHA-256. Resetting below deletes
 lab-only alerts, cases, and data; preserve anything you need first.
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. Start from a clean database and run the stack with bcrypt enabled:

@@ -77,8 +77,10 @@ name on `labnet`.
 
 **HTTP/S and TLS.** HTTP is the application protocol. TLS provides
 confidentiality and integrity of the hop and, with certificates, server
-(and optionally client) authentication. TLS does not authorize Alice to read
-Bob’s note. HTTP methods, paths, headers, and bodies are your app’s surface.
+(and optionally client) authentication. Module 6 splits that into key
+agreement, authentication, and AEAD-protected data. TLS does not authorize
+Alice to read Bob’s note. HTTP methods, paths, headers, and bodies are
+your app’s surface.
 
 **Routing, ports, proxies, firewalls.** A firewall or security group is a
 packet filter, not an identity system. A reverse proxy may terminate TLS and
@@ -127,6 +129,13 @@ loopback. Do not scan your campus, cloud, or neighbors.
 ### Prerequisites
 
 Lab up. Optional: `ss` or `netstat`, `docker logs`.
+
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
 
 ### Steps
 

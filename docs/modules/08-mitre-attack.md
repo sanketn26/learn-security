@@ -127,6 +127,13 @@ visibility.”
 
 Modules 4 and 7. Lab up. `LAB_MODE=true`.
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. `python3 labs/attack-sim/simulate.py --scenario all`
@@ -192,7 +199,9 @@ behavior.
 
 ## Exit criteria
 
-You pass this module when you can:
+You pass this module when you can meet the course
+[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
+Defend) on this material:
 
 - ✓ State the difference between tactic (why) and technique (how) without
   looking at the diagram.

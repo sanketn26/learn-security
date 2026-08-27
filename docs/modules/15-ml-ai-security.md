@@ -33,25 +33,29 @@ flowchart LR
     theft via the public "runtime" API, and a crafted input is Module 4's
     "data becomes code" pattern with the model as the unsafe interpreter.
 
-| Attack | Targets | Looks like | Primary control |
-| --- | --- | --- | --- |
-| Data poisoning | Training pipeline integrity | A backdoored or biased model, discovered late | Provenance + eval on trusted held-out data |
-| Model extraction | Confidentiality/availability of the model | A very active, very ordinary-looking API client | Rate limiting + query auditing |
-| Adversarial input | Serving-time integrity | A normal-looking input, wrong output | Robustness testing, not encryption |
-| Excessive agency | Blast radius of a wrong output | A correct-sounding action with real consequences | Tool-scoped policy + human approval (Module 12) |
+| Attack | Targets | Looks like | Prevent / raise cost | Detect / attribute |
+| --- | --- | --- | --- | --- |
+| Data poisoning | Training pipeline integrity | A backdoored or biased model, discovered late | Provenance + eval on trusted held-out data | Eval drift, canary triggers |
+| Model extraction | Confidentiality/availability of the model | A very active, very ordinary-looking API client | Authn, quotas, rate limits, restrict high-information outputs | Query auditing, behavioral detection, fingerprinting, watermarking where applicable |
+| Adversarial input | Serving-time integrity | A normal-looking input, wrong output | Robustness testing, not encryption | Anomalous-input / decision monitoring |
+| Excessive agency | Blast radius of a wrong output | A correct-sounding action with real consequences | Tool-scoped policy + human approval (Module 12) | Tool-call audit |
 
 !!! tip "Hint"
     "Encrypt the model file" answers a question nobody asked. Model
     extraction only requires **query access** to a public API — the file
-    never has to leave the server. Defend the query path (rate limits,
-    auditing, watermarking), not the artifact at rest.
+    never has to leave the server. Do **not** treat rate limits, auditing,
+    and watermarking as one "query path defense." Raise the cost of copying
+    (authentication, quotas, rate limits, restrict high-information outputs)
+    separately from detecting or attributing it (query audit, fingerprinting,
+    watermarking). Neither list is the other.
 
 ## Learning objectives
 
 - Apply the Module 1 asset/boundary/threat/control lens to a model instead
   of an API.
 - Distinguish attacks on training data, the model artifact, and the serving
-  API, and name a control for each.
+  API, and for extraction name both a prevent/raise-cost control and a
+  detect/attribute control (they are not the same).
 - Explain why a model's outputs are untrusted input to whatever reads them
   next — the same "data becomes code" pattern from Module 4.
 - Review a tool-using agent's configuration for supply-chain and
@@ -84,20 +88,19 @@ Query-access extraction is not solved by at-rest encryption.
 Controls for this split into two different jobs, and confusing them is how
 "add rate limiting" ends up as the entire security review:
 
-- **Raise the cost of extraction** (make copying expensive, not
-  impossible): authentication, per-caller quotas, rate limits, limiting
-  how much high-information output a single response can carry (e.g.
-  truncating raw logits/probabilities), and general access controls on
-  the serving endpoint.
-- **Detect or attribute copying** (assume some extraction succeeds, and
-  catch it): query auditing for patterns that look like systematic
-  probing rather than normal use, behavioral anomaly detection on query
-  volume/diversity, response fingerprinting, and watermarking where the
-  output format supports it.
+- **Prevent / raise extraction cost** (make copying expensive, not
+  impossible): authentication, per-caller quotas, rate limits, and
+  restricting high-information outputs (e.g. truncating raw
+  logits/probabilities).
+- **Detect / attribute** (assume some extraction succeeds, and catch it):
+  query auditing for systematic probing, behavioral detection on query
+  volume/diversity, response fingerprinting, and watermarking where
+  applicable.
 
-Neither list substitutes for the other: raising cost slows a patient
-attacker but does not tell you it happened; detection tells you it
-happened but does not stop the first successful run.
+Neither list substitutes for the other. Rate limits are not watermarking:
+raising cost slows a patient attacker but does not tell you copying
+happened; detection/attribution tells you it happened but does not stop
+the first successful run.
 
 **Adversarial examples.** Inputs crafted to be misclassified while looking
 normal to a human (or normal-looking log lines crafted to look like
@@ -114,19 +117,21 @@ tools are allowed to do, not by how accurate the model usually is.
 **Model/data confidentiality vs business value.** A model trained on
 sensitive data can leak fragments of that data through its outputs
 (membership inference, verbatim regurgitation). Treat "the model has seen
-this data" as equivalent to "this data has an additional access path,"
-which changes classification and retention decisions from Module 7.
+this data" as an additional **probabilistic exposure surface**, not as a
+second conventional access path. That changes classification and
+retention decisions from Module 7.
 
 A trained model may memorize and expose training information, creating a
 **probabilistic read path** to sensitive data — not a deterministic one.
-It is not an addressable database: you cannot `SELECT` a specific record
-out of it, query it with guaranteed recall, delete one row from it on
-request, or reason about its access control the way you would a database
-table. That difference matters operationally: "the model saw this data"
-does not tell you *which* queries will surface it, and "we deleted the
-row" does not mean the model has forgotten it. Plan retention and deletion
-requests around the model's training/retraining cycle, not around a single
-row's lifecycle.
+For threat modelling, treat model memorization as a potential data-exposure
+surface rather than as a conventional database. You cannot `SELECT` a
+specific record out of it, query it with guaranteed recall, delete one row
+from it on request, or reason about its access control the way you would a
+database table. That difference matters operationally: "the model saw this
+data" does not tell you *which* queries will surface it, and "we deleted
+the row" does not mean the model has forgotten it. Plan retention and
+deletion requests around the model's training/retraining cycle, not around
+a single row's lifecycle.
 
 ## Architecture connection
 
@@ -145,6 +150,14 @@ new ML infrastructure.
 ### Prerequisites
 
 Completed Module 1 (trust-boundary diagram) and Module 12 (agentic SOC lab).
+
+### Before you write this
+
+Predict: (1) which trust boundaries the smart-search feature adds (2)
+which tool in `policy.yaml` has the worst blast radius (3) why.
+
+Then do the steps. Compare with your notes. If you missed a boundary or a
+tool, which assumption was wrong?
 
 ### Steps
 
@@ -176,11 +189,15 @@ misused."
 
 ### Security lessons
 
-A model is an interpreter, a data store, and sometimes an actor — decide
-which one it is at each boundary before deciding what to trust it with.
-Provenance and rate limiting protect a model the way parameterization and
-authorization protect an API; the underlying pattern from Module 4 did not
-change, only the interpreter did.
+The lab is the smart-search diagram plus the tool audit: a model can
+create a probabilistic read path into memorized training information,
+while a tool-using agent can additionally become an actor. Bound the
+search feature by who can write embeddings and who can query them; bound
+the agent by what `policy.yaml` allows, not by model accuracy. Extraction
+prevent vs detect (quotas vs watermarking) belongs in the concepts
+section above — this lab never runs an extraction client. The Module 4
+pattern (untrusted input crossing an interpreter) did not change; the
+interpreter did.
 
 ### Common mistakes
 
@@ -206,6 +223,7 @@ None.
 4. What bounds the blast radius of a wrong model output?
 5. Why does "the model has seen this data" change a data-classification
    decision?
+6. Why is watermarking not the same kind of control as a rate limit?
 
 **Answers:** (1) The model is served through a public API; extraction only
 needs query access, not the file. (2) A trained model with recorded
@@ -213,8 +231,12 @@ provenance and an evaluation signoff before it enters the registry.
 (3) Different injection point (training time vs. inference time), same
 pattern: untrusted content shapes future behavior. (4) The tool permissions
 granted to whatever acts on the model's output, not the model's accuracy.
-(5) The data now has an additional read path (the model's outputs) that
-retention and access-control decisions must account for.
+(5) The data now has an additional *probabilistic* read path (memorized
+training information in the model's outputs) — not a conventional database
+you can query or delete a row from. (6) Rate limits (with authn, quotas,
+and restricted high-information outputs) raise extraction cost.
+Watermarking, query auditing, and fingerprinting detect or attribute
+copying after queries already succeeded.
 
 ## Engineering assignment
 

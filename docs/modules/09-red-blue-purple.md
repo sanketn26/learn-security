@@ -110,6 +110,13 @@ hypothesis --> emulate (red) --> telemetry (platform) --> detect (blue)
 
 Lab up, `LAB_MODE=true`.
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. Write a hypothesis in your notes: *DET-003 fires when `/fetch` hits

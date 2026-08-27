@@ -112,6 +112,13 @@ No new containers; this reuses alerts you can already generate.
 `make lab-up`; alerts exist from Module 9/11 (`simulate` + `ingest`, or
 `python3 labs/attack-sim/simulate.py --scenario all`).
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. Pull DET-001 (password guessing) and DET-004 (broken function-level

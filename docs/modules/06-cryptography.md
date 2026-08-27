@@ -27,20 +27,26 @@ hashing passwords** — not an academic break of AES.
 ```text
 Symmetric:   Alice [same secret K] <---- encrypted bulk data ----> Bob [K]
 Asymmetric:  public key may be shared; private key stays with its owner
-Hybrid:      asymmetric exchange authenticates/derives a symmetric session key
+Hybrid:      (EC)DHE agrees shared material; certs authenticate; HKDF + AEAD protect data
 ```
 
-!!! tip "Hint"
-    TLS is hybrid for a practical reason, not a theoretical one: asymmetric
-    crypto is slow and expensive per byte, symmetric crypto is fast. So every
-    HTTPS connection you make does a small amount of expensive asymmetric
-    work once, just to safely agree on a symmetric key, then switches to
-    cheap symmetric encryption for the actual data. That's what the handshake
-    below is doing.
+!!! note "Mental model"
+    TLS is hybrid for a practical reason, not a theoretical one: public-key
+    operations are expensive per byte, symmetric AEAD is fast. Every HTTPS
+    connection does a small amount of public-key work to agree shared secrets
+    and authenticate, then switches to cheap symmetric AEAD for the bytes
+    that follow.
+
+!!! note "Simplification"
+    The diagram below is the *normal* TLS 1.3 full (EC)DHE handshake
+    ([RFC 8446](https://www.rfc-editor.org/rfc/rfc8446) Figure 1): one
+    `ClientHello` that already includes `key_share`, the server's flight, then
+    the client's `Finished`. Optional messages (`pre_shared_key`,
+    `CertificateRequest`, client certificates) are omitted.
 
 ```mermaid
 sequenceDiagram
-  Client->>Server: ClientHello + supported versions + cipher suites + key_share
+  Client->>Server: ClientHello + supported_versions + cipher suites + key_share
   Server-->>Client: ServerHello + key_share
   Server-->>Client: EncryptedExtensions
   Server-->>Client: Certificate
@@ -48,24 +54,44 @@ sequenceDiagram
   Server-->>Client: Finished
   Client->>Client: validate name, dates, chain to trusted root, CertificateVerify signature
   Client->>Server: Finished
-  Note over Client,Server: encrypted application data
+  Note over Client,Server: Encrypted Application Data
 ```
 
-TLS 1.3 does this in one round trip: the client guesses a key-exchange
-group and sends `key_share` in the *first* message, so the server can
-derive a shared secret and start encrypting everything after its
-`ServerHello` — `EncryptedExtensions` onward is already protected, not just
-the "application data" that follows. (TLS 1.2 took an extra round trip and
-allowed weaker, non-forward-secret key exchanges; 1.3 removed those.)
+TLS 1.3 does this in one round trip: the client's **`key_share` is in the
+first `ClientHello`**, so the server can derive a shared secret and start
+protecting everything after its `ServerHello` — `EncryptedExtensions`
+onward is already record-protected, not just the application data that
+follows. (TLS 1.2 took an extra round trip and allowed weaker,
+non-forward-secret key exchanges; 1.3 removed those.)
 
-That single handshake is doing three separable cryptographic jobs, each
-solving a different problem:
+!!! note "Where this stops being true"
+    A **second** `ClientHello` / `key_share` is **not** the normal path. It
+    happens only after `HelloRetryRequest` (RFC 8446 Figure 2), when the
+    client's first offered share is unsuitable (wrong group, or the server
+    wants a different one). That is a retry, not how every handshake works.
+
+```mermaid
+sequenceDiagram
+  Note over Client,Server: HelloRetryRequest case only — not the normal 1-RTT path
+  Client->>Server: ClientHello + key_share (offered group unsuitable)
+  Server-->>Client: HelloRetryRequest + selected group
+  Client->>Server: ClientHello + key_share (new share for the selected group)
+  Note over Client,Server: handshake then continues as ServerHello … Finished above
+```
+
+In a typical TLS 1.3 certificate-based handshake, ephemeral (EC)DHE
+establishes shared key material, the certificate and signature authenticate
+the server, HKDF derives traffic keys, and symmetric AEAD protects
+application data.
+
+That handshake is doing three separable cryptographic jobs, each solving a
+different problem:
 
 | Job | Mechanism | Produces |
 | --- | --- | --- |
-| Ephemeral key agreement | `key_share` exchange (ECDHE / hybrid KEM) | shared key material, fresh per connection |
-| Server authentication | Certificate + `CertificateVerify` signature | proof the server holds the private key for that hostname's cert |
-| Application-data protection | Symmetric AEAD, keyed from the shared secret | confidentiality **and** integrity of the actual bytes |
+| Key agreement | (EC)DHE via `key_share` (hybrid KEM as standards evolve) | shared secret, fresh per connection |
+| Authentication | Certificate + `CertificateVerify` | proof the server holds the private key for that hostname's cert |
+| Protected application data | HKDF-derived traffic keys + symmetric AEAD | confidentiality **and** integrity of the actual bytes |
 
 Losing sight of that separation is how people reason incorrectly about
 TLS: a valid handshake proves *the server you're talking to controls a
@@ -109,25 +135,31 @@ who share the key. Both sides are equal: the verifier could have forged the
 tag.
 
 **Digital signature.** Asymmetric: private key signs, public key verifies.
-A valid signature demonstrates control of the corresponding private key
-under the assumed trust model — nothing more. Legal or organizational
-non-repudiation is a broader, separate claim that additionally depends on
-identity proofing, key custody, revocation, audit evidence, policy, and
-process; a signature alone does not establish it.
+A valid signature provides evidence that an entity controlling the
+corresponding private key produced the signature under the assumed trust
+model. Organizational or legal non-repudiation additionally depends on
+identity proofing, key custody, revocation, audit evidence, and policy —
+it is not an inherent property of the primitive.
 
 **Symmetric encryption.** One key encrypts and decrypts (AES-GCM). Use AEAD
 (authenticated encryption). Do not use ECB. Do not invent nonces.
 
 **Asymmetric encryption.** Public encrypts, private decrypts (rarely what
-you want for bulk data). Usually you encrypt a symmetric data key.
+you want for bulk data). Envelope encryption — encrypt a symmetric data
+key to a public key — is a different pattern from TLS 1.3, which uses
+ephemeral key *agreement*, not "asymmetric encryption creates the
+symmetric key."
 
-**Key exchange.** Agree a shared secret over an untrusted network (TLS uses
-Diffie–Hellman / hybrid KEMs as standards evolve).
+**Key exchange.** Agree a shared secret over an untrusted network. In TLS
+1.3 that is ephemeral (EC)DHE (hybrid KEMs as standards evolve), not a
+long-term key wrapping bulk data.
 
 **Certificates and TLS.** A certificate binds a public key to an identity,
-signed by a CA you trust. TLS uses certificates to authenticate the server
-(and sometimes the client), then symmetric keys for the session. TLS does
-not mean the API authorized the request.
+signed by a CA you trust. In a typical TLS 1.3 certificate-based
+handshake, ephemeral (EC)DHE establishes shared key material, the
+certificate and signature authenticate the server, HKDF derives traffic
+keys, and symmetric AEAD protects application data. TLS does not mean the
+API authorized the request.
 
 **Password hashing.** Slow and salted. **Argon2id** and **scrypt** are
 memory-hard (RAM costs hurt GPUs). **bcrypt** is CPU-hard with a small
@@ -176,6 +208,13 @@ Local Python. No network required. Optional `pynacl`.
 `python3`. Password and HMAC run without extra packages. `pip install pynacl`
 is required only for the Ed25519 half (`nacl` is imported inside that
 function so the rest of the demo still runs).
+
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
 
 ### Steps
 
@@ -226,27 +265,38 @@ None beyond not committing generated keys. Delete any scratch private keys.
 3. What does `alg=none` on a JWT mean historically?
 4. Does HTTPS to `/notes/2` fix IDOR?
 5. Why is `random.random()` wrong for reset tokens?
+6. In the *normal* TLS 1.3 handshake, when does the client send `key_share`?
+7. Does a valid signature by itself give you legal non-repudiation?
 
 **Answers:** (1) No. (2) Slow/salted; resists offline guessing. (3) Some
 libraries accepted unsigned tokens as valid. (4) No. (5) Not a CSPRNG;
-predictable tokens.
+predictable tokens. (6) In the first `ClientHello`. A second `ClientHello`
+/ `key_share` happens only after `HelloRetryRequest`, not on the normal
+path. (7) No. It is evidence of private-key control under the assumed
+trust model; non-repudiation also needs identity proofing, custody,
+revocation, audit evidence, and policy.
 
 ## Exit criteria
 
-You pass this module when you can:
+You pass this module when you can meet the course
+[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
+Defend) on this material:
 
 - ✓ Name which primitive (hash, MAC, signature, symmetric/asymmetric
   encryption) solves a given problem, and which ones a fast unsalted hash
   does *not* solve.
 - ✓ State the security invariant TLS gives you ("the server holds the
   private key for this hostname's trusted certificate") and where its
-  guarantee stops.
-- ✓ Separate TLS's three jobs — key agreement, server authentication,
-  application-data protection — and say which one a given failure breaks.
+  guarantee stops (the hop, not AuthZ).
+- ✓ Separate TLS's three jobs — (EC)DHE key agreement → shared secret;
+  certificate + `CertificateVerify` → authentication; HKDF-derived
+  traffic keys + AEAD → protected application data — and say which one a
+  given failure breaks.
 - ✓ Predict that HTTPS to `/notes/2` does not fix IDOR, and explain why in
   terms of the invariant TLS does and does not enforce.
-- ✓ Distinguish a valid signature (proof of private-key control) from legal
-  non-repudiation (identity proofing, custody, revocation, audit, policy).
+- ✓ Distinguish a valid signature (evidence of private-key control under
+  the assumed trust model) from legal non-repudiation (identity proofing,
+  custody, revocation, audit, policy) — not a primitive property.
 - ✓ Explain why slow, salted password hashing is a control, not a
   formality.
 - ✓ Investigate a leaked `JWT_SECRET` and state its blast radius for HS256

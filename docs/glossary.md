@@ -81,7 +81,8 @@
 | YARA | Pattern language for files/memory; not for JSON API logs. |
 | Volumetric DoS | Overwhelm capacity with request or packet volume. |
 | Algorithmic-complexity DoS | Cheap requests that force expensive work (slow hash, catastrophic regex). |
-| Model extraction | Reconstructing a model from query access, without stealing the file. |
+| Model extraction | Reconstructing a model from query access, without stealing the file. Raise cost (authn, quotas, rate limits, restrict high-information outputs) separately from detect/attribute (query audit, fingerprinting, watermarking). |
+| Non-repudiation | Organizational or legal claim that an actor cannot later deny an act. Depends on identity proofing, key custody, revocation, audit evidence, and policy — not an inherent property of a digital signature. |
 | Data poisoning | Tampering with training or fine-tuning data so future behavior is attacker-shaped. |
 | Adversarial example | Input crafted to be misclassified while looking ordinary. |
 | IMDSv2 | Session-oriented instance metadata: PUT a token, then GET with that header. Distinct from hop-limit TTL. |

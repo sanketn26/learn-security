@@ -146,6 +146,13 @@ than a second undocumented print.
 
 Lab up. `curl`, `python3`.
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. Generate mixed activity (authorized, local):
@@ -221,7 +228,9 @@ regions. (3) Password, token. (4) Alerting and actionability, not storage.
 
 ## Exit criteria
 
-You pass this module when you can:
+You pass this module when you can meet the course
+[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
+Defend) on this material:
 
 - ✓ Predict what fields a given violation (e.g. cross-user object access)
   should produce in the log, before looking at the pipeline's output.

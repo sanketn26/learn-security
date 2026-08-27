@@ -122,6 +122,13 @@ vector DBs, tool gateways, and agents. They are APIs with memory.
 
 No extra containers.
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. Write one page: *What I will automate in a SOC in the next two years,

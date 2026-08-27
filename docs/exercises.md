@@ -36,6 +36,22 @@ Before any step labeled **AUTHORIZED LAB USE ONLY**, confirm all three:
 If any check fails, stop. Reading source, diagrams, logs, and synthetic
 fixtures remains a safe alternative.
 
+## Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+## Run it
+
+Compare with the prediction.
+
+## Explain the difference
+
+If you were wrong, which assumption was wrong?
+
+That block is required on every existing exercise. It is the same bar as
+[assessment](assessment.md) and [How defenders think](how-defenders-think.md).
+Do not invent extra labs to satisfy it.
+
 ## Experiment record worksheet
 
 Copy this for every module:
@@ -48,8 +64,9 @@ Copy this for every module:
 | Starting state | LAB_MODE, running services, clean/dirty logs |
 | Normal observation | response + relevant telemetry |
 | Safe abnormal stimulus | provided simulator/scenario only |
-| Expected evidence/detection | event fields + rule id |
+| Expected evidence/detection | event fields + rule id; also what should *not* appear |
 | Actual result | |
+| Prediction vs result | match, or which assumption was wrong |
 | Control applied | |
 | Replay comparison | |
 | Failure mode tested | missing/malformed/delayed/duplicate/unsafe recommendation/etc. |

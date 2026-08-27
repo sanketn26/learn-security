@@ -221,6 +221,13 @@ always in scope.
 
 Docker, course repo. Read [docs/ethics.md](../ethics.md).
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. Start the lab: `./labs/scripts/lab-up.sh`
@@ -290,7 +297,9 @@ push rights only to the intended repo/tag, short-lived OIDC, no prod data.
 
 ## Exit criteria
 
-You pass this module when you can:
+You pass this module when you can meet the course
+[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
+Defend) on this material:
 
 - ✓ Draw a trust-boundary diagram for a small service and name the asset
   at risk on each boundary.

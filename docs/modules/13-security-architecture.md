@@ -139,6 +139,13 @@ Your design review should say which arrows are allowed.
 
 You have run modules 4–12 once.
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. Read `labs/compose.yaml` and list trust boundaries.

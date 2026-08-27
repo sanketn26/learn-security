@@ -178,6 +178,13 @@ carries a verifiable identity; the callee authorizes.
 
 Lab running with `LAB_MODE=true` (default).
 
+### Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+Then run the steps. Compare with the prediction. If the result differs,
+which assumption was wrong?
+
 ### Steps
 
 1. Login as Alice; decode the JWT payload (it is base64, not encryption):

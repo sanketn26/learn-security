@@ -6,8 +6,37 @@
 - Short engineering assignment (one page or a small patch).
 - Lab completion: expected observations present.
 
-Passing a module: you can explain the concepts in your own words and show
-lab output (screenshots or command transcripts of **local** services).
+A transcript without reasoning does not pass. You pass a module when you
+can do all of the following for its material, in this order:
+
+| Move | You can |
+| --- | --- |
+| **Explain** | State the security invariant. Identify the trust boundary. |
+| **Predict** | Predict expected evidence: what appears, what does not, and why. |
+| **Diagnose** | Diagnose a failure from telemetry. |
+| **Design** | Propose prevention **and** detection. |
+| **Defend** | Explain containment. Explain residual risk. |
+
+That is Explain → Predict → Diagnose → Design → Defend. Module exit
+checklists instantiate this bar; they do not replace it. Lab output
+(screenshots or command transcripts of **local** services) is necessary
+evidence, not a substitute for the explanations.
+
+## Before you run this
+
+Predict: (1) which evidence appears (2) which does not (3) why.
+
+## Run it
+
+Compare with the prediction.
+
+## Explain the difference
+
+If you were wrong, which assumption was wrong?
+
+Use that loop on every existing lab. Do not invent extra labs to satisfy
+it. The same wording lives in [How defenders think](how-defenders-think.md)
+and on each module lab.
 
 ## Summative
 

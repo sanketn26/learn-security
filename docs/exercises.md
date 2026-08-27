@@ -36,21 +36,9 @@ Before any step labeled **AUTHORIZED LAB USE ONLY**, confirm all three:
 If any check fails, stop. Reading source, diagrams, logs, and synthetic
 fixtures remains a safe alternative.
 
-## Before you run this
-
-Predict: (1) which evidence appears (2) which does not (3) why.
-
-## Run it
-
-Compare with the prediction.
-
-## Explain the difference
-
-If you were wrong, which assumption was wrong?
-
-That block is required on every existing exercise. It is the same bar as
-[assessment](assessment.md) and [How defenders think](how-defenders-think.md).
-Do not invent extra labs to satisfy it.
+Runtime exercises use the predict → run → compare loop in
+[How defenders think](how-defenders-think.md). Design and writing
+exercises predict findings, then compare. Do not invent extra labs.
 
 ## Experiment record worksheet
 

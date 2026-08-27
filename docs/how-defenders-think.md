@@ -74,8 +74,10 @@ Compare with the prediction.
 If you were wrong, which assumption was wrong?
 
 Every existing lab already has a place to do this (the steps, then expected
-observations). Write the prediction *before* the first curl. If the
-difference is “I forgot the grouping key” or “I assumed processing time,”
+observations). Write the prediction *before the first observation* — a curl,
+a log line, or a written finding, depending on the lab. Runtime labs
+compare telemetry; design and writing labs compare the diagram or memo.
+If the difference is “I forgot the grouping key” or “I assumed processing time,”
 that is the lesson.
 
 ## Attack surface is a budget

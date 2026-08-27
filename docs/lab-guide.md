@@ -47,21 +47,9 @@ bulkheads only count if they actually partition the failure.
 | Optional kind/k3d (module 5) | +2 GiB | +2 GiB | No |
 | Optional local LLM (Ollama) | +4 GiB | model size | No |
 
-## Before you run this
-
-Predict: (1) which evidence appears (2) which does not (3) why.
-
-## Run it
-
-Compare with the prediction.
-
-## Explain the difference
-
-If you were wrong, which assumption was wrong?
-
-The same block is on every module lab, [exercises](exercises.md),
-[assessment](assessment.md), and [How defenders think](how-defenders-think.md).
-Do not invent extra labs to satisfy it.
+Runtime labs use the predict → run → compare loop in
+[How defenders think](how-defenders-think.md). Design and writing labs
+predict findings, then compare. Do not invent extra labs.
 
 ## Quick start
 

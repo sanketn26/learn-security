@@ -25,9 +25,10 @@ hashing passwords** — not an academic break of AES.
 | Signature | message + private key → signature; public key verifies | Signature is not decryption | origin/integrity relative to key custody |
 
 ```text
-Symmetric:   Alice [same secret K] <---- encrypted bulk data ----> Bob [K]
-Asymmetric:  public key may be shared; private key stays with its owner
-Hybrid:      (EC)DHE agrees shared material; certs authenticate; HKDF + AEAD protect data
+Symmetric:                 Alice [same secret K] <---- encrypted bulk data ----> Bob [K]
+Asymmetric:                public key may be shared; private key stays with its owner
+Hybrid encryption (general): public-key work agrees or wraps a symmetric key; AEAD protects bulk
+TLS 1.3 (typical):         (EC)DHE + CertificateVerify + HKDF/AEAD are three jobs, not one
 ```
 
 !!! note "Mental model"

@@ -223,10 +223,10 @@ Docker, course repo. Read [docs/ethics.md](../ethics.md).
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Predict: (1) which trust boundaries exist (2) which you might miss (3) why.
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+Then start the lab and draw. Compare with the prediction. If a boundary
+was missing, which assumption was wrong?
 
 ### Steps
 

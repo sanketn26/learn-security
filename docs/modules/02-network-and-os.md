@@ -77,10 +77,10 @@ name on `labnet`.
 
 **HTTP/S and TLS.** HTTP is the application protocol. TLS provides
 confidentiality and integrity of the hop and, with certificates, server
-(and optionally client) authentication. Module 6 splits that into three
-jobs: (EC)DHE key agreement, certificate authentication, and HKDF-derived
-traffic keys plus AEAD. TLS does not authorize Alice to read Bob’s note.
-HTTP methods, paths, headers, and bodies are your app’s surface.
+(and optionally client) authentication. Module 6 splits that into key
+agreement, authentication, and AEAD-protected data. TLS does not authorize
+Alice to read Bob’s note. HTTP methods, paths, headers, and bodies are
+your app’s surface.
 
 **Routing, ports, proxies, firewalls.** A firewall or security group is a
 packet filter, not an identity system. A reverse proxy may terminate TLS and

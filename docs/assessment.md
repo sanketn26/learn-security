@@ -2,7 +2,7 @@
 
 ## Formative (each module)
 
-- Five-question knowledge check (self-graded; answers in the module).
+- Short knowledge check (self-graded; answers in the module).
 - Short engineering assignment (one page or a small patch).
 - Lab completion: expected observations present.
 
@@ -22,21 +22,9 @@ checklists instantiate this bar; they do not replace it. Lab output
 (screenshots or command transcripts of **local** services) is necessary
 evidence, not a substitute for the explanations.
 
-## Before you run this
-
-Predict: (1) which evidence appears (2) which does not (3) why.
-
-## Run it
-
-Compare with the prediction.
-
-## Explain the difference
-
-If you were wrong, which assumption was wrong?
-
-Use that loop on every existing lab. Do not invent extra labs to satisfy
-it. The same wording lives in [How defenders think](how-defenders-think.md)
-and on each module lab.
+Runtime labs use the predict → run → compare loop in
+[How defenders think](how-defenders-think.md). Design and writing labs
+use the same cycle on findings, not telemetry. Do not invent extra labs.
 
 ## Summative
 

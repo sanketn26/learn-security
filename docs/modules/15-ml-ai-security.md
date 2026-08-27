@@ -36,7 +36,7 @@ flowchart LR
 | Attack | Targets | Looks like | Prevent / raise cost | Detect / attribute |
 | --- | --- | --- | --- | --- |
 | Data poisoning | Training pipeline integrity | A backdoored or biased model, discovered late | Provenance + eval on trusted held-out data | Eval drift, canary triggers |
-| Model extraction | Confidentiality/availability of the model | A very active, very ordinary-looking API client | Authn, quotas, rate limits, restrict high-information outputs, abuse detection | Query auditing, behavioral detection, fingerprinting, watermarking where applicable |
+| Model extraction | Confidentiality/availability of the model | A very active, very ordinary-looking API client | Authn, quotas, rate limits, restrict high-information outputs | Query auditing, behavioral detection, fingerprinting, watermarking where applicable |
 | Adversarial input | Serving-time integrity | A normal-looking input, wrong output | Robustness testing, not encryption | Anomalous-input / decision monitoring |
 | Excessive agency | Blast radius of a wrong output | A correct-sounding action with real consequences | Tool-scoped policy + human approval (Module 12) | Tool-call audit |
 
@@ -89,9 +89,9 @@ Controls for this split into two different jobs, and confusing them is how
 "add rate limiting" ends up as the entire security review:
 
 - **Prevent / raise extraction cost** (make copying expensive, not
-  impossible): authentication, per-caller quotas, rate limits, restricting
-  high-information outputs (e.g. truncating raw logits/probabilities), and
-  abuse detection on the serving endpoint.
+  impossible): authentication, per-caller quotas, rate limits, and
+  restricting high-information outputs (e.g. truncating raw
+  logits/probabilities).
 - **Detect / attribute** (assume some extraction succeeds, and catch it):
   query auditing for systematic probing, behavioral detection on query
   volume/diversity, response fingerprinting, and watermarking where
@@ -117,8 +117,9 @@ tools are allowed to do, not by how accurate the model usually is.
 **Model/data confidentiality vs business value.** A model trained on
 sensitive data can leak fragments of that data through its outputs
 (membership inference, verbatim regurgitation). Treat "the model has seen
-this data" as equivalent to "this data has an additional access path,"
-which changes classification and retention decisions from Module 7.
+this data" as an additional **probabilistic exposure surface**, not as a
+second conventional access path. That changes classification and
+retention decisions from Module 7.
 
 A trained model may memorize and expose training information, creating a
 **probabilistic read path** to sensitive data — not a deterministic one.
@@ -150,12 +151,13 @@ new ML infrastructure.
 
 Completed Module 1 (trust-boundary diagram) and Module 12 (agentic SOC lab).
 
-### Before you run this
+### Before you write this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Predict: (1) which trust boundaries the smart-search feature adds (2)
+which tool in `policy.yaml` has the worst blast radius (3) why.
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+Then do the steps. Compare with your notes. If you missed a boundary or a
+tool, which assumption was wrong?
 
 ### Steps
 
@@ -187,13 +189,15 @@ misused."
 
 ### Security lessons
 
-A model can create a probabilistic read path into memorized training
-information, while a tool-using agent can additionally become an actor —
-decide which of those is in play at each boundary before deciding what to
-trust it with. Provenance protects the training supply chain; quotas and
-rate limits raise extraction cost; auditing, fingerprinting, and
-watermarking detect or attribute copying. The Module 4 pattern (untrusted
-input crossing an interpreter) did not change; the interpreter did.
+The lab is the smart-search diagram plus the tool audit: a model can
+create a probabilistic read path into memorized training information,
+while a tool-using agent can additionally become an actor. Bound the
+search feature by who can write embeddings and who can query them; bound
+the agent by what `policy.yaml` allows, not by model accuracy. Extraction
+prevent vs detect (quotas vs watermarking) belongs in the concepts
+section above — this lab never runs an extraction client. The Module 4
+pattern (untrusted input crossing an interpreter) did not change; the
+interpreter did.
 
 ### Common mistakes
 

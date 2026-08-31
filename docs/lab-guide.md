@@ -98,6 +98,8 @@ curl -s -X POST http://127.0.0.1:8091/investigate -H 'Content-Type: application/
 | kind or k3d | Local Kubernetes | Skip module 5 k8s lab | Optional |
 | Ollama or hosted LLM | Natural-language summaries | Deterministic planner (default) | Optional |
 
+The optional toolbox image is built in CI (`.github/workflows/toolbox-image.yml`).
+
 ## Modes
 
 - `LAB_MODE=true` (default): application-level vulnerabilities enabled for teaching.
@@ -109,7 +111,17 @@ compose service names) and only `http` on ports `80`, `8080`, `8090`, or
 `8091`. In `LAB_MODE=false` the OpenAPI UI (`/docs`, `/openapi.json`) is
 also removed — that is attack-surface reduction, not a network bulkhead.
 
-**No-Docker / venv alternative:** run `mock-imds` on `PORT=18080`, set
+**No-Docker / venv alternative:** Docker Compose is still preferred. If you
+cannot run containers, install the unified host pins and nothing else:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-labs.txt
+```
+
+`requirements-labs.txt` is the union of `labs/notes-api/requirements.txt`,
+`labs/soc-lite/requirements.txt`, and `labs/agentic-soc/requirements.txt`,
+plus `pytest`. Then run `mock-imds` on `PORT=18080`, set
 `LAB_FETCH_EXTRA_HOSTS=127.0.0.1` only on your workstation, and still bind
 APIs to `127.0.0.1`. Never point `LAB_FETCH_EXTRA_HOSTS` at a non-lab host.
 

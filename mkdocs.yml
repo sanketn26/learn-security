@@ -102,6 +102,13 @@ nav:
           - 17. Phishing, social engineering, insider risk: modules/17-human-factor-attacks.md
   - Capstone:
       - Project brief: capstone/README.md
+      - Worked example (parallel incident): capstone/reference/README.md
+      - Example threat model: capstone/reference/threat-model-example.md
+      - Example architecture review: capstone/reference/architecture-review-example.md
+      - Example incident report: capstone/reference/incident-report-example.md
+      - Example purple report: capstone/reference/purple-report-example.md
+      - Example containment runbook: capstone/reference/containment-runbook-example.md
+      - Example decision record: capstone/reference/security-decision-record-example.md
       - Threat-model template: capstone/threat-model.md
       - ATT&CK coverage template: capstone/attack-coverage.md
       - Incident-report template: capstone/incident-report.md

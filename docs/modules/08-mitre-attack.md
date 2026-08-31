@@ -222,6 +222,44 @@ Defend) on this material:
 Pick one production alert type you have seen (or invent from notes-api).
 Write a mapping with confidence and an alternative ID. One paragraph.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Tactic vs technique for DET-001, in one sentence each."
+    Tactic (why): Credential Access. Technique (how): T1110.001 Password
+    Guessing. The procedure is six HTTP failures against lab `/login`.
+    ATT&CK is the language, not a scoreboard.
+
+??? question "Predict: What does the DET-001 alert id look like, and what is it *not* grouped by?"
+    `{rule_id}:{group_key}` → `DET-001:<src_ip>` (often the Docker
+    gateway). Not `alice`. DET-002–005 group by `actor`; do not assume
+    every alert names a user.
+
+??? question "Diagnose: Why is DET-002 T1213 rather than T1005?"
+    T1005 is data from a local *host* filesystem. Here the object is an
+    application repository (a note row). Wrong ID is matrix theatre.
+
+??? question "Design: A coverage cell is green for T1110.001. What does that not prove?"
+    That a real adversary would be stopped or even seen. You have a
+    procedure, a data source, and a rule for *this* lab login. Persistence,
+    lateral movement, and C2 stay "no data source."
+
+??? question "Defend: Why spend more effort on a TTP-style rule than on an IP denylist?"
+    IPs are cheap for an attacker to change (Pyramid of Pain). A
+    behavioral guess-burst rule survives a new source *if* the fields
+    still exist. Residual: shared NAT `src_ip` and slow guessing still
+    evade DET-001.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — map from the alert's evidence, not from the vulnerability's OWASP name.
+- **Build** — fill the five-detection coverage matrix with confidence and limitations.
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
+
 ## Further reading
 
 - [MITRE ATT&CK](https://attack.mitre.org/)

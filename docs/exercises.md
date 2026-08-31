@@ -17,7 +17,7 @@ below.
 | 8 | Map five detections to ATT&CK | Intermediate | Coverage matrix with caveats |
 | 9 | Run one purple-team loop | Intermediate | Validation report |
 | 10 | Triage and open a case | Intermediate | Case record |
-| 11 | Investigate simulated exposure | Advanced | Timeline, RCA, incident report |
+| 11 | Investigate simulated exposure; walk DET-001 then author more rules | Advanced | Timeline, RCA, incident report |
 | 12 | Test a bounded SOC assistant | Advanced | Audited recommendation/approval run |
 | 13 | Review the platform architecture | Advanced | Findings + architecture decision |
 | 14 | Write a future-facing judgment memo | Reflective | Established/emerging risk memo |
@@ -67,4 +67,11 @@ Copy this for every module:
 
 The last four rows are the [thinking guide](how-defenders-think.md) in
 worksheet form. Fill them even when the module does not ask.
+
+## Detection-rule authoring (Module 11)
+
+Module 11 walks **existing** rule DET-001 from hypothesis through replay
+fixture: [Worked walkthrough — authoring DET-001](modules/11-detection-and-ir.md#worked-walkthrough-authoring-det-001).
+Use that sequence when you add rules. The capstone still requires three
+rules you author yourself; this course does not publish those solutions.
 

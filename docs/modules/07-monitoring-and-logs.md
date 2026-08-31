@@ -257,6 +257,44 @@ Defend) on this material:
 Add one new audit event to notes-api (for example `logout` or `token_rejected`
 with reason). Do not log secrets. Show it appearing in `/events`.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Write DET-001 as a detection claim, not a vibe."
+    If `login_failure` events share a `src_ip` and their `ts` values span
+    ≤120 seconds, five or more of them produce `DET-001`. The clock is
+    event time. If `src_ip` is missing, the grouping key is a lie.
+
+??? question "Predict: You GET /alerts (which ingests), then POST /ingest. Why might `new_alerts` be []?"
+    Alerts already exist with id `DET-001:<src_ip>`. A later ingest updates
+    evidence; it does not mint a second row. Delayed ingest still *fires*
+    the first time because the window is not wall clock.
+
+??? question "Diagnose: A metric says `note_read_total{code=200}` went up. Can you prove which note id Alice read?"
+    No. Metrics lack object id. You need the audit/log line with `note_id`,
+    `actor`, and owner/decision. That is why A09:2025 is logging *and*
+    alerting, not "we have a dashboard."
+
+??? question "Design: Name two fields you must never log on `/login`, and one you must."
+    Never: password, token. Must: `ts` (UTC), `event`, username or actor,
+    `src_ip`, result, `trace_id`. Shipping the file off the app host is a
+    control, not hygiene.
+
+??? question "Defend: Why copy logs with preserve-logs.sh before you disable LAB_MODE or reset?"
+    Containment and `lab-reset` can wipe or flood the volume. Residual risk
+    of containing first: you cannot reconstruct the timeline. The copy is
+    not courtroom-grade; you still hash it.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — name the missing field or wrong clock from a quiet detection, not from "ingest failed."
+- **Build** — ingest, search events, preserve a copy, write DET-001 as a claim.
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
+
 ## Further reading
 
 - [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)

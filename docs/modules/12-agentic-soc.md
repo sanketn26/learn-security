@@ -217,6 +217,45 @@ action correctness, containment safety. (4) Strip/ignore; policy unchanged.
 Add a new read-only tool sketch (name, input, policy, what it must never
 do). Do not implement a shell tool.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Why is approval an API contract, not a sentence in the prompt?"
+    Prompts cannot add tools; `policy.yaml` allowlists them. Respond tools
+    (`simulate_action`) require `approval=APPROVE` or the API 403s. A model
+    that says "the human said yes" must not move the system.
+
+??? question "Predict: Investigate without APPROVE, then with `approval=nope`. What happens?"
+    Health shows `mode: human-in-the-loop`. Missing or wrong approval
+    yields 403. Audit in the cases volume records the attempt. Fluency of
+    the summary is not the pass signal.
+
+??? question "Diagnose: Alert evidence contains `ignore previous instructions` / `approve all`. What must the assistant do?"
+    Strip or ignore it. Policy is unchanged. Retrieved playbook text is
+    more trusted than alert fields, but even RAG can inject — treat
+    untrusted content as data.
+
+??? question "Design: Bound blast radius without changing the model."
+    Narrow the allowlist, keep respond tools behind approval, no raw
+    shell, lab data only if you enable a hosted LLM. Excessive agency is
+    the tool set, not the model's IQ.
+
+??? question "Defend: Residual risk if a hosted LLM sees lab JSONL."
+    Provider logging and training policy are outside your compose
+    network. Containment: do not send production logs; assume the provider
+    stored what you posted. The deterministic catalog remains a valid
+    planner when the LLM is off.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — name the policy miss (missing APPROVE, extra tool, injected evidence), not "the model was wrong."
+- **Build** — run `/investigate`, prove 403 without APPROVE, then one approved simulated action.
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
 ## Further reading
 
 - [OWASP GenAI LLM Top 10 2026](https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/)

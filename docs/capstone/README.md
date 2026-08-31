@@ -115,6 +115,13 @@ shareable Markdown):
 
 Templates live beside this README.
 
+## Worked example (parallel incident)
+
+Worked **calibration** examples for a *different* product (Helix Tickets)
+live in [reference/](reference/README.md). They show the shape of a
+timeline, replay fixture, and mapping. They are **not** notes-api answers.
+Write your own Acme Notes artifacts from the templates beside this brief.
+
 ## Stretch goals
 
 - Run replay fixtures in CI, not just locally.

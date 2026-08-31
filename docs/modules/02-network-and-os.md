@@ -235,6 +235,44 @@ where logs go, and whether secrets are in env. Propose one visibility
 improvement (structured log field or bind-address change). No scanning of
 systems you do not own.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Why is publishing notes-api on 127.0.0.1:8080 a different trust boundary than 0.0.0.0:8080?"
+    Loopback is reachable only from the host. `0.0.0.0` puts the
+    intentionally vulnerable API on every interface — LAN/WAN. The
+    container still binds `0.0.0.0:8080` *inside* the namespace; the host
+    publish mapping is the boundary you chose.
+
+??? question "Predict: What evidence disappears if you `docker compose down -v` in the middle of an investigation?"
+    Volume-backed JSONL, sqlite, and soc-lite cases. Container stdout logs
+    from the removed instances. A host copy from `preserve-logs.sh` is the
+    thing that is supposed to survive.
+
+??? question "Diagnose: labnet is `internal: true`, but `getaddrinfo('example.com')` from notes-api may succeed. What assumption failed?"
+    notes-api is dual-homed: edgenet is a normal bridge. Internal labnet
+    does not prove the *process* has no DNS or egress. The bulkhead that
+    actually blocks `/fetch` to the world is the application allowlist.
+
+??? question "Design: Why is a security group (or compose network) insufficient as the only authorization layer for GET /notes/2?"
+    Packet filters decide who can open a TCP connection, not whether Alice
+    may read Bob's row. Object AuthZ still belongs in the service.
+
+??? question "Defend: Someone published the lab on a shared Wi-Fi. What do you isolate first, and what remains?"
+    Un-publish / bind back to loopback and treat dummy passwords as burned.
+    Residual risk: anyone who already reached `:8080` may hold a JWT;
+    rotate `JWT_SECRET` and wipe lab volumes after you copy evidence.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — name the failed invariant from this module's telemetry or diagram.
+- **Build** — complete the local-visibility lab (bind address, process user, log path, one bulkhead caveat).
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
 ## Further reading
 
 - [RFC 8446 TLS 1.3](https://www.rfc-editor.org/rfc/rfc8446)

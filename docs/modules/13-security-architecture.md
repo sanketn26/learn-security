@@ -199,6 +199,45 @@ when threats change.
 One-page architecture decision record: “How notes-api will authenticate
 service callers in production.” Options, choice, residual risk.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Why is VPC-only (or labnet-only) exposure not object AuthZ?"
+    Any workload on that network can call you. Alice vs Bob is still a
+    per-object decision. "We'll put it on the service mesh" is not the
+    AuthZ story.
+
+??? question "Predict: Name two independent bulkheads against SSRF-to-IMDS on this platform."
+    Application allowlist **and** no network route to IMDS. IMDSv2 and a
+    least-privilege role are extra layers. Prefer deleting `/fetch` to
+    detecting its abuse.
+
+??? question "Diagnose: notes-api and soc-lite share one JWT secret / audience. What blast radius did you just draw?"
+    A stolen notes-api token mints calls the SOC would accept. `aud` per
+    callee is the bulkhead. Shared DB and feature flags that skip AuthZ
+    are the same class of "one compromise is everywhere."
+
+??? question "Design: What does pinning an image digest not protect against?"
+    Malicious-but-pinned bits, and a compromised signer. Pinning verifies
+    bytes. Signing + admission is a different bulkhead. `latest` is not a
+    pin.
+
+??? question "Defend: Residual risk after you delete `/docs` in production and add a WAF."
+    You shrunk surface (good) but a WAF in front of remaining IDOR is
+    theatre. Containment still needs a quarantine switch (this identity,
+    this egress, this agent tool) rather than one "turn the API off"
+    lever. Retries can still amplify stuffing.
+
+## Before you leave
+
+- **Predict** — write expected findings (what appears, what does not, and why) before you write the review.
+- **Diagnose** — name the missing bulkhead from the platform diagram.
+- **Build** — complete the architecture review (findings a staff engineer could action, plus the ADR assignment).
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
 ## Further reading
 
 - [CISA Secure by Design](https://www.cisa.gov/securebydesign)

@@ -46,4 +46,16 @@ jobs:
             bash -n "$f"
           done
       - name: Python syntax check
-        run: find labs -name '*.py' -exec python3 -m py_compile {} +
+        run: find labs tests -name '*.py' -exec python3 -m py_compile {} +
+
+  lab-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install lab + test dependencies
+        run: pip install -r requirements-labs.txt
+      - name: Run lab platform tests
+        run: pytest tests/ -q

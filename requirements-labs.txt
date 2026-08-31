@@ -1,0 +1,13 @@
+# Unified host-install pins for the no-Docker lab path.
+# Docker Compose is the preferred way to run the stack (docs/setup.md).
+# Copied from labs/notes-api, labs/soc-lite, and labs/agentic-soc
+# requirements.txt; pytest is for the Module 4 assignment.
+
+fastapi==0.115.6
+uvicorn==0.34.0
+pydantic==2.10.4
+pyjwt==2.10.1
+httpx==0.28.1
+bcrypt==4.2.1
+pyyaml==6.0.2
+pytest

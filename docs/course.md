@@ -1,5 +1,9 @@
 # Defensive Security Engineering
 
+!!! note "How to use this page"
+    This long page is the printable / single-page reference and roadmap.
+    Day-to-day study is the [per-module pages](modules/README.md).
+
 **A hands-on course for software, platform, backend, DevOps, and ML engineers
 who need to design, operate, detect, and respond — without becoming a full-time
 security specialist first.**

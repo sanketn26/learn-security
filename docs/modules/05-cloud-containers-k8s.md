@@ -253,6 +253,43 @@ For your org’s compute (or this lab), write a one-page “workload identity
 and metadata” note: how the app gets cloud creds, whether IMDS is reachable
 from app containers, and what audit log would show a role assumption.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Who owns object-level AuthZ when notes-api runs on a managed Kubernetes service?"
+    You. The provider does not implement "Alice may not read Bob's ticket
+    row." Shared responsibility never includes the IDOR.
+
+??? question "Predict: In LAB_MODE, `/fetch` to mock-imds returns what, and what must you not do with it?"
+    Dummy JSON (`LABFAKEACCESSKEYID`). Map it to T1552.005 conceptually.
+    Do not call real `169.254.169.254` on a cloud VM "to compare."
+
+??? question "Diagnose: `docker inspect` shows empty `User` on lab-notes-api. What is the finding?"
+    The process is uid 0 (root) in the container. That is a workload
+    posture finding, not a feature. Record USER in the Dockerfile, cap
+    drop, read-only rootfs — and remember a container is not a VM.
+
+??? question "Design: Name two *independent* controls that still help if application SSRF remains."
+    No network route from the app to IMDS (policy / hop-limit / IMDSv2 as
+    extra layers) **and** a least-privilege workload role so stolen creds
+    cannot do much. The `/fetch` allowlist is another bulkhead; a WAF
+    slide is not.
+
+??? question "Defend: Every microservice shares one cloud role. What is residual risk after you block metadata from one pod?"
+    SSRF in a sibling still yields the same role. Containment is isolate
+    that identity and rotate it; the design fix is per-workload identity.
+    Trivy exit 0 does not close this.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — name the failed invariant from metadata reachability or container posture, not from "it's cloud."
+- **Build** — complete the metadata and isolation lab (dummy IMDS only; optional kind/trivy).
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
 ## Further reading
 
 - Provider shared-responsibility documentation (AWS/GCP/Azure official).

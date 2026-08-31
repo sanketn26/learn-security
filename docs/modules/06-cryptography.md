@@ -312,6 +312,46 @@ Write a 20-line Python function `hash_password` / `verify_password` using
 maintained library is available. Document rotation: how you would change
 cost parameters later.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Why is SHA-256 of the lab passwords the wrong primitive?"
+    A fast unsalted hash is for change detection when you already trust the
+    digest, not for password verifiers. Offline guessing is cheap. LAB_MODE
+    stores hex SHA-256; secure mode uses bcrypt — slow and salted on
+    purpose.
+
+??? question "Predict: HTTPS to GET /notes/2. Does IDOR go away?"
+    No. TLS authenticates the *server* for this hop and protects the bytes.
+    It does not enforce owner == subject. Same invariant as Module 4.
+
+??? question "Diagnose: A JWT header says `alg=none`. What historically broke?"
+    Some libraries accepted unsigned tokens as valid. Verification must
+    reject `none` and unexpected algs; decoding the payload still proves
+    nothing.
+
+??? question "Design: Encrypting passwords vs hashing them — which is the control, and what detection sits beside it?"
+    Store a slow salted hash (bcrypt/argon2), never reversible encryption
+    of passwords. Detection: audit `login_failure` bursts (DET-001) and
+    never log the password or the hash comparison operands.
+
+??? question "Defend: `JWT_SECRET` leaked for this HS256 lab issuer. Blast radius and containment?"
+    Anyone can mint Alice or admin tokens until you rotate the secret and
+    treat outstanding tokens as burned (no `exp` in LAB_MODE makes this
+    worse). RS256/EdDSA issuance would not let the verifier's public key
+    mint tokens — different blast radius. Residual: sessions already
+    issued.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — name the wrong primitive (hash vs MAC vs signature vs encryption) from the failure, not from the algorithm's fame.
+- **Build** — complete the password-storage and signature comparison lab (or the hash_password assignment).
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
+
 ## Further reading
 
 - [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)

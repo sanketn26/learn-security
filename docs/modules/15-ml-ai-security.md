@@ -244,6 +244,44 @@ Extend your Module 1 trust-boundary diagram to include the smart-search
 addition from step 1. Submit it alongside one paragraph naming the two
 highest-severity threats and their controls.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Why doesn't encrypting the model file stop query-access extraction?"
+    Extraction needs the serving API, not the registry file. At-rest
+    encryption still matters against backup theft — a different path.
+
+??? question "Predict: How is a poisoned training example different from a prompt-injected log line, and how is it the same?"
+    Different injection point (training vs inference). Same Module 4
+    pattern: untrusted content shapes future behavior. Accuracy is not the
+    control.
+
+??? question "Diagnose: `simulate_action` is the only respond tool in policy.yaml. What is the worst case if the planner trusts a manipulated summary?"
+    It can still request an allowlisted action (disable_lab_mode,
+    revoke_token_notice, block_actor, snapshot_logs). Approval must fail
+    closed. The blast radius is the tool list, not model quality.
+
+??? question "Design: Name one prevent/raise-cost control and one detect/attribute control for extraction — and why they are not interchangeable."
+    Prevent: authn, quotas, rate limits, truncated logits. Detect:
+    query audit, watermarking, fingerprinting. Rate limits do not tell you
+    copying happened; watermarks do not stop the first successful run.
+
+??? question "Defend: Residual risk of 'the model has seen this notes corpus.'"
+    A probabilistic read path remains after you delete a sqlite row.
+    Containment is restrict who can query, log queries, retrain on a
+    cycle — not `DELETE FROM notes`. "Make the model more accurate" does
+    not bound that surface.
+
+## Before you leave
+
+- **Predict** — write expected findings (what appears, what does not, and why) before the threat-model and tool audit.
+- **Diagnose** — name the interpreter or tool-permission miss, not "the model is a black box."
+- **Build** — smart-search trust-boundary diagram plus one worst-case sentence per allowlisted tool.
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
 ## Further reading
 
 - [MITRE ATLAS](https://atlas.mitre.org/)

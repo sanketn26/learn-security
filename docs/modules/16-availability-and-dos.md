@@ -258,6 +258,44 @@ State an RPO and RTO for `notes-api`'s sqlite file, and one sentence on how
 you would actually verify the restore works, not just that the backup file
 exists.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Why is unthrottled `/login` an application design problem, not just a capacity problem?"
+    Each guess forces expensive password-verify work (worse under bcrypt)
+    while the attacker sends tiny JSON. Autoscaling copies that cost
+    ratio; it does not fix it.
+
+??? question "Predict: Where must a rate limit sit relative to hashing, and what telemetry still looks like DET-001?"
+    Before the expensive work, on attempts not only successes. A burst of
+    `login_failure` is still the signature — Module 11's rule does not
+    tell you whether this is credential access or an availability attack.
+
+??? question "Diagnose: DET-001 fires during a load test of `/login`. What two incident types share that evidence?"
+    Password guessing (rotate if any success) vs denial of service (can
+    legitimate users still log in, where do we throttle). Responding to
+    the alert name without that split wastes the window.
+
+??? question "Design: One tradeoff your lockout policy must accept."
+    Example: shared-IP office NAT briefly locking real users, vs never
+    locking and letting CPU melt. Count by what (IP, username, both),
+    say how a legitimate user recovers.
+
+??? question "Defend: A backup file of notes.db exists. Why is that not DR yet?"
+    RPO/RTO are claims about *restore*. A backup you have never restored
+    is a belief. Containment of a DoS is throttle/isolate; residual is
+    data you lose if sqlite dies during the incident.
+
+## Before you leave
+
+- **Predict** — write expected latency/error evidence before you time `/login`.
+- **Diagnose** — name the asymmetric-cost step (hash, query, downstream) from the measurement.
+- **Build** — complete the login cost-asymmetry lab and the rate-limit / RPO-RTO assignment (design, do not implement a new attack).
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
 ## Further reading
 
 - [OWASP API4:2023 Unrestricted Resource Consumption](https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/)

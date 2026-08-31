@@ -175,6 +175,43 @@ hides it.
 
 The memo above *is* the assignment. Keep it.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Put 'AI will replace the SOC' and 'detection-as-code' in the established/emerging/speculative table."
+    Detection-as-code is established. Broad unsupervised SOC replacement
+    is speculative. Agent-assisted investigation is emerging. The useful
+    move is labeling the claim, not agreeing with a vendor timeline.
+
+??? question "Predict: Why does pinning dependencies still matter in an 'AI future'?"
+    Models and tools are still software with publishers. A compromised
+    planner package is the same supply-chain path as Module 5.
+
+??? question "Diagnose: One bad enrichment auto-isolates workloads across regions. What class of failure is that?"
+    Cascading failure in an agentic SOC — unbounded agency plus automated
+    containment. Experimental bounded containment in a *narrow*
+    environment is not this.
+
+??? question "Design: What PQC work can you do before algorithms finish shaking out?"
+    Inventory crypto use (TLS, JWT, at-rest), track NIST, plan hybrid TLS.
+    Do not skip the inventory because the date feels distant.
+
+??? question "Defend: How do privacy-preserving analytics conflict with IR, and what is residual if you pick only one?"
+    Investigators need record-level evidence; aggregation hides it.
+    Residual of analytics-only: you cannot build the Module 11 timeline.
+    Residual of keep-everything: retention and legal exposure from
+    Module 7.
+
+## Before you leave
+
+- **Predict** — write which column a future-facing claim belongs in before you repeat it.
+- **Diagnose** — name the unbounded agency or supply-chain miss in the memo's risk list.
+- **Build** — write the judgment memo (established / emerging / speculative, no "AGI will SOC itself").
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
 ## Further reading
 
 - [NIST AI RMF](https://www.nist.gov/itl/ai-risk-management-framework)

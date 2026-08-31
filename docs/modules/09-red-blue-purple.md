@@ -189,6 +189,44 @@ and data sources. (3) “DET-001 fires after 5 failures in 120s from one IP.”
 Write a one-page RoE for testing notes-api as if it were an internal app:
 scope, forbidden, contacts, evidence, stop conditions.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: What makes this module's HTTP sim a purple exercise rather than a crime?"
+    Written authorization, loopback-only target, synthetic data, and the
+    course RoE. `simulate.py` refuses non-local bases. "I was learning" is
+    not scope.
+
+??? question "Predict: After LAB_MODE=false, what happens to DET-003 on a metadata fetch?"
+    The success event `ssrf_metadata_access` should not appear; the
+    control worked. The old alert goes silent. That is a detection gap for
+    the *attempt* unless you add a blocked-path rule.
+
+??? question "Diagnose: The matrix cell is green but the blocked fetch left no alert. What failed?"
+    You changed prevention and did not purple the new procedure. Victory
+    from a green cell is the common mistake. Record "prevention worked,
+    hunt for attempts still useful."
+
+??? question "Design: Write a purple hypothesis that can fail."
+    "If an authenticated user reads another user's note, DET-002 fires
+    within 60s." Or: "DET-001 fires after 5 failures in 120s from one IP."
+    A hypothesis that cannot fail is a slogan.
+
+??? question "Defend: Two IDOR bugs — grocery list vs payroll draft. How does blue prioritize, and what is out of ethics here?"
+    Impact (data class), not identical CWE. Do not emulate C2, malware
+    persistence, or scan off-lab. Residual after one purple loop: other
+    handlers you did not replay.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — name the miss (log, rule, or grouping key) when the hypothesis fails.
+- **Build** — run one purple loop (emulate → detect → map → improve) and a 10-line report.
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
 ## Further reading
 
 - [MITRE ATT&CK “Get Started”](https://attack.mitre.org/resources/)

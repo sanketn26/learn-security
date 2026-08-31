@@ -388,6 +388,46 @@ Add a failing-then-passing test file (pytest) that, against LAB_MODE=false,
 asserts Alice gets 404 on `/notes/2`. Optional: assert `/fetch` to mock-imds
 is blocked. Do not add new exploits.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: What invariant does BOLA break on Acme Notes?"
+    A user may access only objects they own or have been delegated.
+    Object IDs in the URL are untrusted input; a valid token is not a
+    yes for `/notes/2`.
+
+??? question "Predict: Alice GET /notes/2 with LAB_MODE true vs false — body and telemetry."
+    True: 200 and Bob's note; expect `cross_user_note_access`. False: 404
+    (not 403 — existence hiding); expect `authz_failure` / `idor_blocked`,
+    not the success event. Safety rail still blocks non-lab `/fetch` hosts
+    in both modes.
+
+??? question "Diagnose: The provided search payload returns all titles. What control is missing?"
+    The query is concatenated, not parameterized. Injection turned a search
+    value into SQL syntax. Fixing IDOR on GET `/notes/{id}` does not fix
+    `/search` if that handler still concatenates.
+
+??? question "Design: Why does secure-mode IDOR return 404 instead of 403?"
+    403 confirms the object exists. 404 hides Bob's note id from Alice.
+    Detection still needs an *attempt* event; the status code is not the
+    audit trail.
+
+??? question "Defend: Confirmed cross-user read in LAB_MODE. What do you do immediately, and what remains?"
+    Preserve logs, revoke/rotate the session (`JWT_SECRET` if you treat the
+    token as burned), disable LAB_MODE. Residual risk: the body already
+    left; other handlers (search, admin, fetch) may still be broken until
+    you replay all four.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — name the missing decision (owner check, parameterization, fetch allowlist) from the response + log pair.
+- **Build** — replay the four provided failures, then repair with `LAB_MODE=false` (or the pytest assignment).
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
+
 ## Further reading
 
 - [OWASP Top 10:2025](https://owasp.org/Top10/2025/)

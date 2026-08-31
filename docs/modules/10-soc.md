@@ -186,6 +186,45 @@ the incident.
 Draft an L1 playbook card (half page) for DET-002: when to escalate, what
 to never do, who owns the service.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Who owns fixing the IDOR — SOC or engineering?"
+    Engineering owns the code. The SOC owns noticing, coordinating, and
+    the case. Playbooks beat heroics; L1 is not supposed to invent
+    containment that destroys evidence.
+
+??? question "Predict: After you open a case from a new alert, what statuses should you see?"
+    Alert moves from `new` to `cased`. Audit rows exist for the actions.
+    Closing as FP "because it's the lab" skips the workflow you came to
+    practice.
+
+??? question "Diagnose: MTTD went down but risk went up. What happened?"
+    You detect only noisy easy alerts and miss slow data theft — or you
+    page on every DET-005 regex hit until humans click close. Metrics
+    without fidelity are a failure mode.
+
+??? question "Design: On an L1 card for DET-002, what must L1 never do?"
+    Do not dump note bodies into the ticket, do not `down -v` before
+    preserve, do not declare Alice guilty from one alert. Escalate when
+    actor ≠ owner is confirmed and impact includes dummy payroll-class
+    notes.
+
+??? question "Defend: Why is `approval=APPROVE` a SOC control, not bureaucracy?"
+    Response actions change the system. A SOAR that auto-blocks on a bad
+    IOC list is a documented failure mode. Residual: a human can still
+    approve a bad action; the gate is necessary, not sufficient.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — triage from impact and fidelity, not from alert volume.
+- **Build** — ingest, open a case, record a toy MTTA, leave or reset per the lab.
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
 ## Further reading
 
 - [NIST SP 800-61 Rev. 3](https://csrc.nist.gov/pubs/sp/800/61/r3/final) (IR as CSF 2.0 community profile)

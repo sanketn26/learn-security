@@ -206,6 +206,161 @@ rule in git --> deploy to soc-lite --> fire on JSONL
 incident --> preserve --> timeline --> RCA --> new rule or patch --> retest
 ```
 
+## Worked walkthrough — authoring DET-001
+
+Open `labs/detections/rules.yaml` and find **DET-001**. Do not skip to a
+fixture. A detection is a **claim** a skeptic can test
+([How defenders think](../how-defenders-think.md)): telemetry, fields,
+grouping key, window clock, threshold, and what must stay quiet. Walk the
+existing password-guessing rule in that order. Then write additional rules
+yourself — this page will not publish them.
+
+**AUTHORIZED LAB USE ONLY.** Replay only against synthetic JSONL for this
+lab.
+
+### Threat hypothesis
+
+Someone will try many passwords against Acme Notes `/login` from one source
+in a short span, hoping a dummy account yields a session. That is
+credential access, not yet object theft. The claim is: *if that burst
+happens, we will see it in application logs and raise one alert, even if
+no password is correct.*
+
+Prevention (rate limit, lockout, MFA) is a different control. DET-001 does
+not stop guessing; it notices a pattern the login handler already emits.
+
+### Expected telemetry
+
+`POST /login` with a wrong password must emit `login_failure` *before* the
+401 body. `labs/notes-api/app.py` does that: it audits, then raises 401.
+A success is `login_success` — a different event. DET-001 must not treat
+successes as guesses.
+
+If the app logged only `"login failed"` with no source and no timestamp,
+the hypothesis would be untestable. Telemetry is a product feature for this
+rule.
+
+### Fields
+
+The evaluator matches `event == login_failure`. Useful fields on that line:
+
+| Field | Why DET-001 needs it |
+| --- | --- |
+| `ts` | Event-time window (not “when we ingested”) |
+| `event` | Selection |
+| `username` | Who was targeted (evidence, not the grouping key) |
+| `src_ip` | Grouping key |
+| `trace_id` | Dedup / join with other lines from the same request |
+
+`actor` is often empty on failures: there is no authenticated subject yet.
+soc-lite’s group-key helper falls back to `username` when a listed field is
+missing — which is why grouping **must** be `src_ip` here, not `actor`.
+
+### Grouping key
+
+`group_by: [src_ip]`. One alert id looks like `DET-001:172.30.0.1` (or
+whatever source the container saw). Behind Docker’s gateway or NAT, many
+guessers can collapse to one IP — noisy — or one guesser on many IPs can
+split buckets and stay under the threshold — a miss. When the rule is
+quiet, ask whether the adversary shared the key you grouped on.
+
+### Window
+
+`window_seconds: 120`. soc-lite measures **event time**: 120 seconds between
+the newest `login_failure` in the bucket and the earlier ones, not wall
+clock at `POST /ingest`. Delayed ingest still fires. A collector outage
+still means you cannot see failures that were never written.
+
+### Threshold
+
+`threshold: 5`. Five matching events in that window from one `src_ip`.
+`simulate.py --scenario brute_force` sends **six** wrong passwords so the
+rule has margin. Four failures in two minutes is intentional quiet.
+
+Five-in-120s is arbitrary until you purple-test it. It is not a property of
+password guessing; it is a tradeoff you own.
+
+### False positives
+
+Legitimate bursts: shared NAT or a lab full of students; a password-manager
+retry loop; an integration test that hammers `/login`; an operator who
+typed the staging password four times and then the right one.
+
+Write those in the rule’s operational notes (Sigma-style `falsepositives`)
+so the next tuner does not “fix” them by disabling the rule. A detection
+with no recorded FPs has usually never been run against real traffic.
+
+### ATT&CK mapping
+
+| Field | DET-001 |
+| --- | --- |
+| Tactic | Credential Access |
+| Technique | T1110.001 Password Guessing |
+| Playbook | `brute-force.md` |
+| Confidence | High for *this procedure* (HTTP login failures from one IP) |
+| Limitation | Not credential stuffing from many IPs; not a successful guess by itself; not availability/DoS (same telemetry, different response — Module 16) |
+
+ATT&CK is the language for the behavior, not proof that an APT was in your
+compose stack. Do not paint Persistence or C2 cells from this rule.
+
+### Replay fixture
+
+Write the claim *before* you look at events: five-plus `login_failure`
+lines from one `src_ip` inside 120 seconds of **event** time must fire
+`DET-001`; one or two failures, or a `login_success`, must stay quiet.
+
+??? question "Expand after you write the claim — DET-001 JSONL example only"
+    Abnormal (must fire). Six failures, same `src_ip`, ~90 seconds of event
+    time — the same shape as `simulate.py` brute_force. TEST-NET `203.0.113.50`
+    is documentation; the lab often sees the Docker gateway instead.
+
+    ```json
+    {"ts":"2026-08-24T10:00:00.000000Z","event":"login_failure","service":"notes-api","lab_mode":true,"trace_id":"det001-abn-1","username":"alice","src_ip":"203.0.113.50"}
+    {"ts":"2026-08-24T10:00:12.000000Z","event":"login_failure","service":"notes-api","lab_mode":true,"trace_id":"det001-abn-2","username":"alice","src_ip":"203.0.113.50"}
+    {"ts":"2026-08-24T10:00:24.000000Z","event":"login_failure","service":"notes-api","lab_mode":true,"trace_id":"det001-abn-3","username":"alice","src_ip":"203.0.113.50"}
+    {"ts":"2026-08-24T10:00:36.000000Z","event":"login_failure","service":"notes-api","lab_mode":true,"trace_id":"det001-abn-4","username":"alice","src_ip":"203.0.113.50"}
+    {"ts":"2026-08-24T10:00:48.000000Z","event":"login_failure","service":"notes-api","lab_mode":true,"trace_id":"det001-abn-5","username":"alice","src_ip":"203.0.113.50"}
+    {"ts":"2026-08-24T10:01:00.000000Z","event":"login_failure","service":"notes-api","lab_mode":true,"trace_id":"det001-abn-6","username":"alice","src_ip":"203.0.113.50"}
+    ```
+
+    Normal (must stay quiet). Two failures and a success from the same IP
+    are not a guessing burst under this threshold.
+
+    ```json
+    {"ts":"2026-08-24T11:00:00.000000Z","event":"login_failure","service":"notes-api","lab_mode":true,"trace_id":"det001-ok-1","username":"alice","src_ip":"203.0.113.50"}
+    {"ts":"2026-08-24T11:00:08.000000Z","event":"login_failure","service":"notes-api","lab_mode":true,"trace_id":"det001-ok-2","username":"alice","src_ip":"203.0.113.50"}
+    {"ts":"2026-08-24T11:00:20.000000Z","event":"login_success","service":"notes-api","lab_mode":true,"trace_id":"det001-ok-3","username":"alice","role":"user","src_ip":"203.0.113.50"}
+    ```
+
+    Store both sides as JSONL and assert `DET-001` on the abnormal file and
+    no `DET-001` on the normal file. This page does **not** include replay
+    fixtures for DET-002–005. Author those tests yourself if you need them.
+
+??? question "Finished DET-001 fields (confirm against rules.yaml)"
+    `event: login_failure`, `group_by: [src_ip]`, `threshold: 5`,
+    `window_seconds: 120`, `severity: medium`, ATT&CK T1110.001, playbook
+    `brute-force.md`. If your copy differs, the file on disk wins.
+
+### Tuning decision
+
+Keep 5/120s for the lab: `simulate.py` is supposed to be loud, and the
+playbook tells L1 not to lock real accounts. Document the FPs (shared
+`src_ip`, retries) instead of raising the threshold until the sim no
+longer fires. A slow guesser (one failure every minute) is an accepted
+false negative until you add a longer-window rule or a control that does
+not depend on burstiness (rate limit, MFA). Changing only the number
+slides FPs into FNs; a better grouping key or an attempt-vs-success
+correlation is the actual upgrade.
+
+### Your turn — additional rules
+
+DET-001–005 are the starting pack. The [capstone](../capstone/README.md)
+requires **at least three more rules you author**, against event types those
+five do not already cover, each with a replay fixture that fires on the
+abnormal case and stays quiet on normal traffic. Repeat this walkthrough
+for every rule you add. This module will not publish those rules, their
+fields, or their fixtures.
+
 ## Hands-on lab — investigate simulated exposure
 
 **AUTHORIZED LAB USE ONLY.** Use the lab sim as the “attacker.”
@@ -393,6 +548,53 @@ Defend) on this material:
 
 Convert DET-002 into a one-page Sigma-inspired rule (title, logsource,
 detection, falsepositives, level, tags). You do not need a Sigma compiler.
+Separately, author the additional capstone rules yourself using the
+DET-001 walkthrough — do not wait for a published solution.
+
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: What claim does DET-001 actually make?"
+    If five or more `login_failure` events from one `src_ip` occur within
+    120 seconds of *event* time, soc-lite will raise `DET-001`. It does not
+    claim the password was guessed, that Alice is malicious, or that the
+    source is a unique human.
+
+??? question "Predict: What stays quiet if an operator POSTs /ingest an hour after six failures?"
+    DET-001 still fires: the window is event time in the bucket, not wall
+    clock at ingest. What does *not* appear is a second alert id for the
+    same `src_ip` on a later ingest — the id is `DET-001:<key>` and is
+    updated, not duplicated.
+
+??? question "Diagnose: The timeline shows six failures, then real logins for other scenarios. Why is H2 (password guessed) not proven?"
+    The sim concatenates brute_force *and then* legitimate logins for IDOR
+    and the rest. Adjacent `login_success` is the operator continuing the
+    script (H3), not evidence the sixth guess worked. Distinguishing H1/H2
+    in production would need MFA, device, or mail evidence this lab does
+    not have.
+
+??? question "Design: Why is raising DET-001's threshold a weak response to shared-NAT false positives?"
+    You trade those FPs for false negatives on slower guessing. A better
+    grouping key, correlation with `login_success` / later data-access, or
+    a prevention control (rate limit) changes the claim. Document the FP
+    instead of silent-disabling the rule.
+
+??? question "Defend: For SSRF-to-IMDS, what is quarantine versus eradicate in this lab?"
+    Quarantine: copy evidence, then disable `LAB_MODE` or block `/fetch` to
+    metadata without `down -v` so logs survive. Eradicate: fix the fetch
+    (allowlist already is a rail — the missing control is "app should not
+    fetch metadata" plus rotate dummy creds). Residual risk: other internal
+    SSRF targets and no attempt-detection until you add one.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — name the failed invariant from the UTC timeline, not from the sim's scenario name.
+- **Build** — investigate the simulated exposure (timeline, competing hypotheses, RCA, preserve-before-contain).
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
 
 ## Further reading
 

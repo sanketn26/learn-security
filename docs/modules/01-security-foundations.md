@@ -323,6 +323,46 @@ Write a one-page threat model for a service you own at work **without** testing
 it. Assets, boundaries, top five threats, controls, residual risk. Do not
 include real secrets. If you cannot use work, threat-model `notes-api`.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: What is the security invariant for GET /notes/{id}?"
+    A caller may read a note only if they are the owner (or have been
+    explicitly delegated). A valid token proves who is calling; it does not
+    satisfy the invariant by itself.
+
+??? question "Predict: You add audit logs but no owner check. Alice reads Bob's note. What appears, and what does not change?"
+    You should see an audit line with actor, object, and (if you logged it)
+    owner mismatch. The HTTP response still returns Bob's body. Detection
+    notices theft after it happens; residual risk is unchanged.
+
+??? question "Diagnose: LAB_MODE=true, JWT `exp` missing, SHA-256 password hashes. Which origin class is each?"
+    `LAB_MODE` is a configuration/teaching switch. Missing `exp` is a
+    session-design defect. SHA-256 password storage is the wrong crypto
+    primitive (implementation/design). Docker is not a class that "causes"
+    any of them.
+
+??? question "Design: For the API → mock-imds boundary, name one prevention and one detection."
+    Prevention: the app must not fetch metadata (egress allowlist, no
+    network route, delete `/fetch`). Detection: an event when the app
+    *attempts* that fetch, including when the rail blocks it. Either
+    control alone leaves residual risk.
+
+??? question "Defend: If the only new control is a DET-002-style alert, what is residual risk?"
+    You will reliably notice cross-user reads after data left. Containment
+    is "stop further reads / rotate the token"; it does not un-send Bob's
+    note. The bulkhead is still the owner check.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — name the failed invariant from this module's diagram, not from a CVE name.
+- **Build** — complete the threat-model lab (boundaries, one insecure default, residual-risk sentence).
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
+
 ## Further reading
 
 - [NIST CSF 2.0](https://www.nist.gov/cyberframework)

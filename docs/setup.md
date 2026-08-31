@@ -10,7 +10,7 @@ scenarios until the safety check passes.
 | --- | --- | --- |
 | Standard | You can run containers | Docker or Podman with Compose, Python 3, curl |
 | Read-only preview | You want to learn before installing tools | A browser; read the examples below |
-| Lightweight host path | Containers are unavailable | Python virtual environments; see [lab guide](lab-guide.md) |
+| Lightweight host path | Containers are unavailable | Python virtual environments and [`requirements-labs.txt`](https://github.com/sanketn26/learn-security/blob/main/requirements-labs.txt); see [lab guide](lab-guide.md) |
 
 Git and `jq` are helpful but not required. Kubernetes, packet-capture tools,
 image scanners, and an LLM are optional later — or skip installing them
@@ -122,6 +122,25 @@ stack up; return to the runnable lab no later than Module 4.
 
 Next: [How defenders think](how-defenders-think.md), then
 [Module 1](modules/01-security-foundations.md).
+
+## Host path (no Docker)
+
+**Docker Compose is preferred.** Use this path only when you cannot run
+containers. It is the same lab, less isolation: you are responsible for
+binding to loopback and for not pointing fetch allowlists at non-lab hosts.
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-labs.txt
+```
+
+`requirements-labs.txt` unifies the pins from `labs/notes-api`,
+`labs/soc-lite`, and `labs/agentic-soc`, plus `pytest` for the Module 4
+assignment. Do not add extra packages to “make the host path work.”
+
+Then follow the [lab guide](lab-guide.md) no-Docker notes: run `mock-imds`
+on `PORT=18080`, set `LAB_FETCH_EXTRA_HOSTS=127.0.0.1` only on your
+workstation, and bind notes-api, soc-lite, and agentic-soc to `127.0.0.1`.
 
 ## Optional toolbox image
 

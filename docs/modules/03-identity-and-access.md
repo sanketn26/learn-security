@@ -274,6 +274,45 @@ Document the AuthN/AuthZ path of a service you know: identity provider,
 token type, expiry, where object checks live, how services authenticate.
 Note one failure mode. No production credential dumps.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Alice presents a valid JWT and GET /notes/2 (Bob's). Which question did authentication answer, and which did it not?"
+    Authentication: this caller is Alice (`sub`). Authorization: may Alice
+    read note 2 *now*? A missing owner check is an AuthZ failure after
+    AuthN succeeded.
+
+??? question "Predict: In LAB_MODE, what is in the JWT payload, and what is missing?"
+    You should see `sub` and `role` (and the algorithm in the header).
+    Decoding is not verifying. Expect no `exp` in lab mode — a weak
+    session, and still no revocation path.
+
+??? question "Diagnose: Alice's token lists `/admin/users` successfully. Which check failed?"
+    Function-level authorization: a `role=user` token was treated as
+    enough for an admin route. That is DET-004's later evidence
+    (`broken_function_authz`), not proof Alice became admin.
+
+??? question "Design: Name a prevention and a detection for missing `exp`."
+    Prevention: mint short-lived tokens with `exp` (and a revocation story
+    for theft before expiry). Detection: alert on use of tokens with no
+    `exp`, or on reuse after logout if you have a denylist. Logging the
+    raw token is not a detection.
+
+??? question "Defend: Why does MFA not contain a DET-002-class bug?"
+    MFA raises the cost of *becoming* Alice. Once a valid Alice session
+    exists, object AuthZ still has to run. Residual risk of "MFA everywhere,
+    no owner check" is still Bob's note in the response body.
+
+## Before you leave
+
+- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
+- **Diagnose** — name the failed invariant from `/whoami` vs `/admin/users` vs a note read.
+- **Build** — complete the identity-flow lab (decode a lab JWT, list production fixes, do not reuse the token off localhost).
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
 ## Further reading
 
 - [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)

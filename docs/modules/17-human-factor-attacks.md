@@ -203,6 +203,45 @@ service identities would cause the most damage if phished, and which would
 cause the most damage if legitimately misused by their holder? They are not
 always the same account. Name one control for each.
 
+## Self-check
+
+Answer before expanding. These are the [assessment](../assessment.md) moves
+on this module's Acme Notes lab, not trivia.
+
+??? question "Explain: Why does a successful `login_success` not prove the account holder's intent?"
+    Authentication proves identity of the credential, not who meant to use
+    it. Same Module 3 split: valid token is not permission, and it is not
+    intent either.
+
+??? question "Predict: DET-001 vs a phished-then-used password — what looks the same, what does not?"
+    Guessing is a `login_failure` burst. A phished password produces a
+    boring `login_success` and then Alice-shaped traffic. MFA-OTP can
+    still be relayed; a hardware key bound to origin cannot.
+
+??? question "Diagnose: DET-004 (non-admin hit `/admin/users`). Why keep two narratives open?"
+    Missing function AuthZ vs a legitimately privileged insider on an
+    admin account. Responses diverge: fix the check / rotate a stolen
+    session vs HR/legal and least privilege. Picking from the alert name
+    wastes the window.
+
+??? question "Design: Which control bounds a *true* insider who is allowed to read notes?"
+    Least privilege and process (tickets, dual control), plus anomaly
+    review of *authorized* access. No authorization check catches a
+    permitted bulk read. Awareness training does not replace that.
+
+??? question "Defend: Residual risk after phishing-resistant MFA on Alice."
+    Stolen session cookies, malware on the device, and insider misuse of
+    access that was actually granted. Containment for phishing is rotate
+    and review scope; for insider it is not a token rotation.
+
+## Before you leave
+
+- **Predict** — write two competing narratives before you open DET-001 and DET-004.
+- **Diagnose** — name whether the *grant* was legitimate, from evidence you actually have.
+- **Build** — complete the competing-narrative writeup (phishing vs insider) on those two alerts.
+- **Defend** — state containment and residual risk in one sentence each.
+- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
 ## Further reading
 
 - [CISA Phishing-Resistant MFA](https://www.cisa.gov/sites/default/files/publications/fact-sheet-implementing-phishing-resistant-mfa-508c.pdf)

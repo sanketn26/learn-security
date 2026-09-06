@@ -1,5 +1,5 @@
 ---
-description: Worked example threat model for the Helix Tickets lab: assets, trust boundaries, and top threats including password spray and SSRF.
+description: "Worked example threat model for the Helix Tickets lab: assets, trust boundaries, and top threats including password spray and SSRF."
 ---
 
 # Example — threat model (Helix Tickets)

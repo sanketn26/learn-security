@@ -1,5 +1,5 @@
 ---
-description: The capstone brief: build and operate a mini defensive security platform with threat modeling, detections, incident response, and a policy-bound SOC agent.
+description: "The capstone brief: build and operate a mini defensive security platform with threat modeling, detections, incident response, and a policy-bound SOC agent."
 ---
 
 # Capstone — Build and operate a small defensive security platform

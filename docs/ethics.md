@@ -1,5 +1,5 @@
 ---
-description: The binding ethics and scope rules for this course's lab: authorized-use-only boundaries, dummy secrets, and safe testing practices.
+description: "The binding ethics and scope rules for this course's lab: authorized-use-only boundaries, dummy secrets, and safe testing practices."
 ---
 
 # Ethics, scope, and lab safety

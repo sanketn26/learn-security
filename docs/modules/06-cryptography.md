@@ -1,3 +1,7 @@
+---
+description: Practical cryptography for engineers — choosing the right primitive for TLS, JWT signatures, and password hashing without rolling your own.
+---
+
 # Module 6 — Cryptography for engineers
 
 ## Why it matters to a software engineer

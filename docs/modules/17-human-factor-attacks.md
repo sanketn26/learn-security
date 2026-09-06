@@ -1,3 +1,7 @@
+---
+description: Examine phishing, social engineering, and insider risk as the human-factor attacks that bypass MFA, authorization, and every technical control in this course.
+---
+
 # Module 17 — Phishing, social engineering, and insider risk
 
 ## Why it matters to a software engineer

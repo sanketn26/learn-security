@@ -1,3 +1,7 @@
+---
+description: Secure agentic SOC copilots and tool-using LLM agents with policy engines and human review, not just a smarter model.
+---
+
 # Module 12 — Agentic SOC
 
 ## Why it matters to a software engineer

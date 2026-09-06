@@ -1,3 +1,7 @@
+---
+description: Ten follow-up project ideas for engineers to extend this course's skills, including AuthZ test harnesses, IMDS lock-down, and AI threat modeling.
+---
+
 # Ten follow-up project ideas for software engineers
 
 All projects must stay on systems you own or on local labs. No unauthorized

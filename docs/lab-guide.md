@@ -1,3 +1,7 @@
+---
+description: Set up the isolated Docker Compose lab, with loopback-only ports and an internal labnet, used for every hands-on exercise in this course.
+---
+
 # Hands-on lab environment
 
 Isolated Docker Compose lab for this course. All published ports bind to

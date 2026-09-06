@@ -1,3 +1,7 @@
+---
+description: Design a security logging and alerting pipeline that gives the SOC the telemetry it needs to actually detect a technique.
+---
+
 # Module 7 — Security monitoring and logs
 
 ## Why it matters to a software engineer

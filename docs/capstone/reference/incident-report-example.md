@@ -1,3 +1,7 @@
+---
+description: Worked example incident report for the Helix Tickets lab, with a UTC timeline, competing hypotheses, and password-spray and IDOR findings.
+---
+
 # Example — incident report (Helix Tickets)
 
 *Parallel miniature. Not the notes-api capstone. Lab-only; dummy secrets.*

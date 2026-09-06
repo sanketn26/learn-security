@@ -1,3 +1,7 @@
+---
+description: Authoritative primary-source references for the course, including NIST frameworks, OAuth and identity RFCs, and CISA secure-by-design guidance.
+---
+
 # Further reading and authoritative references
 
 Prefer primary sources when they conflict with blogs. Access dates: 2026-08.

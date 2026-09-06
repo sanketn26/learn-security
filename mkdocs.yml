@@ -1,5 +1,6 @@
 site_name: Defensive Security Engineering
 site_description: Visual-first, hands-on cybersecurity for software engineers
+site_author: Defensive Security Engineering contributors
 site_url: https://sanketn26.github.io/learn-security/
 repo_url: https://github.com/sanketn26/learn-security
 repo_name: sanketn26/learn-security
@@ -7,6 +8,12 @@ edit_uri: edit/main/docs/
 copyright: Local Docker lab · authorized use only
 docs_dir: docs
 site_dir: site
+plugins:
+  - search
+  - social:
+      cards_layout_options:
+        background_color: "#1a1b26"
+        color: "#ffffff"
 theme:
   name: material
   custom_dir: overrides

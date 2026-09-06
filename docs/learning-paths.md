@@ -1,3 +1,7 @@
+---
+description: Choose a guided beginner, standard engineer, architecture-focus, or SOC-focus path through the course modules and labs.
+---
+
 # Learning paths
 
 The complete course is progressive, but not every learner needs every optional

@@ -1,3 +1,7 @@
+---
+description: Template for the capstone containment runbook: the specific incident containment steps you actually executed, not a generic playbook.
+---
+
 # Containment runbook (lab)
 
 The record of containment **actually executed** for one incident — not the

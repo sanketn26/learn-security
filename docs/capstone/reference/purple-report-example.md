@@ -1,3 +1,7 @@
+---
+description: Worked example purple-team report for Helix Tickets, showing emulation results, an SSRF detection gap, and the resulting rule change.
+---
+
 # Example — purple-team report (Helix Tickets)
 
 *Parallel miniature. Not the notes-api capstone.*

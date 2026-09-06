@@ -1,3 +1,7 @@
+---
+description: Glossary of defensive security terms used throughout the course, from AuthZ and IDOR to ATT&CK, detection-as-code, and dwell time.
+---
+
 # Glossary
 
 | Term | Meaning |

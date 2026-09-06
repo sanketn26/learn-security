@@ -1,3 +1,7 @@
+---
+description: Map observed events to tactics and techniques using the MITRE ATT&CK framework, and treat detection coverage as a testable hypothesis.
+---
+
 # Module 8 — MITRE ATT&CK
 
 ## Why it matters to a software engineer

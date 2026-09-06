@@ -1,3 +1,7 @@
+---
+description: Learn the TCP/IP, DNS, and Linux process and file fundamentals needed to investigate incidents from packets, sockets, and logs.
+---
+
 # Module 2 — Networking and operating-system fundamentals
 
 ## Why it matters to a software engineer

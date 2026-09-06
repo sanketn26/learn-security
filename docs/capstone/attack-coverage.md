@@ -1,3 +1,7 @@
+---
+description: Template ATT&CK coverage matrix for the capstone, with worked example detection rows to model your own MITRE ATT&CK technique mappings on.
+---
+
 # ATT&CK coverage matrix (draft)
 
 Fill during module 8 and the capstone from **observed alerts**, then confirm

@@ -1,3 +1,7 @@
+---
+description: Worked example architecture review for the Helix Tickets lab, with findings on broken object authorization, SSRF, and weak password hashing.
+---
+
 # Example — architecture review (Helix Tickets)
 
 *Parallel miniature. Not the notes-api capstone.*

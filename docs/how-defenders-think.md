@@ -1,3 +1,7 @@
+---
+description: Five habits of mind for inventing new defenses and detections when the checklist runs out, from inverting the happy path to blast-radius thinking.
+---
+
 # How defenders think
 
 The rest of this course teaches vocabulary, controls, and lab procedures.

@@ -1,3 +1,7 @@
+---
+description: Set up the local Docker security lab, verify its safety declaration, and identify its components before running any attack scenarios.
+---
+
 # Setup and first lab
 
 The first success criterion is intentionally small: start the local system,

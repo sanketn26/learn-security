@@ -1,3 +1,7 @@
+---
+description: Overview of all 17 defensive security modules, each a visual-first lesson on one fictional Acme Notes system viewed through a different security lens.
+---
+
 # Modules
 
 Work in order. Each file is a complete lesson: a **Visual overview**

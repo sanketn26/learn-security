@@ -1,3 +1,7 @@
+---
+description: Blank template for a capstone security decision record: the threat addressed, chosen control, alternative considered, and residual risk.
+---
+
 # Security decision record (lab)
 
 One record per significant security decision — a control you chose, a

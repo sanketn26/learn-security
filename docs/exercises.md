@@ -1,3 +1,7 @@
+---
+description: Index of required hands-on exercises across all modules, from threat modeling and ATT&CK mapping to incident response and purple-team validation.
+---
+
 # Exercise index
 
 Every exercise is a controlled engineering experiment. Record a hypothesis,

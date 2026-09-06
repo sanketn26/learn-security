@@ -1,3 +1,7 @@
+---
+description: Start defensive security from what you already know as a software engineer, reframing requests, processes, identity, and logs as security questions.
+---
+
 # Onboarding — security from an engineer's point of view
 
 You already know more of the foundation than the course previously made

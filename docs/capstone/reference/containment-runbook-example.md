@@ -1,3 +1,7 @@
+---
+description: Worked example containment runbook for the Helix Tickets incident: the numbered sequence of actions actually executed, with evidence.
+---
+
 # Example — containment runbook (Helix Tickets)
 
 *Parallel miniature. Not the notes-api capstone.*

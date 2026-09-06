@@ -1,3 +1,7 @@
+---
+description: Separate established security practice from emerging architecture and pure speculation, and build a short list of cybersecurity skills actually worth learning next.
+---
+
 # Module 14 — The future of cybersecurity
 
 ## Why it matters to a software engineer

@@ -1,3 +1,7 @@
+---
+description: Learn the core security vocabulary — asset, attack surface, trust boundary, threat, risk, and control — through a hands-on Acme Notes trust model.
+---
+
 # Module 1 — Security foundations
 
 ## Why it matters to a software engineer

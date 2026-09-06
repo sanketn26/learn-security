@@ -1,3 +1,7 @@
+---
+description: Walk the SOC operating model from telemetry to alert, triage, incident, containment, and lessons learned in a real case.
+---
+
 # Module 10 — Security Operations Center (SOC)
 
 ## Why it matters to a software engineer

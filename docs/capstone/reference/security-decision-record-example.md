@@ -1,3 +1,7 @@
+---
+description: Worked example security decision record for Helix Tickets, explaining why debug mode must never be allowed to disable authorization.
+---
+
 # Example — security decision record (Helix Tickets)
 
 *Parallel miniature. Not the notes-api capstone.*

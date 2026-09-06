@@ -1,3 +1,7 @@
+---
+description: Apply the trust-boundary and asset/threat/control model to ML and LLM systems, treating training data, model registries, and serving pipelines as attack surface.
+---
+
 # Module 15 — ML/AI system security
 
 ## Why it matters to a software engineer

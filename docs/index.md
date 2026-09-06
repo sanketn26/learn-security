@@ -1,4 +1,5 @@
 ---
+description: A visual-first, hands-on defensive security course for software engineers, covering threat modeling, MITRE ATT&CK, SOC operations, and incident response.
 hide:
   - toc
 ---

@@ -1,3 +1,7 @@
+---
+description: Fill-in template for a purple-team validation report: hypothesis, procedure, detection result, control change, and retest outcome.
+---
+
 # Purple-team validation (lab)
 
 **Hypothesis:**

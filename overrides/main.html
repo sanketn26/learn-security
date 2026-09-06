@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {{ super() }}
+  {% if page and page.is_homepage %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "{{ config.site_name }}",
+    "description": "{{ config.site_description }}",
+    "provider": {
+      "@type": "Organization",
+      "name": "{{ config.site_author }}",
+      "sameAs": "{{ config.repo_url }}"
+    },
+    "url": "{{ config.site_url }}",
+    "isAccessibleForFree": true,
+    "hasCourseInstance": {
+      "@type": "CourseInstance",
+      "courseMode": "online",
+      "courseWorkload": "PT50H"
+    },
+    "about": [
+      "Threat Modeling", "MITRE ATT&CK", "Security Operations Center",
+      "Incident Response", "Red Team Blue Team", "Cloud Security",
+      "Application Security", "Detection Engineering"
+    ]
+  }
+  </script>
+  {% endif %}
+{% endblock %}

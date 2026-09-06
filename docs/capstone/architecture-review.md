@@ -1,3 +1,7 @@
+---
+description: Template for the capstone's architecture and security review: a findings table with severity, residual risk, and what you deliberately did not automate.
+---
+
 # Architecture and security review
 
 ## Diagram

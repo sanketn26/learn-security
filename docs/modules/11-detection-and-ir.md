@@ -1,3 +1,7 @@
+---
+description: Treat detections as tested code and run incident response through NIST SP 800-61 containment, eradication, and recovery.
+---
+
 # Module 11 — Detection engineering and incident response
 
 ## Why it matters to a software engineer

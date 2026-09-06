@@ -1,3 +1,7 @@
+---
+description: Practice authorized, scoped red team attack simulation, blue team detection, and purple team collaboration to close the loop.
+---
+
 # Module 9 — Red Team, Blue Team, and Purple Team
 
 ## Why it matters to a software engineer

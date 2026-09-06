@@ -1,3 +1,7 @@
+---
+description: Redesign an insecure service into a zero-trust architecture with scoped identity, signed artifacts, and least-privilege defaults.
+---
+
 # Module 13 — Security architecture for software engineers
 
 ## Why it matters to a software engineer

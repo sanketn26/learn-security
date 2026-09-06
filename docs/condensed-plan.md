@@ -1,3 +1,7 @@
+---
+description: A one-page, roughly 100-hour condensed study plan moving from weak security ops to a working defensive platform, block by block.
+---
+
 # One-page condensed learning plan
 
 **Goal:** In ~100 hours, go from “strong engineer, weak security ops” to

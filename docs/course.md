@@ -1,3 +1,7 @@
+---
+description: The full course roadmap: a hands-on defensive security engineering curriculum covering threat modeling, detection, incident response, and SOC operations.
+---
+
 # Defensive Security Engineering
 
 !!! note "How to use this page"

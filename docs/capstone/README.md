@@ -11,6 +11,10 @@ assisted by a policy-bound agent.
 **AUTHORIZED LAB USE ONLY.** Scope is this repository’s compose stack and
 loopback ports. No real cloud accounts, no employer systems, no malware.
 
+Looking for a Python engineering project without an LLM component? Choose the
+independent [vulnerability scanner capstone](vulnerability-scanner.md), which
+progresses from inventory to focused checks, validated paths, and repair verification.
+
 ## What you must include
 
 1. Containerized web API with authentication and an intentional vulnerability

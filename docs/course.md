@@ -44,9 +44,10 @@ failures are visible, map activity to MITRE ATT&CK as a shared language (not a
 checklist), practice red/blue/purple workflows in an isolated lab, operate a
 tiny SOC, write detections, investigate a simulated compromise, and add a
 policy-bound “agentic” assistant that can summarize and recommend but cannot
-act without a human. The capstone is a defensive platform you can run on a
-laptop: vulnerable API, logs, detections, cases, ATT&CK coverage matrix, and
-an approval-gated response assistant.
+act without a human. The main capstone is a defensive platform you can run on
+a laptop: vulnerable API, logs, detections, cases, ATT&CK coverage matrix, and
+an approval-gated response assistant. An alternative capstone builds an
+evidence-driven Python vulnerability scanner against the same lab.
 
 ---
 
@@ -166,7 +167,9 @@ allowlist is the application rail.
 
 **Build and operate a small defensive security platform.** Full specification
 is in [capstone/README.md](capstone/README.md) and summarized in section 9 of
-this document.
+this document. Alternatively, build the
+[Python vulnerability scanner](capstone/vulnerability-scanner.md), which needs
+no LLM or agentic SOC.
 
 ### What this course does not cover
 
@@ -208,7 +211,7 @@ this document.
 | 12 | [15 ML/AI security](modules/15-ml-ai-security.md) | Model/data as an asset, not a black box | Threat-model smart search; audit agent policy |
 | 12 | [16 Availability and DoS](modules/16-availability-and-dos.md) | Volumetric vs asymmetric-cost attacks | Time the login endpoint under load |
 | 12 | [17 Human factor](modules/17-human-factor-attacks.md) | Phishing vs insider risk, same telemetry | Competing-narrative writeup on DET-001/004 |
-| 13 | Capstone | Operate the platform | [capstone/README.md](capstone/README.md) |
+| 13 | Capstone | Operate the platform, or build the scanner | [Platform](capstone/README.md) or [scanner](capstone/vulnerability-scanner.md) |
 
 Progressive difficulty: read-only observation → authorized local “attack”
 against the lab app → fix and detect → investigate and report → gated
@@ -593,7 +596,7 @@ are kept.
 
 ---
 
-## 9. Final capstone
+## 9. Final capstone options
 
 See [capstone/README.md](capstone/README.md) for milestones, rubric,
 artifacts, stretch goals, failure scenarios, and ethical constraints.
@@ -607,14 +610,20 @@ incident timeline and containment runbook, perform simulated containment
 and recovery, write a purple-team report, and use the agentic assistant
 with mandatory approval.
 
+Alternatively, build the [Python vulnerability scanner](capstone/vulnerability-scanner.md):
+inventory exposure, schedule evidence-driven checks, validate connected
+weaknesses, and retest repairs. This independent capstone assumes Python
+proficiency, requires no LLM or agentic SOC, and takes 25–35 hours. Choose
+one capstone for assessment; completing both adds the scanner workload.
+
 ---
 
 ## 10. Assessment plan
 
 See [docs/assessment.md](assessment.md). Short version: each module has
 a short knowledge check (self-graded) and a short engineering assignment.
-The capstone is the summative assessment, scored by rubric, not by “number
-of tools installed.”
+Your chosen capstone is the summative assessment, scored by rubric, not by
+“number of tools installed.”
 
 ---
 

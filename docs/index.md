@@ -14,7 +14,7 @@ hide:
       <a class="course-button course-button--secondary" href="onboarding/">Read onboarding first</a>
       <a class="course-button course-button--coffee" href="https://buymeacoffee.com/sanketn">☕ Support this course</a>
     </div>
-    <p class="course-hero__note">17 modules across 4 parts · 1 capstone project · runs entirely on 127.0.0.1, no cloud bill</p>
+    <p class="course-hero__note">17 modules across 4 parts · 2 capstone options · runs entirely on 127.0.0.1, no cloud bill</p>
   </div>
   <div class="course-terminal" aria-label="Course roadmap">
     <div class="course-terminal__bar"><i></i><i></i><i></i><span>learn-security / roadmap</span></div>
@@ -30,7 +30,7 @@ hide:
 
 <div class="course-proof" aria-label="Course overview">
   <div><strong>17</strong><span>Modules across 4 parts</span></div>
-  <div><strong>1</strong><span>Capstone platform</span></div>
+  <div><strong>2</strong><span>Capstone options</span></div>
   <div><strong>$0</strong><span>Cloud spend (local lab)</span></div>
   <div><strong>127.0.0.1</strong><span>Everything stays on loopback</span></div>
 </div>
@@ -113,7 +113,8 @@ By the capstone, you will be able to explain the complete chain from software
 behavior to vulnerability, attacker action, telemetry, detection,
 investigation, response, and architectural repair.
 
-[Capstone brief →](capstone/README.md){ .md-button .md-button--primary }
+[Platform capstone →](capstone/README.md){ .md-button .md-button--primary }
+[Python scanner capstone →](capstone/vulnerability-scanner.md){ .md-button }
 [Full course guide →](course.md){ .md-button }
 
 ## Choose your next page

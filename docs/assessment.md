@@ -32,8 +32,10 @@ use the same cycle on findings, not telemetry. Do not invent extra labs.
 
 ## Summative
 
-The [capstone](capstone/README.md) rubric (100 points). Pass at 80+ with
-all acceptance checkboxes.
+Choose the [platform capstone](capstone/README.md) or the
+[Python vulnerability scanner](capstone/vulnerability-scanner.md). Each has
+its own 100-point rubric; pass at 80+ with all of that project’s acceptance
+checkboxes. The scanner assumes Python proficiency and has no LLM component.
 
 ## Integrity
 

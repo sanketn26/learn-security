@@ -107,22 +107,24 @@ nav:
           - 15. ML/AI system security: modules/15-ml-ai-security.md
           - 16. Availability and denial of service: modules/16-availability-and-dos.md
           - 17. Phishing, social engineering, insider risk: modules/17-human-factor-attacks.md
-  - Capstone:
-      - Project brief: capstone/README.md
-      - Worked example (parallel incident): capstone/reference/README.md
-      - Example threat model: capstone/reference/threat-model-example.md
-      - Example architecture review: capstone/reference/architecture-review-example.md
-      - Example incident report: capstone/reference/incident-report-example.md
-      - Example purple report: capstone/reference/purple-report-example.md
-      - Example containment runbook: capstone/reference/containment-runbook-example.md
-      - Example decision record: capstone/reference/security-decision-record-example.md
-      - Threat-model template: capstone/threat-model.md
-      - ATT&CK coverage template: capstone/attack-coverage.md
-      - Incident-report template: capstone/incident-report.md
-      - Purple-team template: capstone/purple-report.md
-      - Architecture-review template: capstone/architecture-review.md
-      - Containment-runbook template: capstone/containment-runbook.md
-      - Security-decision-record template: capstone/security-decision-record.md
+  - Capstones:
+      - Defensive platform:
+          - Project brief: capstone/README.md
+          - Worked example (parallel incident): capstone/reference/README.md
+          - Example threat model: capstone/reference/threat-model-example.md
+          - Example architecture review: capstone/reference/architecture-review-example.md
+          - Example incident report: capstone/reference/incident-report-example.md
+          - Example purple report: capstone/reference/purple-report-example.md
+          - Example containment runbook: capstone/reference/containment-runbook-example.md
+          - Example decision record: capstone/reference/security-decision-record-example.md
+          - Threat-model template: capstone/threat-model.md
+          - ATT&CK coverage template: capstone/attack-coverage.md
+          - Incident-report template: capstone/incident-report.md
+          - Purple-team template: capstone/purple-report.md
+          - Architecture-review template: capstone/architecture-review.md
+          - Containment-runbook template: capstone/containment-runbook.md
+          - Security-decision-record template: capstone/security-decision-record.md
+      - Python vulnerability scanner: capstone/vulnerability-scanner.md
   - Reference:
       - Lab guide: lab-guide.md
       - Glossary: glossary.md

@@ -18,6 +18,16 @@ short and belongs on every path.
 | Detection/SOC focus | 40–50 h | 1–4, 7–12, plus 16 before 17; incident capstone artifacts. Read [how defenders think](how-defenders-think.md) before module 7. Skim Module 5’s IMDS section before DET-003. Defer 14–15. | optional Kubernetes |
 | Preview | 8–12 h | onboarding, each module's Visual overview, module summaries, knowledge checks | runnable labs and capstone |
 
+## Capstone choice
+
+Choose the [defensive platform](capstone/README.md) for SOC operations, or
+the [Python vulnerability scanner](capstone/vulnerability-scanner.md) for
+application security automation: inventory, focused validation, connected
+paths, and repair verification. The scanner assumes proficient Python and
+uses no LLM. Budget 25–35 hours for it; doing both adds that workload.
+Its [course-knowledge map](capstone/vulnerability-scanner.md#course-knowledge-you-will-use)
+lists the modules it needs and which are optional.
+
 ## Recommended beginner rhythm
 
 For each module, budget:

@@ -14,6 +14,7 @@ labs/logs/
 labs/cases/
 labs/evidence/
 .pytest_cache/
+.cache/
 site/
 
 # OS / editor

@@ -1,5 +1,5 @@
 ---
-description: How this course grades you: the Explain, Predict, Diagnose, Design, Defend rubric, formative labs, and the 100-point capstone pass bar.
+description: "How this course grades you: the Explain, Predict, Diagnose, Design, Defend rubric, formative labs, and the 100-point capstone pass bar."
 ---
 
 # Assessment plan

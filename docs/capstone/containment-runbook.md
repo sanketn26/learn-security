@@ -1,5 +1,5 @@
 ---
-description: Template for the capstone containment runbook: the specific incident containment steps you actually executed, not a generic playbook.
+description: "Template for the capstone containment runbook: the specific incident containment steps you actually executed, not a generic playbook."
 ---
 
 # Containment runbook (lab)

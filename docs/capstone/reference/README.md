@@ -1,5 +1,5 @@
 ---
-description: Index to the Helix Tickets worked example: a parallel miniature incident showing sample threat model, incident report, and purple-team artifacts.
+description: "Index to the Helix Tickets worked example: a parallel miniature incident showing sample threat model, incident report, and purple-team artifacts."
 ---
 
 # Worked example — a parallel incident (Helix Tickets)

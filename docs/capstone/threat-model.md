@@ -1,5 +1,5 @@
 ---
-description: Fill-in threat model template for the notes-api capstone service: assets, trust boundaries, and top threats you identify yourself.
+description: "Fill-in threat model template for the notes-api capstone service: assets, trust boundaries, and top threats you identify yourself."
 ---
 
 # Threat model — notes-api (fill in)

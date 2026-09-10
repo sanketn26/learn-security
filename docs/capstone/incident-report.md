@@ -1,5 +1,5 @@
 ---
-description: Blank incident report template for the capstone: timeline, ATT&CK mappings, root-cause analysis, and residual-risk fields to fill in.
+description: "Blank incident report template for the capstone: timeline, ATT&CK mappings, root-cause analysis, and residual-risk fields to fill in."
 ---
 
 # Incident report (lab)

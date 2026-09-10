@@ -11,7 +11,8 @@ to build a small end-to-end monitoring and response platform on a laptop.
 [How defenders think](docs/how-defenders-think.md), then read
 [COURSE.md](docs/course.md) (roadmap). Each of Modules 1–17 opens with a
 **Visual overview** (diagrams, intuition, hints) before its text; complete
-them in order, then the [capstone](docs/capstone/README.md).
+them in order, then choose the [platform capstone](docs/capstone/README.md) or
+[Python vulnerability scanner](docs/capstone/vulnerability-scanner.md).
 
 Labs are local, defensive, and isolated. Read [docs/ethics.md](docs/ethics.md)
 before starting. Offensive steps are **AUTHORIZED LAB USE ONLY**.
@@ -37,7 +38,8 @@ curl -s http://127.0.0.1:8080/.well-known/lab
 | Ethics and scope | [docs/ethics.md](docs/ethics.md) |
 | Lab environment | [docs/lab-guide.md](docs/lab-guide.md) |
 | Modules | [docs/modules/](docs/modules/) |
-| Capstone | [docs/capstone/README.md](docs/capstone/README.md) |
+| Platform capstone | [docs/capstone/README.md](docs/capstone/README.md) |
+| Python scanner capstone (no LLM) | [Project brief](docs/capstone/vulnerability-scanner.md) |
 | Glossary | [docs/glossary.md](docs/glossary.md) |
 | References | [docs/references.md](docs/references.md) |
 | One-page plan | [docs/condensed-plan.md](docs/condensed-plan.md) |

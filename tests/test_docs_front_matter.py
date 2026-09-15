@@ -17,7 +17,12 @@ import pytest
 import yaml
 
 DOCS = Path(__file__).resolve().parent.parent / "docs"
-PAGES = sorted(DOCS.rglob("*.md"))
+WORK = DOCS / "capstone" / "work"
+# Student capstone work is gitignored and excluded from the build; only its
+# README is a course page.
+PAGES = sorted(
+    p for p in DOCS.rglob("*.md") if WORK not in p.parents or p == WORK / "README.md"
+)
 
 # Same pattern as mkdocs.utils.meta.YAML_RE (MkDocs 1.6).
 YAML_RE = re.compile(r"^-{3}[ \t]*\n(.*?\n)(?:\.{3}|-{3})[ \t]*\n", re.UNICODE | re.DOTALL)

@@ -1,94 +1,84 @@
 ---
-description: "The capstone brief: build and operate a mini defensive security platform with threat modeling, detections, incident response, and a policy-bound SOC agent."
+description: "The platform capstone brief: operate a small defensive security platform — threat model, eight tested detections, investigation, containment, purple validation, and a policy-bound SOC agent."
 ---
 
-# Capstone — Build and operate a small defensive security platform
+# Capstone — Operate a small defensive security platform
 
-You will take the course lab from “compose up” to an operated mini-platform:
-modeled, attacked only in-lab, detected, investigated, purple-validated, and
-assisted by a policy-bound agent.
+Alice has a valid login. She asks for note 2, which is Bob’s payroll draft.
+The API returns 200 and the body.
 
-**AUTHORIZED LAB USE ONLY.** Scope is this repository’s compose stack and
-loopback ports. No real cloud accounts, no employer systems, no malware.
+By the end of the modules you can explain why that happened, spot it in the
+logs, and fire an alert on it. The capstone asks you to prove it end to end
+on one system. You model the platform, attack it inside the lab, detect it,
+investigate, contain, check that the fix actually held, and let a
+policy-bound agent help without letting it act alone.
+
+You aren’t building a platform from scratch. `notes-api`, soc-lite, the
+attack simulator and the agent are all provided. The work is operating them
+and writing up what you find. Most of it you started in Modules 1–13. The
+capstone collects that work, finishes it, and adds three detections you
+write yourself.
 
 Looking for a Python engineering project without an LLM component? Choose the
 independent [vulnerability scanner capstone](vulnerability-scanner.md), which
 progresses from inventory to focused checks, validated paths, and repair verification.
 
-## What you must include
+## What you hand in
 
-1. Containerized web API with authentication and an intentional vulnerability
-   (provided `notes-api` with `LAB_MODE=true`, or your port).
-2. Threat model and trust-boundary diagram.
-3. Secure logging and audit events (JSONL + soc-lite).
-4. Simulated attack **only** in the isolated lab (`attack-sim`).
-5. ATT&CK mapping of simulated behavior.
-6. At least **eight detections** in `labs/detections/rules.yaml`: the five
-   provided (DET-001–005) plus at least three you author yourself against
-   event types the provided rules do not already cover — the app already
-   emits `authz_failure` (invalid token, admin-blocked), `fetch_blocked_safety_rail`,
-   `ssrf_blocked`, `search_error`, and `note_create`, none of which have a
-   rule. Each detection, provided or authored, needs a replay fixture (see
-   acceptance criteria) — a rule with no fixture is a belief, not a tested
-   detection.
-7. Alert-triage and case-management workflow (soc-lite cases).
-8. Incident timeline.
-9. Containment and recovery steps (simulated + `LAB_MODE=false` redeploy),
-   recorded as a containment runbook (`containment-runbook.md`) — the
-   specific sequence executed, not just the generic playbook options.
-10. Purple-team validation report.
-11. Agentic SOC assistant: summarize, retrieve context, propose ATT&CK,
-    recommend next steps, **explicit human approval** for simulated actions.
-12. Final architecture document and security review.
-13. At least one security decision record (`security-decision-record.md`)
-    for a control you chose — threat, chosen control, alternative
-    considered, residual risk, detection coverage, operational cost.
-
-## Milestones
+Nine items, all in your local [work folder](work/README.md)
+(`docs/capstone/work/`, gitignored). Start each one by copying its template
+from this folder into `work/`. Never edit a template in place.
 
 ```mermaid
 flowchart LR
     M0["M0 Environment"] --> M1["M1 Model"] --> M2["M2 Telemetry"] --> M3["M3 Emulate"] --> M4["M4 Detect"]
-    M4 --> M5["M5 Investigate"] --> M6["M6 Respond"] --> M7["M7 Purple"] --> M8["M8 Agent"] --> M9["M9 Review"]
+    M4 --> M5["M5 Investigate"] --> M6["M6 Contain"] --> M7["M7 Purple"] --> M8["M8 Agent"] --> M9["M9 Review"]
 ```
 
-| Milestone | When | Done when |
-| --- | --- | --- |
-| M0 Environment | Day 1 | `make lab-up`; health endpoints 200; ethics read |
-| M1 Model | Day 1–2 | Threat model + diagram in `docs/capstone/artifacts/` |
-| M2 Telemetry | Day 2 | JSON events for login, AuthZ, fetch, search |
-| M3 Emulate | Day 3 | `simulate.py --scenario all` against loopback only |
-| M4 Detect | Day 3–4 | Eight alerts with technique tags and replay fixtures |
-| M5 Investigate | Day 4–5 | Case + timeline + evidence dir from `preserve-logs.sh` |
-| M6 Respond | Day 5 | Simulated actions with APPROVE; recover with LAB_MODE=false |
-| M7 Purple | Day 6 | Re-test; report TP/FN; one improved rule or control |
-| M8 Agent | Day 6 | `/investigate` + denied then approved action |
-| M9 Review | Day 7 | Architecture doc + residual risk |
+| Milestone | You do | Hand in | Template · example | Started in | Done when |
+| --- | --- | --- | --- | --- | --- |
+| M0 Environment | `make lab-up`; read [ethics](../ethics.md) | — | — | Setup | Lab binds only to 127.0.0.1; health endpoints 200; `simulate.py` refuses a non-local `--base` |
+| M1 Model | Turn your Module 1 diagram into a threat model of the whole stack | `threat-model.md` | [template](threat-model.md) · [Helix](reference/threat-model-example.md) | Module 1 | Names assets, trust boundaries, and residual risk |
+| M2 Telemetry | Check the events you need exist and carry the right fields. Fix gaps; don’t rebuild logging | cited in `attack-coverage.md` and `incident-report.md` | — | Module 7 | Login, AuthZ, fetch, and search events have UTC time, event name, actor, object, and `trace_id` |
+| M3 Emulate | `simulate.py --scenario all` | — | — | Modules 8–9 | Runs against loopback only |
+| M4 Detect | Keep DET-001–005 and write **three** new rules against events no rule covers yet. Give every rule a replay fixture | `rules.yaml` + `fixtures/` + `attack-coverage.md` | [template](attack-coverage.md) | Modules 8, 11 | Eight rules fire on sim traffic, or each miss is documented with a fix. Every fixture fires on its abnormal case and stays quiet on normal traffic. Every mapping has tactic, technique ID, confidence, and limitation |
+| M5 Investigate | Open a case; build a UTC timeline; weigh competing hypotheses; `preserve-logs.sh` | `incident-report.md` | [template](incident-report.md) · [Helix](reference/incident-report-example.md) | Modules 10–11 | Case exists with timeline entries; the evidence snapshot is unchanged after preservation; RCA names a control defect |
+| M6 Contain | Preserve → contain → verify; redeploy with `LAB_MODE=false` or patch the code, then retest | `containment-runbook.md` | [template](containment-runbook.md) · [Helix](reference/containment-runbook-example.md) | Module 11 | The runbook records the sequence you actually ran, evidence is preserved before containment, and at least one control change is retested |
+| M7 Purple | One hypothesis, re-test, TP/FN/TN, one improved rule or control | `purple-report.md` | [template](purple-report.md) · [Helix](reference/purple-report-example.md) | Module 9 | Records the before/after difference in detection or control |
+| M8 Agent | `/investigate`; show a denied action, then an approved one | `agent-run.json` | — | Module 12 | 403 without `approval=APPROVE`; tools outside the allowlist denied; instruction-like text in evidence ignored |
+| M9 Review | At least five architecture findings, plus one decision record for a control you chose | `architecture-review.md` + `security-decision-record.md` | [template](architecture-review.md) · [Helix](reference/architecture-review-example.md); [template](security-decision-record.md) · [Helix](reference/security-decision-record-example.md) | Module 13 | Five or more findings; the decision record names an alternative you considered and the residual risk |
 
-13-week cohort: use week 13. Intensive: last 3 days.
+**Your three detections.** The app already emits `authz_failure` (invalid
+token, admin-blocked), `fetch_blocked_safety_rail`, `ssrf_blocked`,
+`search_error`, and `note_create`. No rule covers any of them. Write your
+three rules against those events in `labs/detections/rules.yaml`, using the
+Module 11 DET-001 walkthrough as the model. A rule without a fixture hasn’t
+been tested. You just believe it works.
 
-## Acceptance criteria
+**Replay fixtures.** For each of the eight rules, save two JSONL files in
+`work/fixtures/`: one where the rule should fire and one where it should stay
+quiet. The fire file must produce the rule ID. The quiet file must produce
+nothing.
 
-- [ ] Lab binds only to 127.0.0.1; `simulate.py` still refuses non-local.
-- [ ] Threat model names assets, boundaries, residual risk.
-- [ ] Eight detections fire on the provided or authored sim traffic (or
-      documented FN with a fix): the five provided plus at least three you
-      wrote against previously-unmapped events.
-- [ ] Every detection has a stored JSONL replay fixture that asserts the
-      rule ID fires on the abnormal case and stays quiet on normal traffic
-      (this was a stretch goal; it is now required).
-- [ ] Mappings include tactic, technique id, confidence, limitation.
-- [ ] Case exists with timeline entries.
-- [ ] Evidence snapshot is unmodified after preservation.
-- [ ] At least one control change (`LAB_MODE=false` or a code patch) is
-      re-tested.
-- [ ] `containment-runbook.md` records the actual sequence executed, with
-      evidence preserved before containment and a verification step.
-- [ ] At least one `security-decision-record.md` exists for a chosen
-      control, including an alternative considered and residual risk.
-- [ ] Agent cannot simulate an action without `approval=APPROVE`.
-- [ ] Architecture review lists at least five findings.
-- [ ] No real secrets, no extra-scope testing.
+**Agent run.** Save the `/investigate` response you used as
+`work/agent-run.json`. If you used a hosted LLM, redact it first.
+
+Don’t commit the optional evidence tarball. It contains dummy secrets.
+
+## How long it takes
+
+| Path | Budget |
+| --- | --- |
+| You kept your module work | 15–20 hours: promote, finish, write three rules and eight fixtures |
+| Starting cold | 25–30 hours |
+
+In a 13-week cohort this is week 13. In the intensive format it takes the
+last three days.
+
+## To pass
+
+Score **80 or more** on the rubric **and** meet every “Done when” in the
+table. On top of that: no real secrets and no testing outside scope.
 
 ## Rubric (100 points)
 
@@ -104,41 +94,12 @@ flowchart LR
 | Agent safety | 10 | Policy, untrusted evidence, no unbounded tools |
 | Architecture writing | 10 | Trade-offs, what not to automate, one decision record |
 
-Score ≥ 80 and all acceptance checkboxes to pass.
+## Worked example (Helix Tickets)
 
-## Expected artifacts
-
-Create `docs/capstone/artifacts/` (gitignore it if it contains logs; keep
-shareable Markdown):
-
-- `threat-model.md` — diagram + table
-- `attack-coverage.md` — eight-plus-gap matrix
-- `incident-report.md` — timeline, RCA, comms (lab)
-- `purple-report.md`
-- `architecture-review.md`
-- `containment-runbook.md` — the specific containment sequence you executed
-- `security-decision-record.md` — at least one, for a control you chose
-- `agent-run.json` — saved `/investigate` output (redact if you used a hosted LLM)
-- Optional: evidence tarball **not committed** if it contains dummy secrets
-
-Templates live beside this README.
-
-## Worked example (parallel incident)
-
-Worked **calibration** examples for a *different* product (Helix Tickets)
-live in [reference/](reference/README.md). They show the shape of a
-timeline, replay fixture, and mapping. They are **not** notes-api answers.
-Write your own Acme Notes artifacts from the templates beside this brief.
-
-## Stretch goals
-
-- Run replay fixtures in CI, not just locally.
-- Push past eight detections toward the full event surface (10-20 total).
-- Non-root USER in notes-api Dockerfile.
-- Rate-limit `/login`.
-- Optional kind deploy with a NetworkPolicy denying metadata.
-- Groundedness checks: fail `/investigate` if mapping not in catalog.
-- OpenTelemetry traces exported to a file (not a full vendor APM).
+The [Helix Tickets example](reference/README.md) is a small incident on a
+different product. It shows what a finished timeline, runbook, and review
+look like. Wrong product, right shape: if your work mentions Dana,
+`HELIX_DEBUG`, or ticket 42, you’ve modelled the wrong system.
 
 ## Failure scenarios to test
 
@@ -169,11 +130,23 @@ Write your own Acme Notes artifacts from the templates beside this brief.
 | Action verification fails | workflow stops and proposes/executes the documented simulated rollback |
 | Partial telemetry from one source only | scope and confidence remain explicitly limited |
 
-## Security and ethical constraints
+## Stretch goals
 
-- Scope: local lab only.
-- Dummy credentials never used against a real IdP or cloud.
+- Run replay fixtures in CI, not just locally.
+- Push past eight detections toward the full event surface (10-20 total).
+- Non-root USER in notes-api Dockerfile.
+- Rate-limit `/login`.
+- Optional kind deploy with a NetworkPolicy denying metadata.
+- Groundedness checks: fail `/investigate` if mapping not in catalog.
+- OpenTelemetry traces exported to a file (not a full vendor APM).
+
+## Scope and ethics
+
+**Authorized lab use only.** Scope is this repository’s compose stack on
+loopback ports. No real cloud accounts, no employer systems, no malware.
+
+- Dummy credentials never go near a real IdP or cloud.
 - No persistence, no ransomware simulation, no data destruction labs.
-- Hosted LLMs: lab data only; assume provider logging.
-- Publish reports without raw dummy secrets if the repo is public.
+- Hosted LLMs: lab data only, and assume the provider logs it.
+- If your repo is public, publish reports without raw dummy secrets.
 - Cleanup: `make lab-reset` at the end.

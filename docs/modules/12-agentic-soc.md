@@ -199,6 +199,12 @@ API contract. Agents assist; they do not own containment.
 - Sending customer logs to a public model.
 - Measuring only how fluent the summary is.
 
+### Keep for the capstone
+
+Save the `/investigate` response as `docs/capstone/work/agent-run.json`
+(redact it if you used a hosted LLM). Keep a note of the 403 you got and the
+approved action that followed. Together they make the capstone’s M8 item.
+
 ### Cleanup
 
 Unset LLM env. `lab-down` as needed.

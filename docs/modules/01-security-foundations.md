@@ -279,6 +279,12 @@ meeting, not a footnote.
 - Confusing “encrypted in transit” with “authorized.”
 - Copying a STRIDE table with empty rows and calling it done.
 
+### Keep for the capstone
+
+Copy the [threat-model template](../capstone/threat-model.md) to
+`docs/capstone/work/threat-model.md` and put today’s diagram, boundaries, and
+residual-risk sentence in it. This file becomes the capstone’s M1 item.
+
 ### Cleanup
 
 `./labs/scripts/lab-down.sh` if you are done for the day.

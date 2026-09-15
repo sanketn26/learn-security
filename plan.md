@@ -214,6 +214,15 @@ Student files never appear in nav.
 
 Do **W1–W2 as a written decision first**. If student work stays “edit the templates in git,” W3–W15 are wasted.
 
+#### Decision (W1 + W2) — accepted 2026-09-15
+
+- **(a) Scope.** The platform capstone collects and extends module work. It isn’t built from scratch. The only new engineering is three authored rules and eight replay fixtures.
+- **(b) Student files.** They live in `docs/capstone/work/`. Git ignores everything there except `README.md`, and MkDocs excludes the folder (`exclude_docs`). The front-matter test skips it.
+- **(c) Templates** stay blank in git. Students copy each one into `work/` and never edit the template itself.
+- **(d) Title:** “Operate a small defensive security platform”.
+- **(e) Scored set:** the “Suggested scored set” table below, with M6 renamed from Respond to **Contain** (the approval-gated agent action moves to M8 only) and the SDR on M9. Its “Core test” column becomes the brief’s “Done when” column and replaces the acceptance checklist. To pass: ≥80 and every Done-when, with no real secrets and no testing outside scope.
+- **(f)** The 24-row failure table stays unsplit until W9. The three agent rows (approval, allowlist, instruction-like text) are core through M8.
+
 #### P0 — Operating model
 
 | ID | Work item | Why | Depends on |
@@ -331,5 +340,6 @@ Do not rewrite 17 modules and reorganise the capstone in the same PR. Suggested 
 | Review 2 captured | Yes |
 | Plan landed | Yes (10e7d4d, branch `docs/course-improvement-plan`) |
 | Plan verified against repo | Yes — added W22, W23, A9; corrected W15, W16, W17, W20, A8 |
-| Capstone W1–W23 | Not started |
+| Capstone first slice (W1, W2, W3, W5, W7, W11, W15, W22) | Done on branch `capstone/first-slice`. Strict build passes, including with a broken file in `work/`; front-matter tests pass |
+| Capstone remainder | Not started. Next: W4 + W23 (template move + redirects), W6, W16 (`course.md:684` still says to edit templates) |
 | Writing A1–A9 | Not started (prototype Module 1 first) |

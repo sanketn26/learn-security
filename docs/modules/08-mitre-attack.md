@@ -159,9 +159,11 @@ example `DET-001:172.30.0.1`), not `alice`. DET-002–005 group by `actor`
 (`DET-003:alice`). If a leftover `LAB_MODE=false` volume is still mounted,
 IDOR/SSRF success events will not appear — reset first.
 
-5. Copy **your** table into `docs/capstone/attack-coverage.md`. The stub
-   already contains starter mappings so you can see the shape; replace them
-   with what you observed. Do not treat the stub as an answer key.
+5. Copy the [coverage template](../capstone/attack-coverage.md) to
+   `docs/capstone/work/attack-coverage.md` and put **your** table there, one
+   row per rule. Don’t edit the template itself. Your
+   [work folder](../capstone/work/README.md) is gitignored, so this draft
+   carries forward to the capstone.
 6. Add a **gap** row: a behavior the sim does not generate (for example
    persistence). Write “no data source” rather than painting the cell.
 

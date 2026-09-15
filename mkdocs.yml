@@ -8,6 +8,12 @@ edit_uri: edit/main/docs/
 copyright: Local Docker lab · authorized use only
 docs_dir: docs
 site_dir: site
+# Capstone student work is local and gitignored; never build it into the site.
+exclude_docs: |
+  capstone/work/*
+  !capstone/work/README.md
+not_in_nav: |
+  capstone/work/README.md
 plugins:
   - search
   - social:
@@ -109,21 +115,23 @@ nav:
           - 17. Phishing, social engineering, insider risk: modules/17-human-factor-attacks.md
   - Capstones:
       - Defensive platform:
-          - Project brief: capstone/README.md
-          - Worked example (parallel incident): capstone/reference/README.md
-          - Example threat model: capstone/reference/threat-model-example.md
-          - Example architecture review: capstone/reference/architecture-review-example.md
-          - Example incident report: capstone/reference/incident-report-example.md
-          - Example purple report: capstone/reference/purple-report-example.md
-          - Example containment runbook: capstone/reference/containment-runbook-example.md
-          - Example decision record: capstone/reference/security-decision-record-example.md
-          - Threat-model template: capstone/threat-model.md
-          - ATT&CK coverage template: capstone/attack-coverage.md
-          - Incident-report template: capstone/incident-report.md
-          - Purple-team template: capstone/purple-report.md
-          - Architecture-review template: capstone/architecture-review.md
-          - Containment-runbook template: capstone/containment-runbook.md
-          - Security-decision-record template: capstone/security-decision-record.md
+          - Start here: capstone/README.md
+          - Templates:
+              - Threat model: capstone/threat-model.md
+              - ATT&CK coverage: capstone/attack-coverage.md
+              - Incident report: capstone/incident-report.md
+              - Containment runbook: capstone/containment-runbook.md
+              - Purple-team report: capstone/purple-report.md
+              - Architecture review: capstone/architecture-review.md
+              - Security decision record: capstone/security-decision-record.md
+          - Worked example (Helix):
+              - capstone/reference/README.md
+              - Threat model: capstone/reference/threat-model-example.md
+              - Incident report: capstone/reference/incident-report-example.md
+              - Containment runbook: capstone/reference/containment-runbook-example.md
+              - Purple-team report: capstone/reference/purple-report-example.md
+              - Architecture review: capstone/reference/architecture-review-example.md
+              - Decision record: capstone/reference/security-decision-record-example.md
       - Python vulnerability scanner: capstone/vulnerability-scanner.md
   - Reference:
       - Lab guide: lab-guide.md

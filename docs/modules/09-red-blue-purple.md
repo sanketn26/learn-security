@@ -170,6 +170,12 @@ sides: detect attempts *and* successes.
 - Declaring victory because the matrix cell is green.
 - Skipping RoE (“I’ll just nmap my office”).
 
+### Keep for the capstone
+
+Save the 10-line report as `docs/capstone/work/purple-report.md`, using the
+[purple-team template](../capstone/purple-report.md). This file becomes the
+capstone’s M7 item.
+
 ### Cleanup
 
 `LAB_MODE=true` restore or `lab-reset` before module 10 if you want a dirty

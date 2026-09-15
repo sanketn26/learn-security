@@ -1,38 +1,38 @@
 ---
-description: "Fill-in threat model template for the notes-api capstone service: assets, trust boundaries, and top threats you identify yourself."
+description: "Blank threat model template for the notes-api capstone service: diagram, assets, trust boundaries, top threats, and residual risk you identify yourself."
 ---
 
 # Threat model — notes-api (fill in)
 
+Start this in the Module 1 lab. Copy it to `docs/capstone/work/threat-model.md`
+and fill in the copy, not this file. For a filled-in example, see the
+[Helix threat model](reference/threat-model-example.md). It's a different
+product, so none of its rows are right for notes-api.
+
 ## Diagram
 
+Draw the compose stack as you found it: every process, every port it binds,
+every data flow. Mark each trust boundary a request crosses.
+
 ```
-[analyst] --> 127.0.0.1:8090/8091
-[user]    --> 127.0.0.1:8080 --> notes-api --> sqlite
-                                   |  (should not)
-                                   +------> mock-imds
-                                   +------> JSONL --> soc-lite --> agent
+(your diagram)
 ```
 
 ## Assets
 
-| Asset | Sensitivity |
-| --- | --- |
-| Note bodies | High in prod; dummy in lab |
-| Password hashes | High |
-| JWT signing secret | High |
-| Dummy IMDS keys | Treat as high for practice |
+| Asset | Sensitivity | Why it matters here |
+| --- | --- | --- |
+| | | |
 
 ## Trust boundaries
 
 | From | To | Control today | Residual |
 | --- | --- | --- | --- |
-| User | API | JWT (weak in LAB_MODE) | Stolen token |
-| API | object | Owner check only if LAB_MODE=false | IDOR |
-| API | IMDS | App block if LAB_MODE=false; safety rail always | Other internals |
-| App host | logs | volume | attacker with volume access |
+| | | | |
 
 ## Top threats
+
+Name the actor, the boundary, and the asset. “Hackers” is not a threat.
 
 1.
 2.
@@ -42,4 +42,5 @@ description: "Fill-in threat model template for the notes-api capstone service: 
 
 ## Residual risk statement
 
-_Write one paragraph._
+_Write one paragraph: what can still go wrong after the controls above, and
+who has accepted that._

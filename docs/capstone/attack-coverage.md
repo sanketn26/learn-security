@@ -1,32 +1,29 @@
 ---
-description: Template ATT&CK coverage matrix for the capstone, with worked example detection rows to model your own MITRE ATT&CK technique mappings on.
+description: "Blank ATT&CK coverage matrix template for the capstone: one row per detection, mapped from the alerts you observed, with confidence and limitations."
 ---
 
-# ATT&CK coverage matrix (draft)
+# ATT&CK coverage matrix (fill in)
 
-Fill during module 8 and the capstone from **observed alerts**, then confirm
-IDs on https://attack.mitre.org/. The rows below are a *shape example* from
-`labs/detections/rules.yaml`, not a completed assignment. Coverage here is
-**visibility of lab procedures**, not organizational security.
+Start this in the Module 8 lab. Copy it to
+`docs/capstone/work/attack-coverage.md` and fill in the copy, not this file.
 
-The capstone requires eight detections total: the five below plus three you
-author yourself (see `capstone/README.md`). Add one row per authored
-detection in the same format — data source, tactic, technique, confidence,
-and limitation — rather than a separate table.
+Fill each row from an **observed alert**, then check the ID on
+https://attack.mitre.org/. Coverage here means you can see the lab's
+procedures. It says nothing about the security of a whole organisation.
+
+The capstone needs eight detections: DET-001–005 plus three you write
+yourself (see the [capstone brief](README.md)). Give every detection its own
+row in this table rather than starting a second one. Add at least one gap row
+for a behaviour the sim never generates.
 
 | Detection | Data source | Tactic | Technique ID | Technique | Confidence | Limitation / gap |
 | --- | --- | --- | --- | --- | --- | --- |
-| DET-001 | notes-api JSONL `login_failure` | Credential Access | T1110.001 | Password Guessing | high | Misses slow guessing; shared NAT src_ip |
-| DET-002 | `cross_user_note_access` | Collection | T1213 | Data from Information Repositories | medium | Vulnerability is BOLA; T1190 also plausible |
-| DET-003 | `ssrf_metadata_access` | Credential Access | T1552.005 | Cloud Instance Metadata API | high | Dummy IMDS; blocked attempts may not fire |
-| DET-004 | `broken_function_authz` | Discovery | T1087 | Account Discovery | medium | Function-level bug; not OS account enum |
-| DET-005 | `search` + SQL metacharacters | Initial Access | T1190 | Exploit Public-Facing Application | medium | Regex FP on legitimate titles |
-| (gap) | none | Persistence | — | — | n/a | Not emulated; do not paint the cell |
+| DET-00X | `<event name>` in notes-api JSONL | | T#### | | low / medium / high | What this rule misses, and why the mapping might be wrong |
+| (gap) | none | | — | — | n/a | Not emulated. Write “no data source” rather than colouring the cell in. |
 
-Procedure notes:
+## Procedure notes
 
-- T1110.001 — six HTTP POSTs to `/login` with wrong passwords.
-- T1213 / BOLA — `GET /notes/2` as alice.
-- T1552.005 — `/fetch?url=http://mock-imds/...`
-- T1087 — `GET /admin/users` as alice.
-- T1190 — concatenated SQL in `/search` (benign payload).
+One line per technique: the request or action you actually saw in the lab
+that justifies the mapping.
+
+-

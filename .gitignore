@@ -13,6 +13,10 @@ labs/data/
 labs/logs/
 labs/cases/
 labs/evidence/
+
+# Capstone student work (only the README is tracked)
+docs/capstone/work/*
+!docs/capstone/work/README.md
 .pytest_cache/
 .cache/
 site/

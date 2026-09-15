@@ -114,7 +114,10 @@ revocation. A valid token is input to authorization, not proof of permission.
 - Identify common implementation failures in the lab JWT flow.
 - Describe service-to-service identity better than a shared static key.
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 **Authentication (AuthN).** Establishing identity: password, passkey, OIDC
 id_token, mTLS certificate, workload identity. In the lab, `/login` returns
@@ -123,14 +126,6 @@ a JWT after verifying the seeded lab password (unsalted SHA-256 in
 
 **Authorization (AuthZ).** A decision: allow or deny an action on a resource.
 Must happen on the server for every object. UI hiding a button is not AuthZ.
-
-**Session vs token.** A session is server-side state (session id in a cookie).
-A token is typically client-held claims (JWT). Both can be stolen. Both need
-expiry, revocation strategy, and transport security.
-
-**Cookies.** Automatically sent by browsers for a site. Need `Secure`,
-`HttpOnly`, `SameSite` in real browser apps. This lab uses `Authorization:
-Bearer` instead (typical of APIs and SPAs).
 
 **JWT (JSON Web Token).** Three segments: header, payload, signature. Signed
 (JWS) tokens are *integrity-protected claims*, not automatically confidential.
@@ -143,15 +138,6 @@ not “login.” **OpenID Connect** adds an identity layer (id_token) on top of
 OAuth. You do not need to implement either in this course; you need to stop
 treating a random JWT your app minted as “we use OAuth.”
 
-**API keys.** Bearer secrets, often long-lived, often pasted into frontends
-by accident. Prefer scoped, rotatable keys or workload identity.
-
-**Secrets.** Anything that grants access: passwords, tokens, signing keys.
-Not “the config file.”
-
-**MFA.** Additional factor. Phishing-resistant MFA (passkeys, hardware)
-beats OTP that can be phished. MFA does not fix IDOR.
-
 **RBAC vs ABAC.**
 
 | | RBAC | ABAC |
@@ -162,14 +148,6 @@ beats OTP that can be phished. MFA does not fix IDOR.
 | Lab | `role=admin` for `/admin/users` | `note.owner == token.sub` |
 
 You usually need **both**: roles for functions, attributes for objects.
-
-**Service-to-service identity.** Shared `API_KEY=...` in six repos is not
-identity. Prefer short-lived credentials: cloud workload identity,
-**SPIFFE/SPIRE** (an open standard that issues each workload a short-lived
-cryptographic identity document instead of a shared secret), mTLS with
-rotation, or OIDC from CI. The mock IMDS in this lab exists because cloud
-SDKs historically fetched **instance role keys** from a link-local service —
-a powerful identity that SSRF can steal.
 
 **Common implementation failures.**
 
@@ -301,6 +279,36 @@ object owners.
 ### Cleanup
 
 If you copied tokens into a scratch file, delete it. `lab-down` optional.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**Session vs token.** A session is server-side state (session id in a cookie).
+A token is typically client-held claims (JWT). Both can be stolen. Both need
+expiry, revocation strategy, and transport security.
+
+**Cookies.** Automatically sent by browsers for a site. Need `Secure`,
+`HttpOnly`, `SameSite` in real browser apps. This lab uses `Authorization:
+Bearer` instead (typical of APIs and SPAs).
+
+**API keys.** Bearer secrets, often long-lived, often pasted into frontends
+by accident. Prefer scoped, rotatable keys or workload identity.
+
+**Secrets.** Anything that grants access: passwords, tokens, signing keys.
+Not “the config file.”
+
+**MFA.** Additional factor. Phishing-resistant MFA (passkeys, hardware)
+beats OTP that can be phished. MFA does not fix IDOR.
+
+**Service-to-service identity.** Shared `API_KEY=...` in six repos is not
+identity. Prefer short-lived credentials: cloud workload identity,
+**SPIFFE/SPIRE** (an open standard that issues each workload a short-lived
+cryptographic identity document instead of a shared secret), mTLS with
+rotation, or OIDC from CI. The mock IMDS in this lab exists because cloud
+SDKs historically fetched **instance role keys** from a link-local service —
+a powerful identity that SSRF can steal.
 
 ## Knowledge check
 

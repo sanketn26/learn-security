@@ -75,7 +75,10 @@ overlaps but the response differs" below.
 - Read the same telemetry event stream through an availability lens instead
   of a credential-access lens.
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 **Availability is a property of the whole path, not just the server.**
 DNS, gateway, application process, and database can each be the bottleneck.
@@ -109,23 +112,6 @@ signature — a burst of `login_failure` events from one source — but the
 correct response differs: credential-access response is "was any password
 correct, rotate if so"; availability response is "can the service still
 serve legitimate users, and where do we throttle."
-
-**Disaster recovery is a different property than surviving an attack.**
-Everything above defends *uptime while under load*. DR defends the case
-where the service goes down anyway — attack, operator error, or plain
-hardware failure — and asks whether you can come back. Two numbers make
-this concrete instead of aspirational:
-
-- **RPO (recovery point objective):** how much data you can afford to
-  lose, measured in time since the last good backup. "We back up nightly"
-  means an RPO of up to 24 hours, whether or not anyone said so on purpose.
-- **RTO (recovery time objective):** how long you can afford to be down
-  while restoring.
-
-A backup you have never restored is a belief, not a control — the same
-"controls fail, plan for that" idea from Module 1 applies to backups
-themselves: the failure mode isn't "we forgot to back up," it's "we backed
-up for two years and the restore script silently broke in month three."
 
 ## Worked scene — putting a number on it
 
@@ -256,7 +242,8 @@ hash *and* a rate limit, not one instead of the other.
 - Adding a rate limit only on `/login` success, which does nothing for the
   cost already paid on every failure.
 - Treating "we take backups" as a finished control without ever running a
-  restore drill — see "disaster recovery is a different property" above.
+  restore drill — see "disaster recovery is a different property" in
+  [the rest of the vocabulary](#the-rest-of-the-vocabulary).
 
 ### Cleanup
 
@@ -269,6 +256,28 @@ make lab-up
 
 Confirm `/health` reports `"lab_mode":true`. This removes the secure-mode
 database whose bcrypt hashes are incompatible with the default teaching mode.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**Disaster recovery is a different property than surviving an attack.**
+Everything above defends *uptime while under load*. DR defends the case
+where the service goes down anyway — attack, operator error, or plain
+hardware failure — and asks whether you can come back. Two numbers make
+this concrete instead of aspirational:
+
+- **RPO (recovery point objective):** how much data you can afford to
+  lose, measured in time since the last good backup. "We back up nightly"
+  means an RPO of up to 24 hours, whether or not anyone said so on purpose.
+- **RTO (recovery time objective):** how long you can afford to be down
+  while restoring.
+
+A backup you have never restored is a belief, not a control — the same
+"controls fail, plan for that" idea from Module 1 applies to backups
+themselves: the failure mode isn't "we forgot to back up," it's "we backed
+up for two years and the restore script silently broke in month three."
 
 ## Knowledge check
 

@@ -75,12 +75,12 @@ the wrong behavior and contributes to fatigue.
 - Name metrics and how they are abused.
 - Run a simple SOC workflow on soc-lite.
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 Full narrative and comparison tables: [COURSE.md section 5](../course.md).
-
-**Why a SOC.** Prevention is incomplete; someone correlates identity + app +
-cloud; someone is accountable for detection SLAs; someone coordinates IR.
 
 **Tiers (typical, not mandatory).**
 
@@ -104,9 +104,6 @@ staffing honesty.
 
 **False positives.** A cost paid in analyst hours and missed true positives.
 Track them as defects in detection-as-code.
-
-**Burnout.** Shift work + hostility + un-actionable queues. Metrics that
-only count closed tickets make this worse.
 
 **Metrics.** MTTD, MTTA, MTTR, dwell time, fidelity, investigation quality,
 control effectiveness. Define MTTR as *respond* or *recover* explicitly.
@@ -217,6 +214,17 @@ finished report is the capstone’s M5 item.
 ### Cleanup
 
 Leave cases for module 11 or reset.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**Why a SOC.** Prevention is incomplete; someone correlates identity + app +
+cloud; someone is accountable for detection SLAs; someone coordinates IR.
+
+**Burnout.** Shift work + hostility + un-actionable queues. Metrics that
+only count closed tickets make this worse.
 
 ## Knowledge check
 

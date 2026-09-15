@@ -77,7 +77,10 @@ delivery speed. The output is a decision with residual risk, not "add WAF."
 - State distributed-systems security trade-offs (consistency, blast radius,
   replay, poison-pill messages).
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 **Secure service design.** Every service: authenticated callers, authorized
 objects, least-privilege outbound, structured audit events, fail closed,
@@ -108,34 +111,6 @@ with `aud` per callee. No “VPC = trusted.”
 
 **Network segmentation.** Still useful to reduce SSRF and ransomware blast
 radius. Not a replacement for AuthZ.
-
-**Supply-chain security.** Pin, verify, provenance (SLSA as a *framework
-of levels*, not a certificate), signed images, review GitHub Actions
-permissions, do not `latest`.
-
-**Third-party and vendor trust.** Every SaaS integration, payment processor,
-and third-party library is a trust boundary you drew a diagram for in
-Module 1, whether or not you actually drew it. Ask the same questions:
-what data crosses to them, what can they push back to you (webhooks,
-callbacks, SDK code that runs in your process), and what happens to your
-system if their credential or their service is compromised. A vendor
-security questionnaire is not a substitute for naming that boundary on
-your own architecture diagram.
-
-**Secure SDLC.** Threat model on design; code review including AuthZ;
-dependency scan; SAST as a *helper*; DAST/API tests for IDOR; deploy gates;
-production security observability. None of these is complete.
-
-**Distributed-systems trade-offs.**
-
-| Decision | Security implication |
-| --- | --- |
-| Shared database vs per-service DB | Shared DB makes object AuthZ and blast radius worse |
-| Sync vs async | Poisoned messages persist; consumers need AuthN of producers |
-| Caches | Stale AuthZ; cache poisoning |
-| Retries | Credential stuffing looks like your own retry storm |
-| Multi-tenant isolation | One missing `tenant_id` predicate is a breach class |
-| Feature flags | Flags that skip AuthZ in “emergency” become the incident |
 
 ## Worked scene — writing one finding
 
@@ -228,6 +203,39 @@ Together they make the capstone’s M9 item.
 ### Cleanup
 
 None.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**Supply-chain security.** Pin, verify, provenance (SLSA as a *framework
+of levels*, not a certificate), signed images, review GitHub Actions
+permissions, do not `latest`.
+
+**Third-party and vendor trust.** Every SaaS integration, payment processor,
+and third-party library is a trust boundary you drew a diagram for in
+Module 1, whether or not you actually drew it. Ask the same questions:
+what data crosses to them, what can they push back to you (webhooks,
+callbacks, SDK code that runs in your process), and what happens to your
+system if their credential or their service is compromised. A vendor
+security questionnaire is not a substitute for naming that boundary on
+your own architecture diagram.
+
+**Secure SDLC.** Threat model on design; code review including AuthZ;
+dependency scan; SAST as a *helper*; DAST/API tests for IDOR; deploy gates;
+production security observability. None of these is complete.
+
+**Distributed-systems trade-offs.**
+
+| Decision | Security implication |
+| --- | --- |
+| Shared database vs per-service DB | Shared DB makes object AuthZ and blast radius worse |
+| Sync vs async | Poisoned messages persist; consumers need AuthN of producers |
+| Caches | Stale AuthZ; cache poisoning |
+| Retries | Credential stuffing looks like your own retry storm |
+| Multi-tenant isolation | One missing `tenant_id` predicate is a breach class |
+| Feature flags | Flags that skip AuthZ in “emergency” become the incident |
 
 ## Knowledge check
 

@@ -88,24 +88,14 @@ deny needless egress and join views with UTC timestamps and correlation IDs.
   system calls, and logs.
 - Capture **local** evidence (compose network and container logs) safely.
 
-## Key concepts
+## Words for the lab
 
-**TCP/IP.** Packets are routed by IP. Transport protocols (TCP and UDP)
-add ports, and TCP adds a handshake and a byte stream. Your API is a
-process bound to `0.0.0.0:8080` inside a container, published to
-`127.0.0.1:8080` on the host. That publish path is a trust boundary: only
-loopback should reach it in this lab.
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 **DNS.** Names to addresses. Attacks against DNS (spoofing, cache poisoning,
 malicious names in SSRF) are common. In the lab, `mock-imds` is a Docker DNS
 name on `labnet`.
-
-**HTTP/S and TLS.** HTTP is the application protocol. TLS provides
-confidentiality and integrity of the hop and, with certificates, server
-(and optionally client) authentication. Module 6 splits that into key
-agreement, authentication, and AEAD-protected data. TLS does not authorize
-Alice to read Bob’s note. HTTP methods, paths, headers, and bodies are
-your app’s surface.
 
 **Routing, ports, proxies, firewalls.** A firewall or security group is a
 packet filter, not an identity system. A reverse proxy may terminate TLS and
@@ -116,11 +106,6 @@ authorization.
 with a filesystem view, environment, and capabilities. Secrets in env vars
 are visible to that process and often to anyone who can `docker inspect` or
 read `/proc`. File modes (`0600` vs `0644`) still matter for sqlite and keys.
-
-**System calls.** User code asks the kernel to do things (`open`, `connect`,
-`execve`). EDR products watch these. You will not run a full EDR here; know
-that “the app made an outbound GET to IMDS” is a `connect` + write to a
-socket.
 
 **Logs.** stdout, files, journald, syslog. They are not evidence until they
 have timestamps, integrity, and retention you can defend. Container logs
@@ -264,6 +249,29 @@ volume or they vanish with the container.
 ### Cleanup
 
 Stop tcpdump. `./labs/scripts/lab-down.sh` if finished.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**TCP/IP.** Packets are routed by IP. Transport protocols (TCP and UDP)
+add ports, and TCP adds a handshake and a byte stream. Your API is a
+process bound to `0.0.0.0:8080` inside a container, published to
+`127.0.0.1:8080` on the host. That publish path is a trust boundary: only
+loopback should reach it in this lab.
+
+**HTTP/S and TLS.** HTTP is the application protocol. TLS provides
+confidentiality and integrity of the hop and, with certificates, server
+(and optionally client) authentication. Module 6 splits that into key
+agreement, authentication, and AEAD-protected data. TLS does not authorize
+Alice to read Bob’s note. HTTP methods, paths, headers, and bodies are
+your app’s surface.
+
+**System calls.** User code asks the kernel to do things (`open`, `connect`,
+`execve`). EDR products watch these. You will not run a full EDR here; know
+that “the app made an outbound GET to IMDS” is a `connect` + write to a
+socket.
 
 ## Knowledge check
 

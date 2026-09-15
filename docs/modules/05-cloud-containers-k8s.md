@@ -93,7 +93,10 @@ least-privilege CI, admission, and runtime evidence are complementary.
 - Identify CI/CD and IaC failure modes.
 - Secure a small containerized deployment (the lab stack + optional kind).
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 **Shared responsibility.** The provider secures the cloud (physical, hypervisor,
 managed control plane depending on the service). You secure what you configure
@@ -121,38 +124,13 @@ Compose still **allows** notes-api to reach it on labnet; `LAB_MODE=false`
 only adds the application block. The dotted “denied” line in the diagram is
 the *desired* bulkhead, not what the default stack enforces.
 
-**Network segmentation and security groups.** Packet filters. Necessary,
-insufficient. NetworkPolicy in Kubernetes is the analog.
-
-**Object storage.** Public buckets, overly broad identity policies, and
-server-side copy between buckets (T1537 class of behavior in ATT&CK) are
-recurring breach patterns. Versioning and access logs matter.
-
-**Audit logs.** Cloud trail / admin activity is often the only evidence of
-IAM changes. Turn them on; protect them; actually query them.
-
 **Containers.** Namespaces, cgroups, union filesystem. **Not** a VM. Root in
 a container with host mounts or `privileged` is host root. Run as non-root,
 drop capabilities, read-only rootfs where possible, no host PID/net.
 
-**Image provenance.** Know what you run: signed images (Sigstore/cosign as
-an ecosystem), SBOMs, scan (Trivy/Grype), pin digests not `:latest`. Scanning
-without deploy gates is a report, not a control.
-
-**Secrets.** Env vars leak. Prefer tmpfs, native secret stores, short-lived
-certs. Never bake secrets into layers (`docker history`).
-
 **Admission controls.** Policy on what the API server will accept: no
 privileged, require non-root, deny `:latest`, require signatures. Gatekeeper/
 Kyverno/validating admission policy are implementations.
-
-**Kubernetes RBAC.** `apiGroups`, `resources`, `verbs`, `subjects`. Cluster-admin
-bindings to users or CI are a classic blast-radius problem. Service accounts
-default-mounted into pods expand SSRF/compromise impact.
-
-**CI/CD and IaC risk.** Self-hosted runners, over-privileged OIDC, unpinned
-actions, `curl | sudo bash` in Dockerfiles, secrets in terraform state,
-`kubectl` from laptops with cluster-admin. Supply chain is A03:2025.
 
 ## Worked scene — what the workload can reach
 
@@ -277,6 +255,36 @@ privilege for *deployments*, not for *business objects*.
 ### Cleanup
 
 `kind delete cluster --name learn-sec` if created. `make lab-down` as needed.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**Network segmentation and security groups.** Packet filters. Necessary,
+insufficient. NetworkPolicy in Kubernetes is the analog.
+
+**Object storage.** Public buckets, overly broad identity policies, and
+server-side copy between buckets (T1537 class of behavior in ATT&CK) are
+recurring breach patterns. Versioning and access logs matter.
+
+**Audit logs.** Cloud trail / admin activity is often the only evidence of
+IAM changes. Turn them on; protect them; actually query them.
+
+**Image provenance.** Know what you run: signed images (Sigstore/cosign as
+an ecosystem), SBOMs, scan (Trivy/Grype), pin digests not `:latest`. Scanning
+without deploy gates is a report, not a control.
+
+**Secrets.** Env vars leak. Prefer tmpfs, native secret stores, short-lived
+certs. Never bake secrets into layers (`docker history`).
+
+**Kubernetes RBAC.** `apiGroups`, `resources`, `verbs`, `subjects`. Cluster-admin
+bindings to users or CI are a classic blast-radius problem. Service accounts
+default-mounted into pods expand SSRF/compromise impact.
+
+**CI/CD and IaC risk.** Self-hosted runners, over-privileged OIDC, unpinned
+actions, `curl | sudo bash` in Dockerfiles, secrets in terraform state,
+`kubectl` from laptops with cluster-admin. Supply chain is A03:2025.
 
 ## Knowledge check
 

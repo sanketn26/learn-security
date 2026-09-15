@@ -182,7 +182,10 @@ then compare it against what the lab actually produces.
   as complete security programs.
 - Exercise the lab app’s intentional flaws and then run it with `LAB_MODE=false`.
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 **Input validation.** Check type, length, range, encoding. Validation is not
 a substitute for parameterized queries or AuthZ. Allowlists beat blocklists.
@@ -202,65 +205,6 @@ this category in 2025.
 
 **SSRF.** Server fetches a URL the attacker influences, using the **server’s**
 network position (metadata, cloud IMDS, internal admin). Lab: `/fetch`.
-
-**XSS.** Attacker script runs in a victim’s browser. Less visible in a JSON
-API; fatal if you reflect HTML or if a frontend `dangerouslySetInnerHTML`s
-API data.
-
-**CSRF.** Browser automatically sends cookies to a site. Bearer tokens in
-headers are not auto-sent by other origins; cookie sessions need `SameSite`
-and anti-CSRF tokens.
-
-**Insecure deserialization.** Loading untrusted bytes as objects (Python
-pickle, Java serialization, YAML `load`). Can become RCE. Do not pickle
-user data.
-
-**File handling.** Path traversal (`../`), unsanitized names, executing
-uploads. Not in the default lab routes; still in your mental model.
-
-**Dependency / supply chain (A03:2025).** Compromised packages, build
-systems, update channels. Scanning helps; pinning and provenance help more.
-
-**Rate limiting.** Resource and abuse control (API4:2023). The lab login
-has no limit — DET-001 exists because of that.
-
-**Business-logic abuse (API6:2023).** Using the feature as designed, too
-much: coupon replay, bulk scraping, password reset spam. Not a CWE scanner
-finding.
-
-### OWASP Top 10:2025
-
-| ID | Name |
-| --- | --- |
-| A01:2025 | Broken Access Control |
-| A02:2025 | Security Misconfiguration |
-| A03:2025 | Software Supply Chain Failures |
-| A04:2025 | Cryptographic Failures |
-| A05:2025 | Injection |
-| A06:2025 | Insecure Design |
-| A07:2025 | Authentication Failures |
-| A08:2025 | Software or Data Integrity Failures |
-| A09:2025 | Security Logging and Alerting Failures |
-| A10:2025 | Mishandling of Exceptional Conditions |
-
-Source: [owasp.org/Top10/2025](https://owasp.org/Top10/2025/0x00_2025-Introduction/).
-
-### OWASP API Security Top 10:2023
-
-| ID | Name |
-| --- | --- |
-| API1:2023 | Broken Object Level Authorization |
-| API2:2023 | Broken Authentication |
-| API3:2023 | Broken Object Property Level Authorization |
-| API4:2023 | Unrestricted Resource Consumption |
-| API5:2023 | Broken Function Level Authorization |
-| API6:2023 | Unrestricted Access to Sensitive Business Flows |
-| API7:2023 | Server Side Request Forgery |
-| API8:2023 | Security Misconfiguration |
-| API9:2023 | Improper Inventory Management |
-| API10:2023 | Unsafe Consumption of APIs |
-
-Source: [OWASP API Security](https://owasp.org/API-Security/editions/2023/en/0x11-t10/).
 
 **Secure coding patterns that actually show up in PRs.**
 
@@ -370,6 +314,70 @@ metadata. Tests that replay these four requests belong in CI.
 
 `LAB_MODE=true docker compose up -d --force-recreate notes-api` or
 `./labs/scripts/lab-reset.sh` as needed.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**XSS.** Attacker script runs in a victim’s browser. Less visible in a JSON
+API; fatal if you reflect HTML or if a frontend `dangerouslySetInnerHTML`s
+API data.
+
+**CSRF.** Browser automatically sends cookies to a site. Bearer tokens in
+headers are not auto-sent by other origins; cookie sessions need `SameSite`
+and anti-CSRF tokens.
+
+**Insecure deserialization.** Loading untrusted bytes as objects (Python
+pickle, Java serialization, YAML `load`). Can become RCE. Do not pickle
+user data.
+
+**File handling.** Path traversal (`../`), unsanitized names, executing
+uploads. Not in the default lab routes; still in your mental model.
+
+**Dependency / supply chain (A03:2025).** Compromised packages, build
+systems, update channels. Scanning helps; pinning and provenance help more.
+
+**Rate limiting.** Resource and abuse control (API4:2023). The lab login
+has no limit — DET-001 exists because of that.
+
+**Business-logic abuse (API6:2023).** Using the feature as designed, too
+much: coupon replay, bulk scraping, password reset spam. Not a CWE scanner
+finding.
+
+### OWASP Top 10:2025
+
+| ID | Name |
+| --- | --- |
+| A01:2025 | Broken Access Control |
+| A02:2025 | Security Misconfiguration |
+| A03:2025 | Software Supply Chain Failures |
+| A04:2025 | Cryptographic Failures |
+| A05:2025 | Injection |
+| A06:2025 | Insecure Design |
+| A07:2025 | Authentication Failures |
+| A08:2025 | Software or Data Integrity Failures |
+| A09:2025 | Security Logging and Alerting Failures |
+| A10:2025 | Mishandling of Exceptional Conditions |
+
+Source: [owasp.org/Top10/2025](https://owasp.org/Top10/2025/0x00_2025-Introduction/).
+
+### OWASP API Security Top 10:2023
+
+| ID | Name |
+| --- | --- |
+| API1:2023 | Broken Object Level Authorization |
+| API2:2023 | Broken Authentication |
+| API3:2023 | Broken Object Property Level Authorization |
+| API4:2023 | Unrestricted Resource Consumption |
+| API5:2023 | Broken Function Level Authorization |
+| API6:2023 | Unrestricted Access to Sensitive Business Flows |
+| API7:2023 | Server Side Request Forgery |
+| API8:2023 | Security Misconfiguration |
+| API9:2023 | Improper Inventory Management |
+| API10:2023 | Unsafe Consumption of APIs |
+
+Source: [OWASP API Security](https://owasp.org/API-Security/editions/2023/en/0x11-t10/).
 
 ## Knowledge check
 

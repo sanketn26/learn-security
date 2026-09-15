@@ -72,54 +72,19 @@ collector outage—not only the happy path.
   tamper resistance.
 - Collect, parse, and search security logs in the lab pipeline.
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 **Event.** Something that happened: `login_failure`.
-**Telemetry.** The stream of measurements (logs, metrics, traces, profiles).
-**Log.** A record, usually append-only text or JSON.
-**Metric.** Aggregated numeric signal (login_failures_total). Cheap, lossy.
-**Trace.** Causal chain of spans across services (`trace_id`).
-**Audit trail.** Security-relevant records you are willing to show later
-(who, what, when, on which object).
+
 **Evidence.** Logs plus preservation process. If you can silently rewrite
 them, they are weaker evidence.
 
 **Log quality.** Every security event should include UTC timestamp, event
 name, actor, object, result, src, `trace_id`, and a stable schema. Avoid
 unstructured `logger.info(f"user {u} got note {n}")` as your only record.
-
-**Normalization.** Mapping vendor fields to a common schema (OCSF, ECS, or
-your own). soc-lite cheats by ingesting JSON the app already owns — a real
-collector has to parse whatever format each source actually speaks first.
-
-**Vendor event formats you'll actually meet.** Not every source emits
-clean JSON. A large share of firewalls, IDS/IPS, and network appliances
-still speak formats built for a pre-JSON world:
-
-- **Syslog (RFC 5424)** — the oldest common transport, mostly unstructured
-  free text after a standard header (priority, timestamp, hostname).
-- **CEF (Common Event Format)** — ArcSight-originated, still a de facto
-  standard many SIEMs ingest natively. A syslog-style header followed by
-  `CEF:Version|Vendor|Product|Version|SignatureID|Name|Severity|Extension`,
-  where `Extension` is `key=value` pairs from a fixed dictionary (`src=`,
-  `dst=`, `suser=`, `act=`, with `cs1=`/`cs1Label=` as vendor-specific
-  escape hatches when the dictionary doesn't have a field they need):
-
-  ```text
-  CEF:0|Acme|NotesGateway|1.0|100|Cross-user object read|7|src=203.0.113.4 suser=alice duser=bob act=blocked
-  ```
-
-- **LEEF** — IBM QRadar's near-equivalent to CEF.
-- **OCSF / ECS** — modern, JSON-native open schemas most pipelines built
-  after ~2020 normalize *into*, superseding CEF/LEEF for anything new.
-
-The reason this matters even in a JSON-native app: **you cannot correlate
-or write one detection rule across two sources that don't share field
-names.** A real collector's first job is a parser layer that turns
-CEF/LEEF/syslog/cloud-API-JSON into one target schema — normalization
-(above) is that layer's output, not its input. soc-lite skips this step
-because notes-api already emits the target schema directly; a collector
-in front of an off-the-shelf firewall would not have that luxury.
 
 **Timestamps.** UTC, monotonic enough to order, NTP sane. Clock skew wrecks
 timelines.
@@ -130,27 +95,6 @@ session do not share an id. Production should propagate an incoming header.
 
 Login events log `username` + `src_ip`; most others log `actor`. Score a
 real line against that difference.
-
-**Retention.** Security vs privacy vs cost. “Keep everything forever” fails
-budget and GDPR-like duties. “Keep 24h” fails slow attacks. Define tiers.
-
-**Privacy.** Do not log passwords, tokens, note bodies, or health data. The
-lab sometimes logs dummy note access metadata (ids, owners), not full bodies,
-in most events — check before you ship this pattern.
-
-**Tamper resistance.** Write to a system the attacker who lands on the app
-host cannot easily edit: separate volume, separate account, signed/shipped
-off-box quickly. `docker compose down -v` is the lab’s reminder that volumes
-are fragile.
-
-**Pipeline.**
-
-```
-app JSONL --> soc-lite ingest --> sqlite events --> rules --> alerts --> cases
-```
-
-OpenTelemetry is optional: traces for performance and some security (unusual
-span graphs), not a SIEM replacement.
 
 ## Worked scene — who is DET-001 about?
 
@@ -256,6 +200,76 @@ before an attacker deletes them is a control. Alerting is part of logging.
 ### Cleanup
 
 Keep evidence if you will do module 11; otherwise `lab-reset` later.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**Telemetry.** The stream of measurements (logs, metrics, traces, profiles).
+
+**Log.** A record, usually append-only text or JSON.
+
+**Metric.** Aggregated numeric signal (login_failures_total). Cheap, lossy.
+
+**Trace.** Causal chain of spans across services (`trace_id`).
+
+**Audit trail.** Security-relevant records you are willing to show later
+(who, what, when, on which object).
+
+**Normalization.** Mapping vendor fields to a common schema (OCSF, ECS, or
+your own). soc-lite cheats by ingesting JSON the app already owns — a real
+collector has to parse whatever format each source actually speaks first.
+
+**Vendor event formats you'll actually meet.** Not every source emits
+clean JSON. A large share of firewalls, IDS/IPS, and network appliances
+still speak formats built for a pre-JSON world:
+
+- **Syslog (RFC 5424)** — the oldest common transport, mostly unstructured
+  free text after a standard header (priority, timestamp, hostname).
+- **CEF (Common Event Format)** — ArcSight-originated, still a de facto
+  standard many SIEMs ingest natively. A syslog-style header followed by
+  `CEF:Version|Vendor|Product|Version|SignatureID|Name|Severity|Extension`,
+  where `Extension` is `key=value` pairs from a fixed dictionary (`src=`,
+  `dst=`, `suser=`, `act=`, with `cs1=`/`cs1Label=` as vendor-specific
+  escape hatches when the dictionary doesn't have a field they need):
+
+  ```text
+  CEF:0|Acme|NotesGateway|1.0|100|Cross-user object read|7|src=203.0.113.4 suser=alice duser=bob act=blocked
+  ```
+
+- **LEEF** — IBM QRadar's near-equivalent to CEF.
+- **OCSF / ECS** — modern, JSON-native open schemas most pipelines built
+  after ~2020 normalize *into*, superseding CEF/LEEF for anything new.
+
+The reason this matters even in a JSON-native app: **you cannot correlate
+or write one detection rule across two sources that don't share field
+names.** A real collector's first job is a parser layer that turns
+CEF/LEEF/syslog/cloud-API-JSON into one target schema — normalization
+(above) is that layer's output, not its input. soc-lite skips this step
+because notes-api already emits the target schema directly; a collector
+in front of an off-the-shelf firewall would not have that luxury.
+
+**Retention.** Security vs privacy vs cost. “Keep everything forever” fails
+budget and GDPR-like duties. “Keep 24h” fails slow attacks. Define tiers.
+
+**Privacy.** Do not log passwords, tokens, note bodies, or health data. The
+lab sometimes logs dummy note access metadata (ids, owners), not full bodies,
+in most events — check before you ship this pattern.
+
+**Tamper resistance.** Write to a system the attacker who lands on the app
+host cannot easily edit: separate volume, separate account, signed/shipped
+off-box quickly. `docker compose down -v` is the lab’s reminder that volumes
+are fragile.
+
+**Pipeline.**
+
+```
+app JSONL --> soc-lite ingest --> sqlite events --> rules --> alerts --> cases
+```
+
+OpenTelemetry is optional: traces for performance and some security (unusual
+span graphs), not a SIEM replacement.
 
 ## Knowledge check
 

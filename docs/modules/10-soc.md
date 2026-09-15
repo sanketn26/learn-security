@@ -4,6 +4,23 @@ description: Walk the SOC operating model from telemetry to alert, triage, incid
 
 # Module 10 — Security Operations Center (SOC)
 
+02:07. One alert:
+
+```text
+DET-003:alice  critical  "SSRF to instance metadata"  status=new
+```
+
+Two stories fit it. Alice’s account is being used by someone else to steal
+cloud credentials. Or a developer is testing the fetch feature on a
+workstation and forgot which mode the lab is in. Both explanations produce
+the same line. You have minutes, a playbook, and whatever the logs can
+actually show you.
+
+The metric your manager watches is “time to acknowledge.” It will look
+great if you close the alert in thirty seconds, and it will look exactly
+as great if you close it wrongly. This module is about what happens
+between the alert and the decision.
+
 ## Why it matters to a software engineer
 
 When your service pages at 2 a.m., the people on the other side of the
@@ -94,6 +111,24 @@ only count closed tickets make this worse.
 **Metrics.** MTTD, MTTA, MTTR, dwell time, fidelity, investigation quality,
 control effectiveness. Define MTTR as *respond* or *recover* explicitly.
 
+## Worked scene — triaging DET-003:alice
+
+1. **Asset and identity.** notes-api; `alice`. The playbook is
+   `ssrf-metadata.md`.
+2. **Fidelity.** `GET /alerts/DET-003:alice` shows the fetch URL and
+   `ssrf_metadata_access` evidence. That is the event itself, not a
+   heuristic. It’s a true positive on a simulated attack.
+3. **Context.** `GET /events?q=alice` shows a `login_success` shortly
+   before. The session is valid. That doesn’t tell you *who* was using it.
+4. **Decision.** Open a case, severity critical. Credentials of the
+   workload role are treated as burned, even though they’re dummies.
+5. **Action.** `snapshot_logs` with `approval: APPROVE` writes an audit
+   row. The same call with `"nope"` gets 403.
+
+**What that implies.** The fast part was deciding it was real. The slow,
+honest part is writing down what you *don’t* know: whether Alice was at
+her keyboard. The case timeline should say so.
+
 ## Architecture connection
 
 ```
@@ -115,10 +150,15 @@ Dirty lab with alerts (run simulate + ingest if empty).
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Write down three answers before you run anything:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. Which alert will you pick, and what are its asset, identity, and
+   severity?
+2. What status will the alert have before and after you open a case?
+3. What will `/actions/simulate` return with `"approval":"nope"`, and with
+   the field left out entirely?
+
+Then run the steps. If a result surprises you, which assumption was wrong?
 
 ### Steps
 
@@ -230,11 +270,10 @@ on this module's Acme Notes lab, not trivia.
 
 ## Before you leave
 
-- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
 - **Diagnose** — triage from impact and fidelity, not from alert volume.
 - **Build** — ingest, open a case, record a toy MTTA, leave or reset per the lab.
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

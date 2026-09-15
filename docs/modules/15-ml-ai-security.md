@@ -4,6 +4,20 @@ description: Apply the trust-boundary and asset/threat/control model to ML and L
 
 # Module 15 — ML/AI system security
 
+Acme Notes ships a “related notes” feature. Alice opens her grocery list and
+sees a suggestion:
+
+> **You might also like:** *Bob payroll draft*
+
+The similarity model never showed Alice the body. It only said the two
+notes were close. But the title leaked, and the fact that Bob has a payroll
+note leaked. Anyone can write a note designed to land near someone else’s.
+The owner check you added in Module 4 guards `GET /notes/{id}`. It doesn’t
+guard the index.
+
+A model is a new asset with new ways in, and the Module 1 method still
+works on it: assets, boundaries, controls, residual risk.
+
 ## Why it matters to a software engineer
 
 Module 12 taught you to secure an **application that calls an LLM**. This
@@ -136,6 +150,26 @@ data" does not tell you *which* queries will surface it, and "we deleted
 the row" does not mean the model has forgotten it. Plan retention and
 deletion requests around the model's training/retraining cycle, not around
 a single row's lifecycle.
+
+## Worked scene — auditing one tool
+
+Take `block_actor` from `labs/agentic-soc/policy.yaml`.
+
+1. *What it does.* It records a simulated block of an identity. It
+   requires `APPROVE`.
+2. *Worst case if the planner is manipulated.* An attacker gets
+   instruction-like text into evidence, and the summary blames an analyst.
+   The agent proposes blocking the analyst who is investigating.
+3. *What stops it today.* The action needs a human. The injection check
+   replaces evidence containing the most obvious phrases, but its regex is
+   narrow. The human is the real control.
+4. *A control that doesn’t touch the model.* Never let `block_actor` target
+   an identity that appears in the current case’s analyst list. That is a
+   policy check outside the model.
+
+**What that implies.** The question isn’t “can the model be tricked?” It
+can. It’s “what is the worst tool it can reach, and what sits between the
+two?”
 
 ## Architecture connection
 
@@ -283,8 +317,8 @@ on this module's Acme Notes lab, not trivia.
 - **Predict** — write expected findings (what appears, what does not, and why) before the threat-model and tool audit.
 - **Diagnose** — name the interpreter or tool-permission miss, not "the model is a black box."
 - **Build** — smart-search trust-boundary diagram plus one worst-case sentence per allowlisted tool.
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

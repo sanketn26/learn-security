@@ -4,6 +4,26 @@ description: Distinguish authentication from authorization, and practice object-
 
 # Module 3 — Identity and access management
 
+Decode Alice’s lab token and you get this:
+
+```json
+{"sub": "alice", "role": "user", "iat": 1757930400}
+```
+
+Now send that same token to an admin route:
+
+```text
+GET /admin/users  →  200  {"users": [{"username":"alice","role":"user"}, {"username":"bob",…}, {"username":"admin","role":"admin"}]}
+```
+
+The signature is valid. The token says `role: user`, plainly, in a field
+anyone can read. The admin route answered anyway, with every account on
+the system. Nobody forged anything. The server knew exactly who Alice was
+and never asked what she was allowed to do.
+
+Also notice what the payload doesn’t have: `exp`. That token never
+expires. If it leaks, it works forever.
+
 ## Why it matters to a software engineer
 
 Almost every serious web incident is an identity incident: a session stolen,
@@ -162,6 +182,25 @@ a powerful identity that SSRF can steal.
 - Confused deputy: API fetches a URL the user supplied (SSRF) using the
   **service’s** identity.
 
+## Worked scene — Alice and the admin route
+
+**Hypothesis.** A `user` token can’t list accounts.
+
+1. *Expect* `/whoami` to say `alice`, `user`. *Got:* exactly that.
+   Authentication works.
+2. *Expect* `/admin/users` to return 403. *Got:* 200 with every account,
+   in `LAB_MODE`. The log line is `broken_function_authz`, with
+   `actor: alice` and `endpoint: /admin/users`.
+3. *Expect* the fix to be about the token. *Got:* with `LAB_MODE=false` the
+   same token gets 403, and the log says `authz_failure`,
+   `reason: admin_blocked`. The token didn’t change. A check was added.
+
+**What that implies.** Authentication was never broken. The missing piece
+was one line comparing `role` to what the route requires. That is
+function-level authorization, and it’s a different decision from the
+object-level one in Module 1’s note-2 scene. A service can get one right
+and the other wrong.
+
 ## Architecture connection
 
 ```
@@ -184,10 +223,15 @@ Lab running with `LAB_MODE=true` (default).
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Write down three answers before you run anything:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. Which claims will Alice’s decoded token contain, and which one that a
+   production token needs will be missing?
+2. What will `/admin/users` return for Alice’s token in `LAB_MODE`, and
+   which event should that write?
+3. Can you change `role` to `admin` by editing the decoded payload? Why not?
+
+Then run the steps. If a result surprises you, which assumption was wrong?
 
 ### Steps
 
@@ -311,11 +355,10 @@ on this module's Acme Notes lab, not trivia.
 
 ## Before you leave
 
-- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
 - **Diagnose** — name the failed invariant from `/whoami` vs `/admin/users` vs a note read.
 - **Build** — complete the identity-flow lab (decode a lab JWT, list production fixes, do not reuse the token off localhost).
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

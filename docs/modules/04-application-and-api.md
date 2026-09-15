@@ -4,13 +4,28 @@ description: Hands-on OWASP Top 10 coverage of broken access control, injection,
 
 # Module 4 — Application and API security
 
+Two requests. Same path. Both return 200.
+
+```text
+Bob:    GET /notes/2  →  200  {"owner":"bob", "title":"Bob payroll draft", …}
+Alice:  GET /notes/2  →  200  {"owner":"bob", "title":"Bob payroll draft", …}
+```
+
+Your test suite almost certainly checks the first one. It probably doesn’t
+check the second, because nobody writes a test called
+`test_other_people_cannot_read_my_note` until after the incident. Bob’s
+payroll draft is now on Alice’s screen, and CI stayed green.
+
+The only difference between those lines is a check that was never written.
+This module is about finding the missing one in your own pull requests,
+before a log line does it for you.
+
 ## Why it matters to a software engineer
 
-This is the module that maps to your pull requests. Broken access control
-has been the most serious web risk in OWASP Top 10:2021 and remains
-[A01:2025](https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/).
-APIs make it worse: clients are untrusted, object IDs are in the path, and
-there is no HTML form to hide fields.
+APIs make access control easy to get wrong: clients are untrusted, object IDs are in the
+path, and there is no HTML form to hide fields. Broken access control has
+been the top web risk since OWASP Top 10:2021, and it still is
+([A01:2025](https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/)).
 
 ## Visual overview
 
@@ -276,10 +291,15 @@ Put object AuthZ next to the data.
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+For each of the four scenarios, write down before you run it:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. The HTTP status in `LAB_MODE=true`, and in `LAB_MODE=false`.
+2. The event the API log should contain if the attack succeeds, and the one
+   it should contain if it is blocked.
+3. If the IDOR scenario succeeds, which field in the log line proves the
+   owner was someone else?
+
+Then run the steps. If a result surprises you, which assumption was wrong?
 
 ### Steps
 
@@ -367,9 +387,7 @@ constructors and lead to RCE.
 
 ## Exit criteria
 
-You pass this module when you can meet the course
-[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
-Defend) on this material:
+You pass this module when you can do all of these on this material:
 
 - ✓ Identify the trust boundary each of injection, BOLA, SSRF, XSS, CSRF,
   and deserialization crosses.
@@ -426,11 +444,11 @@ on this module's Acme Notes lab, not trivia.
 
 ## Before you leave
 
-- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
 - **Diagnose** — name the missing decision (owner check, parameterization, fetch allowlist) from the response + log pair.
 - **Build** — replay the four provided failures, then repair with `LAB_MODE=false` (or the pytest assignment).
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
+- **Exit criteria** — meet [this module’s list](#exit-criteria).
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

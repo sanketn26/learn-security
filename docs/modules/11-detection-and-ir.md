@@ -4,12 +4,33 @@ description: Treat detections as tested code and run incident response through N
 
 # Module 11 — Detection engineering and incident response
 
+DET-001 covers T1110.001, password guessing. It says so in the matrix.
+Here is a fixture:
+
+```text
+10:00  login_failure alice 127.0.0.1
+10:02  login_failure alice 127.0.0.1
+10:04  login_failure alice 127.0.0.1
+…     (one every two minutes, all day)
+```
+
+Hundreds of guesses. **No alert.** DET-001 wants five failures inside 120
+seconds, and this attacker never puts more than two in any window. The rule does
+exactly what it says, and what it says is narrower than the matrix
+claims.
+
+A detection is a claim someone can test: *these* events, grouped by
+*this* key, inside *this* window, fire *this* alert, and *that* nearly
+identical traffic doesn’t. Until you’ve replayed both, you only hope it
+works.
+
 ## Why it matters to a software engineer
 
 Detections are code. They have false positives, owners, tests, and decay.
 Incident response is a project under time pressure: preserve evidence,
-decide severity, contain, eradicate, recover, communicate. NIST now frames
-IR inside CSF 2.0 ([SP 800-61 Rev. 3](https://csrc.nist.gov/pubs/sp/800/61/r3/final)).
+decide severity, contain, eradicate, recover, communicate.
+
+NIST now frames IR inside CSF 2.0 ([SP 800-61 Rev. 3](https://csrc.nist.gov/pubs/sp/800/61/r3/final)).
 Many SOCs still teach the Rev. 2 loop (prepare → detect/analyze →
 contain/eradicate/recover → post-incident). Use both: the loop for muscle
 memory, CSF for “IR is not only the IR team.”
@@ -27,10 +48,11 @@ flowchart LR
 ```
 
 !!! note "Intuition"
-    A detection rule is code, and code without tests degrades silently. The
-    `TEST` node is not optional polish — it's the difference between "I wrote
-    a rule that I believe detects SSRF" and "I have a fixture that proves
-    this rule fires on SSRF and stays quiet on normal traffic."
+    Everything left of TEST is what you believe. TEST is where DET-001
+    either fires on six failures in 120 seconds or doesn’t, and, the part
+    people skip, stays quiet on three. Watch the arrow from Analyst
+    feedback back to Logic. That’s where rules drift: every tweak without
+    a fixture changes the claim, and nobody checks it again.
 
 ```text
 Detection -> validate -> scope -> contain -> eradicate -> recover -> learn
@@ -383,10 +405,16 @@ curl -s -X POST http://127.0.0.1:8090/ingest
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Write down three answers before you open the events:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. In what order will `login_failure`, `login_success`, and
+   `cross_user_note_access` appear on the timeline?
+2. Which hypothesis will the timeline *look* like it supports, and which
+   one is actually true in this lab?
+3. After `LAB_MODE=false`, what status will the IDOR replay get, and which
+   event replaces `cross_user_note_access`?
+
+Then run the steps. If a result surprises you, which assumption was wrong?
 
 ### Steps
 
@@ -529,9 +557,7 @@ alteration or disputed origin of evidence.
 
 ## Exit criteria
 
-You pass this module when you can meet the course
-[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
-Defend) on this material:
+You pass this module when you can do all of these on this material:
 
 - ✓ Turn a threat hypothesis into a detection rule backed by a fixture that
   proves it fires on the abnormal case and stays quiet on the normal one.
@@ -601,11 +627,11 @@ on this module's Acme Notes lab, not trivia.
 
 ## Before you leave
 
-- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
 - **Diagnose** — name the failed invariant from the UTC timeline, not from the sim's scenario name.
 - **Build** — investigate the simulated exposure (timeline, competing hypotheses, RCA, preserve-before-contain).
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
+- **Exit criteria** — meet [this module’s list](#exit-criteria).
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

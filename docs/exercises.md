@@ -78,4 +78,6 @@ Module 11 walks **existing** rule DET-001 from hypothesis through replay
 fixture: [Worked walkthrough — authoring DET-001](modules/11-detection-and-ir.md#worked-walkthrough-authoring-det-001).
 Use that sequence when you add rules. The capstone still requires three
 rules you author yourself; this course does not publish those solutions.
+Save each rule’s fire and quiet files as described in the
+[replay-fixture template](capstone/templates/replay-fixture.md).
 

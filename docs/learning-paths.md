@@ -26,7 +26,9 @@ application security automation: inventory, focused validation, connected
 paths, and repair verification. The scanner assumes proficient Python and
 uses no LLM. Budget 25–35 hours for it; doing both adds that workload.
 Its [course-knowledge map](capstone/vulnerability-scanner.md#course-knowledge-you-will-use)
-lists the modules it needs and which are optional.
+lists the modules it needs and which are optional. The platform capstone
+has the same map in [How to work through](capstone/howto.md#course-knowledge-you-will-use),
+with a 12–20 hour budget if you kept your module work.
 
 ## Recommended beginner rhythm
 

@@ -126,6 +126,7 @@ nav:
   - Capstones:
       - Defensive platform:
           - Start here: capstone/README.md
+          - How to work through: capstone/howto.md
           - Templates:
               - capstone/templates/README.md
               - Threat model: capstone/templates/threat-model.md

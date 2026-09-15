@@ -22,7 +22,7 @@ PR. Do not install a new tool instead.
 | Agentic SOC | 8 | 403 without APPROVE; grounded summary |
 | Architecture + future | 6 | Review + judgment memo |
 | ML/AI + availability + human factor | 10 | Model threat-model; login timing; DET-001/004 narratives |
-| Capstone polish | 12 | Rubric ≥ 80 |
+| Capstone (assemble path) | 12 | Rubric ≥ 80 and every “Done when”. Assumes you kept module work in `capstone/work/`; see [how to work through](capstone/howto.md) |
 
 **Do:** local only; dummy data; write residual risk.
 **Do not:** scan the internet; paste prod logs into models; skip AuthZ

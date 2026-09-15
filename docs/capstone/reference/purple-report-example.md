@@ -6,7 +6,9 @@ description: Worked example purple-team report for Helix Tickets, showing emulat
 
 *Parallel miniature. Not the notes-api capstone.*
 
-**Hypothesis.** If an authenticated non-owner requests `/tickets/{id}`
+## Hypothesis
+
+If an authenticated non-owner requests `/tickets/{id}`
 while debug is on, we will see `cross_user_ticket_read` and HELIX-002
 will fire. If debug is off, the same request returns 404 and no new
 HELIX-002 evidence is appended.
@@ -18,7 +20,7 @@ Authorized loopback only. Sequence: six failed logins, valid Dana login,
 
 ## Results
 
-| Step | Expected | Observed | Verdict |
+| Step | Expected | Observed | Verdict (TP / FN / FP / TN) |
 | --- | --- | --- | --- |
 | Password spray | HELIX-001 | Fired on `src_ip` after 5 failures in 120s | TP |
 | Ticket 42 as Dana, debug on | HELIX-002 | Fired | TP |
@@ -42,8 +44,14 @@ to an allowlisted status page does not.
 ## Control delta
 
 `HELIX_DEBUG=false` turns owner checks on. Purple replay confirms Dana
-cannot read ticket 42. Residual: never-expiring debug JWTs still need
-rotation (see decision record).
+cannot read ticket 42.
+
+## Residual gap
+
+Never-expiring debug JWTs still need rotation (see the
+[decision record](security-decision-record-example.md)). HELIX-003 only
+sees *successful* metadata fetches, so blocked attempts after the fix are
+invisible. No rule yet covers SSRF to other internal hosts.
 
 !!! success "Why this is strong"
 

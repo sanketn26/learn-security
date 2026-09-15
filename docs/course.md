@@ -165,9 +165,9 @@ allowlist is the application rail.
 
 ### Final capstone
 
-**Build and operate a small defensive security platform.** Full specification
-is in [capstone/README.md](capstone/README.md) and summarized in section 9 of
-this document. Alternatively, build the
+**Operate a small defensive security platform.** Full specification is in
+[capstone/README.md](capstone/README.md); section 9 of this document points
+there. Alternatively, build the
 [Python vulnerability scanner](capstone/vulnerability-scanner.md), which needs
 no LLM or agentic SOC.
 
@@ -573,19 +573,19 @@ All labs are local. Index:
 
 | Lab | Module | Command / artifact |
 | --- | --- | --- |
-| Threat model notes-api | 01 | Diagram in your notes; compare `labs/notes-api/app.py` |
+| Threat model notes-api | 01 | Diagram in `capstone/work/threat-model.md`; compare `labs/notes-api/app.py` |
 | Processes, ports, logs | 02 | `docker compose`, `ss` or `lsof`, JSONL tail |
 | JWT and role checks | 03 | Login as alice; inspect token; `/admin/users` |
 | IDOR, injection, fix | 04 | `simulate.py --scenario idor` then `LAB_MODE=false` |
 | SSRF to mock IMDS | 05 | `simulate.py --scenario ssrf` |
 | Password hash / sign | 06 | `python3 labs/crypto/demo.py` |
 | Pipeline and search | 07 | `POST /ingest`, `GET /events?q=` |
-| ATT&CK matrix | 08 | Fill `capstone/attack-coverage.md` draft |
-| Purple loop | 09 | simulate → ingest → alerts → change rule → re-run |
+| ATT&CK matrix | 08 | Copy the template to `capstone/work/attack-coverage.md` and fill it |
+| Purple loop | 09 | simulate → ingest → alerts → change rule → re-run; save `capstone/work/purple-report.md` |
 | SOC case | 10 | `POST /cases` |
-| Incident report | 11 | Timeline + RCA template in capstone |
-| Agentic investigate | 12 | `POST /investigate` then optional `APPROVE` |
-| Architecture review | 13 | Capstone architecture doc |
+| Incident report | 11 | Timeline + RCA in `capstone/work/incident-report.md` |
+| Agentic investigate | 12 | `POST /investigate` then optional `APPROVE`; save `capstone/work/agent-run.json` |
+| Architecture review | 13 | `capstone/work/architecture-review.md` + decision record |
 | Judgment memo | 14 | One page: what you will not automate |
 | Smart-search threat model + agent audit | 15 | Paper lab on existing files |
 | Time `/login` under bcrypt | 16 | `LAB_MODE=false` after reset |
@@ -598,17 +598,13 @@ are kept.
 
 ## 9. Final capstone options
 
-See [capstone/README.md](capstone/README.md) for milestones, rubric,
-artifacts, stretch goals, failure scenarios, and ethical constraints.
-
-**Name:** Build and operate a small defensive security platform.
-
-You will run the provided stack (or your port of it), document trust
-boundaries, generate authorized simulated activity, map it to ATT&CK, ship
-at least eight detections with replay fixtures, operate cases, write an
-incident timeline and containment runbook, perform simulated containment
-and recovery, write a purple-team report, and use the agentic assistant
-with mandatory approval.
+**Operate a small defensive security platform.** The
+[brief](capstone/README.md) is the only specification: milestones, hand-ins,
+rubric, and failure scenarios live there, not here. You collect the work
+you started in Modules 1–13 into `docs/capstone/work/` and add three
+detections of your own. [How to work through](capstone/howto.md) maps each
+milestone to its module and gives a 12–20 hour budget (25–30 if you start
+cold).
 
 Alternatively, build the [Python vulnerability scanner](capstone/vulnerability-scanner.md):
 inventory exposure, schedule evidence-driven checks, validate connected
@@ -681,6 +677,6 @@ git clone <this-repo> && cd learn-security
 # Read docs/ethics.md
 make lab-up
 # Work through Modules 1 ... 17 in the site navigation
-# Complete the capstone templates under docs/capstone/
+# Copy templates into docs/capstone/work/ as you go (see docs/capstone/work/README.md)
 make lab-reset
 ```

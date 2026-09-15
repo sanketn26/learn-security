@@ -12,22 +12,22 @@ up in a commit. The site build skips the folder too.
 To start a file, copy its template here. Never edit the template in place.
 
 ```bash
-cp docs/capstone/attack-coverage.md docs/capstone/work/attack-coverage.md
+cp docs/capstone/templates/attack-coverage.md docs/capstone/work/attack-coverage.md
 ```
 
 ## What ends up here
 
 | File | Milestone | Start from | Started in |
 | --- | --- | --- | --- |
-| `threat-model.md` | M1 Model | [template](../threat-model.md) | Module 1 lab |
-| `attack-coverage.md` | M4 Detect | [template](../attack-coverage.md) | Module 8 lab |
-| `fixtures/` | M4 Detect | one abnormal + one normal JSONL per rule | Module 11 assignment |
-| `incident-report.md` | M5 Investigate | [template](../incident-report.md) | Modules 10–11 labs |
-| `containment-runbook.md` | M6 Contain | [template](../containment-runbook.md) | Module 11 lab |
-| `purple-report.md` | M7 Purple | [template](../purple-report.md) | Module 9 lab |
-| `agent-run.json` | M8 Agent | saved `/investigate` response | Module 12 lab |
-| `architecture-review.md` | M9 Review | [template](../architecture-review.md) | Module 13 lab |
-| `security-decision-record.md` | M9 Review | [template](../security-decision-record.md) | Module 13 assignment |
+| `threat-model.md` | M1 Model | [template](../templates/threat-model.md) | Module 1 lab |
+| `attack-coverage.md` | M4 Detect | [template](../templates/attack-coverage.md) | Module 8 lab |
+| `fixtures/` | M4 Detect | [template](../templates/replay-fixture.md) | Module 11 assignment |
+| `incident-report.md` | M5 Investigate | [template](../templates/incident-report.md) | Modules 10–11 labs |
+| `containment-runbook.md` | M6 Contain | [template](../templates/containment-runbook.md) | Module 11 lab |
+| `purple-report.md` | M7 Purple | [template](../templates/purple-report.md) | Module 9 lab |
+| `agent-run.json` | M8 Agent | [template](../templates/agent-run.md) | Module 12 lab |
+| `architecture-review.md` | M9 Review | [template](../templates/architecture-review.md) | Module 13 lab |
+| `security-decision-record.md` | M9 Review | [template](../templates/security-decision-record.md) | Module 13 assignment |
 
 The three detections you write go in `labs/detections/rules.yaml` next to
 DET-001–005, not in this folder.

@@ -222,6 +222,8 @@ Do **W1–W2 as a written decision first**. If student work stays “edit the te
 - **(d) Title:** “Operate a small defensive security platform”.
 - **(e) Scored set:** the “Suggested scored set” table below, with M6 renamed from Respond to **Contain** (the approval-gated agent action moves to M8 only) and the SDR on M9. Its “Core test” column becomes the brief’s “Done when” column and replaces the acceptance checklist. To pass: ≥80 and every Done-when, with no real secrets and no testing outside scope.
 - **(f)** The 24-row failure table stays unsplit until W9. The three agent rows (approval, allowlist, instruction-like text) are core through M8.
+- **(g) Budget (W8):** 12–20 hours on the assemble path, 25–30 cold. The low end matches the condensed plan’s 12-hour row, so the ~100-hour total is unchanged; the plan’s original 15–20 would have broken it.
+- **(h) Failure scenarios (W9):** 9 core rows, each tied to a milestone’s Done-when. The other 15 are stretch, placed next to the stretch goals and fed by Modules 14–17.
 
 #### P0 — Operating model
 
@@ -341,5 +343,5 @@ Do not rewrite 17 modules and reorganise the capstone in the same PR. Suggested 
 | Plan landed | Yes (10e7d4d, branch `docs/course-improvement-plan`) |
 | Plan verified against repo | Yes — added W22, W23, A9; corrected W15, W16, W17, W20, A8 |
 | Capstone first slice (W1, W2, W3, W5, W7, W11, W15, W22) | Done on branch `capstone/first-slice`. Strict build passes, including with a broken file in `work/`; front-matter tests pass |
-| Capstone remainder | Not started. Next: W4 + W23 (template move + redirects), W6, W16 (`course.md:684` still says to edit templates) |
+| Capstone remainder (W4, W6, W8–W10, W12–W14, W16–W21, W23) | Done on branch `capstone/templates`. Strict build passes with seeded student files; 93 tests pass; old template URLs redirect; replay command verified on the host (the Docker variant is untested) |
 | Writing A1–A9 | Not started (prototype Module 1 first) |

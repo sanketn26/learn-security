@@ -173,7 +173,7 @@ sides: detect attempts *and* successes.
 ### Keep for the capstone
 
 Save the 10-line report as `docs/capstone/work/purple-report.md`, using the
-[purple-team template](../capstone/purple-report.md). This file becomes the
+[purple-team template](../capstone/templates/purple-report.md). This file becomes the
 capstone’s M7 item.
 
 ### Cleanup

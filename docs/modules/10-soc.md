@@ -169,7 +169,7 @@ response actions is a SOC control, not bureaucracy.
 
 ### Keep for the capstone
 
-Copy the [incident-report template](../capstone/incident-report.md) to
+Copy the [incident-report template](../capstone/templates/incident-report.md) to
 `docs/capstone/work/incident-report.md`. Note the case ID, the alert IDs you
 cased, and the MTTA figure. Module 11 adds the timeline and RCA, and the
 finished report is the capstone’s M5 item.

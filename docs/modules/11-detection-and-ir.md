@@ -508,7 +508,7 @@ Timeline before containment when possible. RCA names a systemic cause
 Before you reset, add the timeline and RCA to
 `docs/capstone/work/incident-report.md` (M5). Then record the containment
 sequence you actually ran in `docs/capstone/work/containment-runbook.md` (M6),
-starting from the [runbook template](../capstone/containment-runbook.md).
+starting from the [runbook template](../capstone/templates/containment-runbook.md).
 
 ### Cleanup
 

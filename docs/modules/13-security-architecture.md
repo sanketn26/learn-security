@@ -182,10 +182,10 @@ architecture diagram, not an add-on slide.
 
 Put the five findings and your “what we will not automate” list in
 `docs/capstone/work/architecture-review.md`, starting from the
-[architecture-review template](../capstone/architecture-review.md). Write the
+[architecture-review template](../capstone/templates/architecture-review.md). Write the
 engineering assignment’s decision record in
 `docs/capstone/work/security-decision-record.md`, starting from the
-[decision-record template](../capstone/security-decision-record.md).
+[decision-record template](../capstone/templates/security-decision-record.md).
 Together they make the capstone’s M9 item.
 
 ### Cleanup

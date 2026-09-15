@@ -4,6 +4,25 @@ description: Apply the cloud shared-responsibility model to IAM, metadata servic
 
 # Module 5 — Cloud, container, and Kubernetes security
 
+There is no public route to the metadata service. Nobody can reach it
+from outside. Then Alice sends this:
+
+```text
+GET /fetch?url=http://mock-imds/latest/meta-data/iam/security-credentials/lab-role
+```
+
+```json
+{"Code": "Success", "Type": "AWS-HMAC", "AccessKeyId": "LABFAKEACCESSKEYID", "SecretAccessKey": "lab-fake-secret-access-key-not-real", …}
+```
+
+She didn’t reach the metadata service. The API did, on her behalf, from
+inside the network where “nobody can reach it” was true. These keys are
+fake. In a real cloud they would be the workload’s role, and the role
+usually reaches much more than one notes table.
+
+The cloud didn’t take away your AuthZ problem. It added a new one:
+everything your workload is allowed to call.
+
 ## Why it matters to a software engineer
 
 You do not “move to the cloud” and shed identity problems. You add a metadata
@@ -15,12 +34,12 @@ contains, and what your workloads can call.
 ## Visual overview
 
 !!! note "Intuition"
-    The shared-responsibility table below is the most-skipped, most
-    expensive-to-skip idea in cloud security. Hypervisor bugs are rare; people get breached because "the platform
-    handles security" quietly became "nobody configured RBAC, admission, or
-    network policy," and the provider was never responsible for those in the
-    first place. You still own object AuthZ, IAM, images, and what your
-    workload can call.
+    Follow the dotted line from the pod to instance metadata. In the lab,
+    that line isn’t denied at all: `/fetch` crossed it. The provider runs
+    the metadata service. Whether your pod can reach it is your
+    configuration, the same as RBAC, admission, and which image runs. The
+    shared-responsibility table below is where people assume the provider
+    drew that line for them. It never does.
 
 | Layer | Provider/platform owns | Engineering team still owns |
 | --- | --- | --- |
@@ -135,6 +154,25 @@ default-mounted into pods expand SSRF/compromise impact.
 actions, `curl | sudo bash` in Dockerfiles, secrets in terraform state,
 `kubectl` from laptops with cluster-admin. Supply chain is A03:2025.
 
+## Worked scene — what the workload can reach
+
+**Hypothesis.** The API container is an unprivileged process that can only
+talk to what it needs.
+
+1. *Expect* a non-root user. *Got:* `docker inspect` reports an empty
+   `User`, which means uid 0. That’s a finding.
+2. *Expect* metadata to be out of reach. *Got:* in `LAB_MODE`, `/fetch` to
+   mock-imds returns the dummy credentials JSON. The API can reach the
+   metadata service, and it will do it for any caller.
+3. *Expect* the provider to stop that. *Got:* nothing between the pod and
+   the metadata endpoint says no. Only the application flag does, and only
+   when `LAB_MODE=false`.
+
+**What that implies.** Two bulkheads you own are missing: a non-root
+image, and a network path that refuses metadata. Neither is the
+provider’s job. The application check is a third, independent layer. It
+isn’t a substitute for the first two.
+
 ## Architecture connection
 
 ```
@@ -162,10 +200,16 @@ Default lab. Optional: `kind` or `k3d`, `trivy`.
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Write down three answers before you run anything:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. What will `/fetch` to mock-imds return in `LAB_MODE=true`, and which
+   event will the API log?
+2. What will `docker inspect` report for `User`, and what does an empty
+   value mean?
+3. Which single control would stop the metadata fetch even if the
+   application filter had a bug?
+
+Then run the steps. If a result surprises you, which assumption was wrong?
 
 ### Steps
 
@@ -288,11 +332,10 @@ on this module's Acme Notes lab, not trivia.
 
 ## Before you leave
 
-- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
 - **Diagnose** — name the failed invariant from metadata reachability or container posture, not from "it's cloud."
 - **Build** — complete the metadata and isolation lab (dummy IMDS only; optional kind/trivy).
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

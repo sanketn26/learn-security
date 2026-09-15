@@ -4,13 +4,29 @@ description: Practical cryptography for engineers — choosing the right primiti
 
 # Module 6 — Cryptography for engineers
 
+Two rows from two users tables. Both columns are called `password_hash`.
+
+```text
+alice | ee9ec7428c66133f…  (unsalted SHA-256, 64 hex characters)
+alice | $2b$12$Xq3…    (bcrypt)
+```
+
+Both are “hashed passwords.” Both passed code review. If someone copies
+the first file, a laptop can try billions of guesses a second against it,
+and every user with the same password has the same row. If they copy the
+second, each guess costs real time, and identical passwords still look
+different.
+
+Nobody broke any cryptography there. One developer just picked the wrong
+tool. Most crypto failures you’ll ship look like that.
+
 ## Why it matters to a software engineer
 
 You will not invent a cipher. You will ship TLS, JWT signatures, password
-storage, and signed artifacts. Most “crypto failures” in OWASP
-[A04:2025](https://owasp.org/Top10/2025/A04_2025-Cryptographic_Failures/) are
-**using the wrong primitive, rolling your own, or encrypting instead of
-hashing passwords** — not an academic break of AES.
+storage, and signed artifacts. Most crypto failures are **using the wrong
+primitive, rolling your own, or encrypting instead of hashing passwords**,
+not an academic break of AES. OWASP files them under
+[A04:2025](https://owasp.org/Top10/2025/A04_2025-Cryptographic_Failures/).
 
 ## Visual overview
 
@@ -191,6 +207,23 @@ short-lived use. Logging key material is an incident.
 - “The operator pasted the key in Slack.”
 - Business-logic abuse.
 
+## Worked scene — who can mint a token?
+
+**Hypothesis.** JWTs are safe because they are signed.
+
+1. *Expect* a signature. *Got:* the header says `alg: HS256`. That is an
+   HMAC: the same secret signs and verifies.
+2. *Expect* the secret to be hard to reach. *Got:* it is an environment
+   variable in `labs/compose.yaml`, with a default. Anyone who can run
+   `docker inspect` on the container can read it.
+3. *Expect* reading it to let you verify tokens. *Got:* it lets you
+   **create** them, for any `sub` and any `role`.
+
+**What that implies.** The signature proves the token came from someone
+holding the secret, and here that’s more people than you intended. The
+fix isn’t a stronger hash. It’s narrowing who holds the key, or switching
+to an asymmetric algorithm so verifiers can’t sign.
+
 ## Architecture connection
 
 ```
@@ -216,10 +249,15 @@ function so the rest of the demo still runs).
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Write down three answers before you run anything:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. How will a `LAB_MODE` password hash look in sqlite, compared with a
+   secure-mode one?
+2. What does `alg` say in the lab JWT header, and who can mint a valid
+   token if they read `JWT_SECRET`?
+3. Which part of `demo.py` needs `pynacl`, and what still runs without it?
+
+Then run the steps. If a result surprises you, which assumption was wrong?
 
 ### Steps
 
@@ -283,9 +321,7 @@ revocation, audit evidence, and policy.
 
 ## Exit criteria
 
-You pass this module when you can meet the course
-[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
-Defend) on this material:
+You pass this module when you can do all of these on this material:
 
 - ✓ Name which primitive (hash, MAC, signature, symmetric/asymmetric
   encryption) solves a given problem, and which ones a fast unsalted hash
@@ -350,11 +386,11 @@ on this module's Acme Notes lab, not trivia.
 
 ## Before you leave
 
-- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
 - **Diagnose** — name the wrong primitive (hash vs MAC vs signature vs encryption) from the failure, not from the algorithm's fame.
 - **Build** — complete the password-storage and signature comparison lab (or the hash_password assignment).
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
+- **Exit criteria** — meet [this module’s list](#exit-criteria).
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

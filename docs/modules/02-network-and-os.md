@@ -4,6 +4,27 @@ description: Learn the TCP/IP, DNS, and Linux process and file fundamentals need
 
 # Module 2 — Networking and operating-system fundamentals
 
+Two pieces of evidence from the same minute. One is a packet:
+
+```text
+IP 127.0.0.1.52814 > 127.0.0.1.8080: Flags [P.], length 142
+```
+
+The other is a log line:
+
+```json
+{"ts":"2026-09-15T10:00:02.113402Z","event":"cross_user_note_access","service":"notes-api","actor":"alice","note_id":2,"owner":"bob"}
+```
+
+Bob’s payroll draft just left the API. Which of these two can prove that?
+
+The packet proves a TCP conversation happened on loopback, and nothing
+else. It doesn’t know what a note is. The log line knows the actor, the
+object, and the owner, but only because the application chose to write
+it, and anyone who can write to that file can write a line just like it.
+Neither is “the truth.” Each one proves a different thing, and this module
+is about knowing which is which.
+
 ## Why it matters to a software engineer
 
 Incidents are reconstructed from packets, processes, files, and logs. If you
@@ -119,6 +140,25 @@ If you only watch an infrastructure dashboard (metrics, optional Grafana
 later — not in this compose file), you may miss that the process still has
 a network path to metadata.
 
+## Worked scene — is notes-api exposed?
+
+**Hypothesis.** notes-api can only be reached from this machine.
+
+1. *Expect* the listener on `127.0.0.1:8080`. *Got:* `lsof` (or `ss`) shows
+   `127.0.0.1:8080`, not `*:8080`. Nothing on your network can connect.
+2. *Expect* the container to have no route to the internet, because
+   `labnet` is `internal: true`. *Got:* notes-api is also attached to
+   `edgenet`, an ordinary bridge. `getaddrinfo('example.com')` may resolve.
+3. *Expect* `/fetch` to reach the world, then. *Got:* it doesn’t, but that
+   isn’t the network’s doing. The application’s allowlist refuses
+   non-lab hosts.
+
+**What that implies.** The first claim holds, for a reason you can point
+at. The second one was wrong: “it’s on an internal network” was never the
+control. If someone removes the allowlist, the network won’t catch it.
+Write down which bulkhead you’re actually relying on, not the one the
+diagram suggests.
+
 ## Architecture connection
 
 Service mesh, ingress, and NetworkPolicy are filters on this same model.
@@ -136,10 +176,15 @@ Lab up. Optional: `ss` or `netstat`, `docker logs`.
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Write down three answers before you run anything:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. Which host address will port 8080 be bound to, and what would it mean if
+   it were `0.0.0.0`?
+2. Which user does the notes-api process run as inside the container?
+3. After one `GET /notes`, which fields will the new log line have, and
+   which field would you need to prove *who* read *what*?
+
+Then run the steps. If a result surprises you, which assumption was wrong?
 
 ### Steps
 
@@ -271,11 +316,10 @@ on this module's Acme Notes lab, not trivia.
 
 ## Before you leave
 
-- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
 - **Diagnose** — name the failed invariant from this module's telemetry or diagram.
 - **Build** — complete the local-visibility lab (bind address, process user, log path, one bulkhead caveat).
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

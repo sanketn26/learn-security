@@ -4,23 +4,38 @@ description: Design a security logging and alerting pipeline that gives the SOC 
 
 # Module 7 — Security monitoring and logs
 
+At 09:00 the SOC dashboard says **0 alerts in the last 24 hours.**
+
+```text
+POST /ingest  →  {"events_added": 0, "new_alerts": []}
+```
+
+Either nothing happened, or the collector has been down since yesterday
+and nothing *could* have been seen. From the dashboard, those two look
+exactly the same. The only way to tell them apart is to know what should
+have arrived: which events, with which fields, at roughly what rate.
+
+A quiet SOC and a blind SOC look identical until someone checks the logs
+themselves. This module is about the logs.
+
 ## Why it matters to a software engineer
 
 If you did not emit the event, the SOC cannot detect the technique. Logging
-is a product feature with privacy, cost, and integrity constraints. OWASP
-[A09:2025](https://owasp.org/Top10/2025/A09_2025-Security_Logging_and_Alerting_Failures/)
-renamed the category to include **alerting**: great logs with no alert are
-a forensic nice-to-have after the breach.
+is a product feature with privacy, cost, and integrity constraints. Great
+logs with no alert are only useful for forensics after the breach, which
+is why OWASP renamed the category to include **alerting**
+([A09:2025](https://owasp.org/Top10/2025/A09_2025-Security_Logging_and_Alerting_Failures/)).
 
 ## Visual overview
 
 !!! note "Intuition"
-    Treat your logging pipeline like a product with its own users (analysts,
-    detections, auditors) and its own quality bar — not an afterthought that
-    "just captures what happened." A detection rule is only as good as the
-    field it depends on; if that field is sometimes missing, sometimes
-    malformed, or arrives five minutes late, the rule silently degrades and
-    nobody notices until an incident.
+    Put your finger on the arrow from Collectors to Normalize. DET-001 reads
+    `src_ip` from every `login_failure`. If one producer starts shipping
+    lines without it, soc-lite quietly groups by `username` instead. The
+    rule still has the same ID, still fires, and now makes a different
+    claim. Nobody gets an error. That’s why a logging pipeline needs a
+    quality bar like any product: the detection is only as good as the
+    field it reads.
 
 ```mermaid
 flowchart TB
@@ -137,6 +152,24 @@ app JSONL --> soc-lite ingest --> sqlite events --> rules --> alerts --> cases
 OpenTelemetry is optional: traces for performance and some security (unusual
 span graphs), not a SIEM replacement.
 
+## Worked scene — who is DET-001 about?
+
+**Hypothesis.** Six bad passwords for Alice will raise an alert about Alice.
+
+1. *Expect* six `login_failure` lines. *Got:* six, each with `ts`,
+   `username: alice`, `src_ip`, and a `trace_id`.
+2. *Expect* the alert ID `DET-001:alice`. *Got:* something like
+   `DET-001:172.30.0.1`. The rule groups by `src_ip`, and in this lab
+   every request arrives from the Docker gateway.
+3. *Expect* a late ingest to miss the window. *Got:* it still fires. The
+   window is measured between events, not from ingest time.
+
+**What that implies.** The alert is about a *source*, not an account.
+Behind a shared gateway, every user is one source: one attacker and
+fifty people mistyping look the same. And if a producer ever ships a
+line without `src_ip`, soc-lite falls back to `username` without telling
+you. Same rule ID, different claim.
+
 ## Architecture connection
 
 Security observability is production observability plus: AuthZ denials,
@@ -152,10 +185,16 @@ Lab up. `curl`, `python3`.
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Write down three answers before you run anything:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. How many `login_failure` events will `simulate.py --scenario all` write,
+   and will DET-001 fire?
+2. Which field on a `login_failure` line does DET-001 group by, and what
+   value will it have in this lab?
+3. If you ingest an hour after the failures, does the alert still fire?
+   Why?
+
+Then run the steps. If a result surprises you, which assumption was wrong?
 
 ### Steps
 
@@ -232,9 +271,7 @@ regions. (3) Password, token. (4) Alerting and actionability, not storage.
 
 ## Exit criteria
 
-You pass this module when you can meet the course
-[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
-Defend) on this material:
+You pass this module when you can do all of these on this material:
 
 - ✓ Predict what fields a given violation (e.g. cross-user object access)
   should produce in the log, before looking at the pipeline's output.
@@ -293,11 +330,11 @@ on this module's Acme Notes lab, not trivia.
 
 ## Before you leave
 
-- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
 - **Diagnose** — name the missing field or wrong clock from a quiet detection, not from "ingest failed."
 - **Build** — ingest, search events, preserve a copy, write DET-001 as a claim.
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
+- **Exit criteria** — meet [this module’s list](#exit-criteria).
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

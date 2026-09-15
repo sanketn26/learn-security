@@ -4,6 +4,18 @@ description: Separate established security practice from emerging architecture a
 
 # Module 14 — The future of cybersecurity
 
+A vendor slide: *“Autonomous SOC: resolves 95% of alerts with no human
+in the loop.”*
+
+The lab’s agent, the one you ran in Module 12, refuses to do anything
+without `approval: APPROVE`, and it takes its ATT&CK mapping from a lookup
+table, not from the model.
+
+Both can be true at once. The slide might describe triage of known-benign
+noise. The lab might be more careful than it needs to be. What you need is
+a way to sort claims like this into *established*, *emerging*, and
+*speculative* before you bet a team on one.
+
 ## Why it matters to a software engineer
 
 Tool names churn. Fundamentals compound. This module separates **established
@@ -117,6 +129,24 @@ one model that can isolate hosts org-wide is a single failure domain
 (ASI08 cascading failures). Keep humans on irreversible actions. Keep
 evaluations.
 
+## Worked scene — sorting one claim
+
+**Claim.** “Agents will contain incidents without a human.”
+
+1. *What the lab shows.* The Module 12 agent proposes containment, and a
+   human has to type `APPROVE`. Tool use behind a policy engine is real and
+   works today.
+2. *What the claim adds.* Removing the human. That needs evidence the
+   agent’s proposals are right often enough, on your data, with a rollback
+   when they aren’t.
+3. *Column.* Tool-using agents behind approval: **emerging**. Unattended
+   containment: **speculative**, until someone shows error rates.
+4. *What would move it left.* Published false-containment rates, and a
+   rollback that has actually been exercised.
+
+**What that implies.** You didn’t have to agree or disagree. You named
+the column and the evidence that would change it.
+
 ## Architecture connection
 
 Future you will still draw trust boundaries. The new boxes are models,
@@ -213,8 +243,8 @@ on this module's Acme Notes lab, not trivia.
 - **Predict** — write which column a future-facing claim belongs in before you repeat it.
 - **Diagnose** — name the unbounded agency or supply-chain miss in the memo's risk list.
 - **Build** — write the judgment memo (established / emerging / speculative, no "AGI will SOC itself").
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

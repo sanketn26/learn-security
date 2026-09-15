@@ -4,13 +4,36 @@ description: Learn the core security vocabulary — asset, attack surface, trust
 
 # Module 1 — Security foundations
 
+Alice has a valid login. She asks for note 2.
+
+```http
+GET /notes/2 HTTP/1.1
+Authorization: Bearer <alice's token>
+```
+
+```json
+{"id": 2, "owner": "bob", "title": "Bob payroll draft", "body": "dummy payroll token lab-secret-bob-note", "visibility": "private"}
+```
+
+HTTP 200. Bob’s payroll draft is now on Alice’s screen. In a real company
+that is a compensation leak, and it’s the kind of thing that ends up in a
+disclosure letter.
+
+Nothing here needed malware, a kernel exploit, or a stolen laptop. The
+token was real. The request was well-formed. The server did exactly what
+its code says. Something is still wrong. What *is* the thing that’s wrong,
+and where would you even draw it?
+
+This module gives you the words for that, and a picture you can draw in
+five boxes. The lab is drawing it on the system you are about to run.
+
 ## Why it matters to a software engineer
 
-You already make security decisions: who can call an endpoint, where secrets
-live, what “done” means in a design review. Security work is those decisions
-made explicit, with an adversary and a business impact in mind. Without shared
-vocabulary, teams argue past each other (“is this a vulnerability or a risk?”)
-and ship controls that do not match the actual threat.
+You already make these decisions: who can call an endpoint, where secrets
+live, what “done” means in a design review. Security work is making them
+explicit, with an adversary and a business impact in mind. Without shared
+words, teams argue past each other (“is this a vulnerability or a risk?”)
+and ship controls that don’t match the actual threat.
 
 ## Visual overview
 
@@ -26,20 +49,18 @@ flowchart LR
 ```
 
 !!! note "Intuition"
-    Before you learn the vocabulary (asset, threat, risk...), learn to see
-    the picture: an untrusted arrow coming in, a trusted zone it lands in,
-    and a dotted line showing where that zone should *not* be able to reach.
-    Almost every vulnerability in this course is a version of "an arrow that
-    should have stopped at the boundary didn't."
+    Point at the arrow from the untrusted user into the API. The token
+    proved *who* is on that arrow. It said nothing about *which note* they
+    get. The second decision, “is this note yours?”, belongs at the next
+    box, and in `LAB_MODE` nobody makes it. That’s the whole bug. Most bugs
+    in this course are the same shape: an arrow that should have stopped at
+    a box went straight through.
 
 | Lens | Concrete question |
 | --- | --- |
 | Asset | What would hurt if disclosed, changed, or unavailable? |
 | Attack surface | Which routes, dependencies, identities, and admin paths are reachable? |
 | Boundary | Where does trust or ownership change? |
-| Vulnerability | Which weakness exists? |
-| Threat | Who or what could cause harm? |
-| Risk | How likely and harmful is that scenario here? |
 | Control | What changes likelihood or impact? |
 | Residual risk | What remains after the control? |
 
@@ -51,13 +72,12 @@ After:  Internet --> gateway --> authorized object only
 ```
 
 !!! tip "Hint"
-    Walk the table top to bottom on any system you look at, in order. Skipping
-    straight to "what's the vulnerability?" without first naming the asset and
-    the boundary is the single most common way people misjudge how serious a
-    finding actually is — you cannot rate risk on something you haven't first
-    identified as an asset.
+    Walk the table top to bottom, in order, on any system you look at. If
+    you jump straight to “what’s the vulnerability?” before naming the asset
+    and the boundary, you will misjudge how serious a finding is. You can’t
+    rate the risk to something you haven’t named as an asset.
 
-Attacker view: find an input whose implied trust exceeds the caller's actual
+Attacker view: find an input whose implied trust exceeds the caller’s actual
 authority. Defender view: observe identity, object, decision, source, and
 outcome. Engineering lesson: a trust boundary without an enforced decision is
 only a line on a diagram.
@@ -70,7 +90,166 @@ only a line on a diagram.
 - Apply least privilege, defense in depth, secure defaults, and zero trust as
   *design constraints*, not slogans.
 
-## Key concepts
+## Five words for the lab
+
+You need these five to draw the diagram. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have a picture to
+hang it on.
+
+**Asset.** Something of value: Bob’s note, the JWT signing secret, availability
+of `/login`, analyst time, your reputation. Threat-model assets, not only hosts.
+
+**Trust boundary.** A place where the level of trust changes: browser → API,
+API → sqlite, API → mock-imds, analyst laptop → compose ports. Anything
+crossing a boundary is untrusted until your code decides otherwise.
+
+**Attack surface.** The set of reachable interfaces: HTTP routes, debug
+endpoints, CI, dependencies, admin functions, metadata service. Reducing
+surface is often cheaper than detecting abuse of a surface you did not need.
+The lab API’s surface includes `/login`, `/notes`, `/notes/{id}`, `/search`,
+`/admin/users`, `/fetch`, `/whoami`, `/health`, `/.well-known/lab`, and in
+`LAB_MODE` also `/docs` and `/openapi.json`. Production diagrams in this
+module that start at “Internet” are the *shape* of a real service; this lab
+publishes only `127.0.0.1`.
+
+**Control.** A measure that changes risk: owner check, TLS, rate limit, log +
+alert, backup. Controls fail. Plan for that.
+
+**Residual risk.** Risk that remains after controls. “We parameterize SQL but
+still have no object-level tests” is a residual-risk statement. “We’re
+OWASP-compliant” is not.
+
+## Worked scene — following note 2 across the boxes
+
+Take the opening request slowly, one boundary at a time.
+
+1. **User → API.** *Expect:* a decision about identity. *Got:* the JWT
+   verifies, and the caller is `alice`. That boundary did its job.
+2. **API → note row.** *Expect:* a decision about ownership, “is `owner`
+   equal to the caller?” *Got:* the row loads and is returned. In
+   `LAB_MODE` no check runs. This is the missing decision.
+3. **API → audit log.** *Expect:* a record a defender can use. *Got:*
+
+    ```json
+    {"event":"cross_user_note_access","service":"notes-api","actor":"alice","note_id":2,"owner":"bob","lab_mode":true}
+    ```
+
+    The log knows it was the wrong owner. That line exists only because
+    someone decided to log `owner` next to `actor`.
+4. **What that implies.** The asset is Bob’s note. The boundary that
+   failed is API → object, not user → API. The only control today is a log
+   line, so the residual risk is that you’ll *notice* the theft, after the
+   body has already left. With `LAB_MODE=false` the same request returns 404
+   and logs `authz_failure` with `reason: idor_blocked` instead.
+
+That is a threat model of one request. The lab does the same for the whole
+service.
+
+## Architecture connection
+
+A typical service:
+
+```
+[user] --TLS--> [ingress] --> [notes-api] --> [sqlite]
+                     |              |
+                     |              +--> [mock-imds]   # should never happen
+                     v
+                  [logs] --> [soc-lite]
+```
+
+Each arrow is a trust boundary. If ingress “is on the VPC,” that does not
+authorize `GET /notes/2`. If the API can fetch IMDS, the metadata service is
+on the attack surface even if no public route exists.
+
+## Hands-on lab — threat-model the notes API
+
+**AUTHORIZED LAB USE ONLY** if you start the stack. Modeling on paper is
+always in scope.
+
+### Prerequisites
+
+Docker, course repo. Read [docs/ethics.md](../ethics.md).
+
+
+### Before you run this
+
+Write down three answers before you open anything:
+
+1. Which boundary does `GET /notes/2` cross with no decision made at it?
+2. Which processes can read the JWT signing secret?
+3. Can notes-api reach mock-imds? Should it?
+
+Then start the lab and draw. If your diagram disagrees with your answers,
+which assumption was wrong?
+
+### Steps
+
+1. Start the lab: `./labs/scripts/lab-up.sh`
+2. Open `labs/notes-api/app.py` and list HTTP routes.
+3. Draw a trust-boundary diagram (paper or text). Include: user, notes-api,
+   sqlite file, JWT secret env var, mock-imds, soc-lite, your workstation.
+4. For each boundary, write one threat and one control. Example:
+
+   | Boundary | Threat | Control | Residual risk |
+   | --- | --- | --- | --- |
+   | User → API | Stolen token | Short JWT TTL, TLS (prod) | Device malware still wins |
+   | API object access | IDOR | Owner check | Admin compromise |
+   | API → IMDS | SSRF | Deny metadata host | Other internal SSRF |
+
+5. Mark assets: notes bodies, password hashes, JWT secret, dummy IMDS keys.
+6. Write one insecure-default finding (`LAB_MODE`, JWT `exp` missing, SHA-256
+   passwords).
+7. State residual risk in one sentence: *If we only add detection and never
+   owner checks, we will reliably notice theft after it happens.*
+8. Run the 10-minute drill in
+   [How defenders think](../how-defenders-think.md) on notes-api: delete one
+   surface on paper (`/fetch` or `/docs`), name the blast radius of a stolen
+   Alice token, and write one quarantine switch you wish existed.
+
+The worked scene quotes a real log line, but don’t try to fire DET-002
+until Module 7. This lab is the diagram.
+
+### Expected observations
+
+`GET /health` shows `"lab_mode": true`. `.well-known/lab` states authorized
+lab use. You can name at least five surfaces (login, notes by id, search,
+admin users, fetch).
+
+### Security lessons
+
+Threat models that list “hackers” without assets are useless. Controls that
+are not assigned to a boundary are wishes. Residual risk is the point of the
+meeting, not a footnote.
+
+### Common mistakes
+
+- Drawing only boxes, no data flows.
+- Treating Docker as a trust boundary that magically authorizes processes
+  inside it.
+- Confusing “encrypted in transit” with “authorized.”
+- Copying a STRIDE table with empty rows and calling it done.
+
+### Keep for the capstone
+
+Copy the [threat-model template](../capstone/templates/threat-model.md) to
+`docs/capstone/work/threat-model.md` and put today’s diagram, boundaries, and
+residual-risk sentence in it. This file becomes the capstone’s M1 item.
+
+### Cleanup
+
+`./labs/scripts/lab-down.sh` if you are done for the day.
+
+## The rest of the vocabulary
+
+Now that you have drawn the boxes, here is the rest of the language people
+will use about them. Three more lenses slot in between *boundary* and
+*control* in the table from the start of the module:
+
+| Lens | Concrete question |
+| --- | --- |
+| Vulnerability | Which weakness exists? |
+| Threat | Who or what could cause harm? |
+| Risk | How likely and harmful is that scenario here? |
 
 **Confidentiality, integrity, availability (CIA).**
 Confidentiality: only the intended parties can read Bob’s note.
@@ -132,21 +311,6 @@ through user-controlled key). Production vulnerability management usually
 references those IDs. CWE:CVE is class:instance, like “SQL injection” vs
 “CVE-2024-… in product X version Y.”
 
-**Asset.** Something of value: Bob’s note, the JWT signing secret, availability
-of `/login`, analyst time, your reputation. Threat-model assets, not only hosts.
-
-**Trust boundary.** A place where the level of trust changes: browser → API,
-API → sqlite, API → mock-imds, analyst laptop → compose ports. Anything
-crossing a boundary is untrusted until your code decides otherwise.
-
-**Attack surface.** The set of reachable interfaces: HTTP routes, debug
-endpoints, CI, dependencies, admin functions, metadata service. Reducing
-surface is often cheaper than detecting abuse of a surface you did not need.
-The lab API’s surface includes `/login`, `/notes`, `/notes/{id}`, `/search`,
-`/admin/users`, `/fetch`, `/whoami`, `/health`, `/.well-known/lab`, and in
-`LAB_MODE` also `/docs` and `/openapi.json`. Production diagrams in this
-module that start at “Internet” are the *shape* of a real service; this lab
-publishes only `127.0.0.1`.
 
 **Bulkhead.** A partition so one flooded compartment does not sink the ship:
 object AuthZ, a network that cannot reach IMDS, logs off the app host, an
@@ -200,95 +364,6 @@ sqlite in this lab is a **file in the same container**, not a network hop.
 The API→DB arrow is still a trust boundary (the process can read every row);
 it is not the same kind of boundary as API→mock-imds (a TCP call).
 
-## Architecture connection
-
-A typical service:
-
-```
-[user] --TLS--> [ingress] --> [notes-api] --> [sqlite]
-                     |              |
-                     |              +--> [mock-imds]   # should never happen
-                     v
-                  [logs] --> [soc-lite]
-```
-
-Each arrow is a trust boundary. If ingress “is on the VPC,” that does not
-authorize `GET /notes/2`. If the API can fetch IMDS, the metadata service is
-on the attack surface even if no public route exists.
-
-## Hands-on lab — threat-model the notes API
-
-**AUTHORIZED LAB USE ONLY** if you start the stack. Modeling on paper is
-always in scope.
-
-### Prerequisites
-
-Docker, course repo. Read [docs/ethics.md](../ethics.md).
-
-### Before you run this
-
-Predict: (1) which trust boundaries exist (2) which you might miss (3) why.
-
-Then start the lab and draw. Compare with the prediction. If a boundary
-was missing, which assumption was wrong?
-
-### Steps
-
-1. Start the lab: `./labs/scripts/lab-up.sh`
-2. Open `labs/notes-api/app.py` and list HTTP routes.
-3. Draw a trust-boundary diagram (paper or text). Include: user, notes-api,
-   sqlite file, JWT secret env var, mock-imds, soc-lite, your workstation.
-4. For each boundary, write one threat and one control. Example:
-
-   | Boundary | Threat | Control | Residual risk |
-   | --- | --- | --- | --- |
-   | User → API | Stolen token | Short JWT TTL, TLS (prod) | Device malware still wins |
-   | API object access | IDOR | Owner check | Admin compromise |
-   | API → IMDS | SSRF | Deny metadata host | Other internal SSRF |
-
-5. Mark assets: notes bodies, password hashes, JWT secret, dummy IMDS keys.
-6. Write one insecure-default finding (`LAB_MODE`, JWT `exp` missing, SHA-256
-   passwords).
-7. State residual risk in one sentence: *If we only add detection and never
-   owner checks, we will reliably notice theft after it happens.*
-8. Run the 10-minute drill in
-   [How defenders think](../how-defenders-think.md) on notes-api: delete one
-   surface on paper (`/fetch` or `/docs`), name the blast radius of a stolen
-   Alice token, and write one quarantine switch you wish existed.
-
-`simulate.py` and DET-002 appear as *vocabulary* in the concept table. Do
-not try to fire DET-002 until Module 7; this lab is the diagram.
-
-### Expected observations
-
-`GET /health` shows `"lab_mode": true`. `.well-known/lab` states authorized
-lab use. You can name at least five surfaces (login, notes by id, search,
-admin users, fetch).
-
-### Security lessons
-
-Threat models that list “hackers” without assets are useless. Controls that
-are not assigned to a boundary are wishes. Residual risk is the point of the
-meeting, not a footnote.
-
-### Common mistakes
-
-- Drawing only boxes, no data flows.
-- Treating Docker as a trust boundary that magically authorizes processes
-  inside it.
-- Confusing “encrypted in transit” with “authorized.”
-- Copying a STRIDE table with empty rows and calling it done.
-
-### Keep for the capstone
-
-Copy the [threat-model template](../capstone/templates/threat-model.md) to
-`docs/capstone/work/threat-model.md` and put today’s diagram, boundaries, and
-residual-risk sentence in it. This file becomes the capstone’s M1 item.
-
-### Cleanup
-
-`./labs/scripts/lab-down.sh` if you are done for the day.
-
 ## Knowledge check
 
 1. A scanner reports SQL injection (CVSS 9.8) on an internal admin tool that
@@ -307,9 +382,7 @@ push rights only to the intended repo/tag, short-lived OIDC, no prod data.
 
 ## Exit criteria
 
-You pass this module when you can meet the course
-[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
-Defend) on this material:
+You pass this module when you can do all of these on this material:
 
 - ✓ Draw a trust-boundary diagram for a small service and name the asset
   at risk on each boundary.
@@ -367,11 +440,11 @@ on this module's Acme Notes lab, not trivia.
 
 ## Before you leave
 
-- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
 - **Diagnose** — name the failed invariant from this module's diagram, not from a CVE name.
 - **Build** — complete the threat-model lab (boundaries, one insecure default, residual-risk sentence).
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
+- **Exit criteria** — meet [this module’s list](#exit-criteria).
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

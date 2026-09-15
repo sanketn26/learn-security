@@ -52,7 +52,7 @@ Key concepts across the set are written as: **Term.** Definition. Lab example. W
 
 **Diagrams are taxonomies, not scenes.** The visuals that work are one request, two paths (Module 3 deny, Module 4 NORMAL vs ATTACK, Module 17 fake-page relay). The ones that do not are abstract nouns in boxes: GOAL → Tactic → Technique; Telemetry → Detection → Alert → Triage; Chatbot → copilot → agent. Those are tables drawn as flowcharts. The landing page has a hero and a fake terminal; the modules inherit none of that personality.
 
-**The course keeps talking about the course.** “See COURSE.md section 5,” “the pass bar,” “How defenders think,” “this module.” Meta-structure belongs in onboarding. Inside a lesson it is a second narrator standing in front of the incident.
+**The course keeps talking about the course.** “See COURSE.md section 5,” “the pass bar,” “How defenders think,” “this module.” Meta-structure belongs in onboarding. Inside a lesson it is a second narrator standing in front of the incident. The pass bar alone appears 24 times across `docs/modules/`, even though `docs/assessment.md` already owns it.
 
 **Caution is the emotional register.** `AUTHORIZED LAB USE ONLY`, dummy secrets, versioning caveats, “typical, not mandatory.” Necessary in a security course. Saturated, it flattens every page to the same careful grey. Ethics belongs at the door and at the offensive step — not as atmosphere.
 
@@ -79,7 +79,8 @@ These are a change of beat, not a rewrite of 17 files as one PR.
 | **A5** | Make “Before you run this” specific or delete it. | Module 4 already does it right: “If the IDOR scenario succeeds, what should appear in the API log?” |
 | **A6** | Promote Intuition from caption to the actual lesson. Write the `!!! note "Intuition"` boxes as what you would say at a whiteboard, then let Key concepts be shorter. | Those boxes are often the only human sentences on the page, and they currently restate the diagram. |
 | **A7** | One worked scene per module, like DET-001. A single path at human speed: hypothesis, what you expected, what you got, what that implies. | Module 4’s reasoning loop and Module 11’s rule walkthrough are the models. |
-| **A8** | Stop restating the pass bar at the bottom of every file. One assessment page is enough. | The closing ritual is identical enough that people skip it — including the one bullet that actually changed. |
+| **A8** | Stop restating the pass bar at the bottom of every file. One assessment page is enough — it already exists: `docs/assessment.md`. Replace the 24 module-level pass-bar mentions with a link there, keeping only the module-specific Build/Defend bullet. | The closing ritual is identical enough that people skip it — including the one bullet that actually changed. |
+| **A9** | Define “prototype accepted” before writing it. Checks: the first screen contains a request, log line, or wrong 200 and no citation; no more than five terms defined before the lab; the Intuition box says something the diagram doesn’t; the first 30 lines differ in shape from the previous module; `mkdocs build --strict` and front-matter tests pass. One cold read by someone who hasn’t seen the old version. | Without a bar, “accept the beat” is a vibe, and A4–A8 roll out on an unreviewed prototype. |
 
 **Prototype opening (Module 1), still in this course’s voice:**
 
@@ -130,9 +131,11 @@ These do not map 1:1:
 
 - Brief: create `docs/capstone/artifacts/` and gitignore logs.
 - Module 8: copy the ATT&CK table into `docs/capstone/attack-coverage.md` (the **template in git**).
-- `course.md`: complete the templates under `docs/capstone/`.
+- `course.md`: complete the templates under `docs/capstone/` (setup block, line ~684), and “Fill `capstone/attack-coverage.md` draft” / “Timeline + RCA template in capstone” in the deliverables table (lines ~583–588).
 
 `.gitignore` does **not** ignore `docs/capstone/artifacts/`. That directory does not exist. The official output folder is fictional. People overwrite templates — then lose them on the next pull, or commit dummy secrets.
+
+Any real output folder under `docs/` has its own trap. MkDocs builds everything in `docs_dir` (only the `search` and `social` plugins are set up; there is no `exclude_docs` and no redirects), so gitignored student files would still render into `site/` and could fail `mkdocs build --strict` locally. `tests/test_docs_front_matter.py` scans `docs/**/*.md`, so it would also test student files. And moving templates to new paths changes their published URLs with nothing redirecting the old ones.
 
 **The nav is a 15-item junk drawer.** Under Defensive platform, the site lists at the same level: the brief, six Helix examples, seven blank-ish templates. Helix Tickets looks like the assignment. A student can submit Dana/Eli/`HELIX_DEBUG` and think they finished. The Helix examples are good; they are in the wrong place.
 
@@ -148,6 +151,10 @@ These do not map 1:1:
 | Extra detections | Module 11 assignment |
 | Agent investigate + APPROVE | Module 12 |
 | Architecture findings + ADR | Module 13 |
+
+The table holds for the *work*, but there is no *hand-off*. Module 8 is the only module that points at a capstone file, and it points at the template. Modules 1, 9, 10, 11, 12 and 13 produce these artifacts without telling the student to keep them. So at week 13, the student may not have saved the work at all.
+
+The map also has holes. Module 7 (monitoring and logs) feeds M2 Telemetry but isn't listed. Modules 2–6 are background knowledge. Modules 14–17 map to nothing in the platform capstone.
 
 The scanner brief has **Course knowledge you will use**. The platform brief has no module → artifact map. Week 13 looks like a second copy of modules 1–13.
 
@@ -239,6 +246,8 @@ Acceptance checkboxes become the “Core test” column. Rubric rows stay, but e
 | **W4** | Move current templates to `docs/capstone/templates/`. Add `templates/README.md`: copy into `work/`, never edit the template. | Separates “blank form” from “Helix” from “my submission.” | W1 |
 | **W5** | Regroup `mkdocs.yml` nav as in the target shape. Helix only under Worked example. Templates only under Templates. Brief is one Start here. | Fixes the junk-drawer first impression. | W4 |
 | **W6** | Add missing templates: replay fixture (abnormal JSONL, normal JSONL, assert rule id / quiet) and agent-run (JSON skeleton + redaction notes). Optional Helix miniature fixture in `reference/`. | Required work currently has no form. | W2, W4 |
+| **W22** | Keep student files out of the site build and tests. `docs/capstone/work/` sits inside `docs_dir`, so MkDocs will render every local student file into `site/` and `mkdocs build --strict` will fail locally on a student’s broken link; `tests/test_docs_front_matter.py` uses `DOCS.rglob("*.md")` and will fail on student files with bad front matter. Add `exclude_docs: capstone/work/` (keeping `work/README.md` if it should render) and skip `docs/capstone/work/` in the front-matter test — or place `work/` outside `docs/`. | Otherwise the gitignored folder breaks the build for exactly the students using it. | W1, W3 |
+| **W23** | Decide on URL breakage from the template move. No redirect plugin is configured (`plugins: search, social`). Either add `mkdocs-redirects` to `requirements-docs.txt` + `mkdocs.yml` mapping `capstone/<template>.md → capstone/templates/<template>.md`, or accept broken external links and say so in the PR. Also fix `reference/README.md:24` (“the templates beside it”). | Published Pages URLs change on W4. | W4 |
 
 #### P2 — Single source of truth on the brief
 
@@ -262,9 +271,9 @@ Acceptance checkboxes become the “Core test” column. Rubric rows stay, but e
 
 | ID | Work item | Why | Depends on |
 | --- | --- | --- | --- |
-| **W15** | Update Module 8 step 5: copy the table into `docs/capstone/work/attack-coverage.md` (created from the template), not into the template. Same for Module 9 purple, 11 incident, 12 agent JSON, 13 architecture + SDR. | Stops modules and the capstone fighting. **This is the only module-prose change that belongs to the capstone pass.** | W3, W7 |
-| **W16** | Shrink `course.md` §9 to a pointer + the one table (or a link). Same for condensed-plan capstone row (12h → “assemble path, see brief”) and `exercises.md` capstone sentence. | One brief, not three slightly different ones (5 vs 8 detections). | W7, W8 |
-| **W17** | Add the platform equivalent of the scanner’s **Course knowledge you will use** table on the howto page. | Makes “you already did this” visible. | W8 |
+| **W15** | Update Module 8 step 5 (`08-mitre-attack.md:162`): copy the table into `docs/capstone/work/attack-coverage.md` (created from the template), not into the template. Module 8 is the **only** module that currently writes into a template; Modules 1, 9, 10, 11, 12, 13 have **no** capstone hand-off at all, so for them this is *adding* a one-line “save this as `work/<file>`” at the end of the lab, not changing a path. | Stops modules and the capstone fighting, and makes the “already produced in” table true. **This is the only module-prose change that belongs to the capstone pass.** | W3, W7 |
+| **W16** | Shrink `course.md` §9 to a pointer + the one table (or a link). Also fix the other `course.md` template pointers: the deliverables table (lines ~583–588: “Fill `capstone/attack-coverage.md` draft”, “Timeline + RCA template in capstone”) and the setup code block (line ~684: “Complete the capstone templates under docs/capstone/”). Same for condensed-plan capstone row (`Capstone polish | 12` → “assemble path, see brief”) and `exercises.md:79` capstone sentence. | One brief, not three slightly different ones (5 vs 8 detections). | W7, W8 |
+| **W17** | Add the platform equivalent of the scanner’s **Course knowledge you will use** table on the howto page. Cover all 17 modules, not just the 8 in the “already produced in” table: Module 7 feeds M2 Telemetry; Modules 2–6 feed M1/M3 knowledge; Modules 14–17 (future, ML/AI, availability, human factor) currently map to nothing — mark them as stretch-scenario inputs or explicitly “not used by this capstone.” | Makes “you already did this” visible, and stops students wondering why 14–17 exist before week 13. | W8 |
 
 #### P5 — Writing pass on the brief
 
@@ -277,21 +286,21 @@ Acceptance checkboxes become the “Core test” column. Rubric rows stay, but e
 
 | ID | Work item | Why | Depends on |
 | --- | --- | --- | --- |
-| **W20** | Link check: every module → `work/` or `templates/`; nav builds; front-matter tests still pass; `mkdocs build --strict`. | Moves always break paths. | W3–W17 |
+| **W20** | Link check: every module → `work/` or `templates/`; nav builds; front-matter tests still pass; `mkdocs build --strict` both clean and **with a populated local `work/`** (proves W22). `grep -rn "docs/capstone/[a-z-]*\.md\|capstone/attack-coverage" docs README.md` returns only intended hits. | Moves always break paths. | W3–W17, W22, W23 |
 | **W21** | Walk the capstone as a student who has finished Module 13: can you find the next file in under 30 seconds at each milestone? If not, the howto is still a list. | Organisation is a UX property. | W20 |
 
 ### Capstone execution order
 
 ```text
 W1 → W2
-      → W3, W4, W6
-            → W5, W11, W12, W13, W14
+      → W3, W4, W6, W22
+            → W5, W11, W12, W13, W14, W23
                   → W7, W8, W9, W10, W18
                         → W15, W16, W17, W19
                               → W20 → W21
 ```
 
-**Tight first slice** (visible improvement before the full set): **W1, W5, W7, W11, W15** — nav grouped, brief as a path, leaked answers removed, Module 8 no longer writes into the template. That is the “I know where I am” fix.
+**Tight first slice** (visible improvement before the full set): **W1, W3, W22, W5, W7, W11, W15** — nav grouped, brief as a path, leaked answers removed, Module 8 no longer writes into the template. W3 + W22 are in the slice because W15 points Module 8 at `work/`, which must exist and must not break the build. That is the “I know where I am” fix.
 
 ---
 
@@ -300,9 +309,9 @@ W1 → W2
 Do not rewrite 17 modules and reorganise the capstone in the same PR. Suggested order:
 
 1. **This file** — land the plan (this commit).
-2. **Capstone first slice** — W1, W5, W7, W11, W15. Unblocks students immediately; does not depend on a writing prototype.
-3. **Writing prototype** — A1–A3 on Module 1 (optionally Module 4). Accept the beat before rolling it out.
-4. **Capstone remainder** — W3–W4, W6, W8–W10, W12–W14, W16–W21.
+2. **Capstone first slice** — W1, W3, W22, W5, W7, W11, W15. Unblocks students immediately; does not depend on a writing prototype.
+3. **Writing prototype** — A1–A3 on Module 1 (optionally Module 4). Accept the beat against A9 before rolling it out.
+4. **Capstone remainder** — W4, W6, W8–W10, W12–W14, W16–W21, W23.
 5. **Writing rollout** — A4–A8 across remaining modules, using the accepted Module 1/4 prototype. Capstone W15 already reserved the module-link edits; do not fight that in the writing pass.
 
 ### Out of scope (both reviews)
@@ -320,5 +329,7 @@ Do not rewrite 17 modules and reorganise the capstone in the same PR. Suggested 
 | --- | --- |
 | Review 1 captured | Yes |
 | Review 2 captured | Yes |
-| Capstone W1–W21 | Not started |
-| Writing A1–A8 | Not started (prototype Module 1 first) |
+| Plan landed | Yes (10e7d4d, branch `docs/course-improvement-plan`) |
+| Plan verified against repo | Yes — added W22, W23, A9; corrected W15, W16, W17, W20, A8 |
+| Capstone W1–W23 | Not started |
+| Writing A1–A9 | Not started (prototype Module 1 first) |

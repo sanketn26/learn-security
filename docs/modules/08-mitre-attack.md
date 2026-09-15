@@ -4,6 +4,21 @@ description: Map observed events to tactics and techniques using the MITRE ATT&C
 
 # Module 8 — MITRE ATT&CK
 
+A coverage matrix, fresh from a review:
+
+| Technique | Status |
+| --- | --- |
+| T1552.005 Cloud Instance Metadata API | ✅ covered (DET-003) |
+
+The next week the fix ships: `LAB_MODE=false`, and metadata fetches are
+blocked. Someone tries anyway. The API logs `ssrf_blocked`. DET-003 watches
+`ssrf_metadata_access`. Nothing fires. The cell stays green.
+
+The matrix didn’t lie on purpose. It recorded that a rule exists, and a
+rule existing isn’t the same as seeing the behaviour. In this module you
+fill in a matrix from what you actually observed, and you write down
+where each cell could be wrong.
+
 ## Why it matters to a software engineer
 
 ATT&CK is how red, blue, intel, and engineering can name the same behavior
@@ -25,12 +40,12 @@ flowchart LR
 ```
 
 !!! note "Intuition"
-    Read ATT&CK bottom-up in practice, even though it's drawn top-down here.
-    You rarely start from "the adversary's goal" — you start from a
-    suspicious *procedure* you observed, work out which technique it maps to,
-    and only then reason about tactic-level intent. The framework is a shared
-    vocabulary for comparing notes with other defenders, not a checklist to
-    fill in from the top.
+    Start at the bottom box, not the top. What you have is a procedure:
+    `GET /notes/2` as alice, `owner: bob`. Ask what it achieved: Alice
+    collected a document. That points at a technique, and only then a
+    tactic. “IDOR” is OWASP’s word for how. ATT&CK wants to know what the
+    behaviour did. The top box, the adversary’s goal, is the one you fill
+    in last and are least sure of.
 
 Red uses ATT&CK to name authorized emulation; blue to organize observations
 and controls; analysts to classify with uncertainty; hunters to form testable
@@ -117,6 +132,25 @@ fields can still be brittle even when it carries a technique tag. Hash- or
 IP-only detections are usually cheaper for an attacker to evade, so combine
 them with behavior and test the concrete procedures your telemetry can see.
 
+## Worked scene — mapping DET-002 from evidence
+
+**Hypothesis.** DET-002 is a web bug, so it is T1190 Exploit
+Public-Facing Application.
+
+1. *Expect* the evidence to show an exploit. *Got:* a
+   `cross_user_note_access` line: `actor: alice`, `note_id: 2`,
+   `owner: bob`. A valid session reading data it shouldn’t.
+2. *Ask* what the behaviour achieved. Alice didn’t gain a foothold. She
+   *collected* a document. That points at Collection, T1213 Data from
+   Information Repositories.
+3. *Ask* where the mapping could be wrong. The vulnerability class (BOLA)
+   is how she got in. T1190 is still defensible as a second mapping, but
+   not the only one.
+
+**What that implies.** Record T1213 with medium confidence, T1190 as the
+alternative, and the limitation: the rule sees a successful read, not an
+attempt. That row is worth more than one confident wrong ID.
+
 ## Architecture connection
 
 Detections should cite: data source → event → rule → technique (confidence).
@@ -133,10 +167,16 @@ Modules 4 and 7. Lab up. `LAB_MODE=true`.
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Write down three answers before you run anything:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. Which five rule IDs will appear in `/alerts`, and what will each alert
+   ID’s group key be?
+2. For DET-002, which tactic would you map it to if you hadn’t read the
+   YAML, and why might that be wrong?
+3. Which behaviour does the sim never generate, so no cell should be
+   green for it?
+
+Then run the steps. If a result surprises you, which assumption was wrong?
 
 ### Steps
 
@@ -205,9 +245,7 @@ behavior.
 
 ## Exit criteria
 
-You pass this module when you can meet the course
-[pass bar](../assessment.md) (Explain → Predict → Diagnose → Design →
-Defend) on this material:
+You pass this module when you can do all of these on this material:
 
 - ✓ State the difference between tactic (why) and technique (how) without
   looking at the diagram.
@@ -260,11 +298,11 @@ on this module's Acme Notes lab, not trivia.
 
 ## Before you leave
 
-- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
 - **Diagnose** — map from the alert's evidence, not from the vulnerability's OWASP name.
 - **Build** — fill the five-detection coverage matrix with confidence and limitations.
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — meet [this module's list](#exit-criteria) and the course [pass bar](../assessment.md).
+- **Exit criteria** — meet [this module’s list](#exit-criteria).
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

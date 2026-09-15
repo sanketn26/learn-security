@@ -4,6 +4,22 @@ description: Examine phishing, social engineering, and insider risk as the human
 
 # Module 17 — Phishing, social engineering, and insider risk
 
+Same alert, twice:
+
+```text
+DET-004:alice  high  "Broken function-level authorization"
+```
+
+Story one: a bug lets Alice’s non-admin token reach `/admin/users`. Ticket
+for the API team; fix the check; done.
+
+Story two: Alice typed her password into a fake login page last Tuesday.
+The person using her session is probing admin routes. Rotate credentials,
+review everything that token touched, and ask how the phish got through.
+
+The technical fix is identical. The incident is not. Nothing in the alert
+tells you which story you’re in.
+
 ## Why it matters to a software engineer
 
 Every technical control in this course — MFA, object authorization, egress
@@ -98,6 +114,23 @@ only thing that bounds the damage of a trusted actor going wrong is how
 much that actor was trusted with in the first place — which is Module 1's
 "residual risk" idea applied to your own team, not just to attackers.
 
+## Worked scene — two stories for DET-001
+
+Evidence: six `login_failure` events for `alice` from one `src_ip` in
+under two minutes, followed by a `login_success`.
+
+1. *Story A: an external attacker guessing.* Predicts a new source IP,
+   unusual hours, and maybe other usernames tried from the same source.
+2. *Story B: Alice, after a password reset.* Predicts her usual source,
+   working hours, and a help-desk ticket.
+3. *What the lab has.* One `src_ip`, the Docker gateway. No geo, no device,
+   no ticket system. Neither story can be rejected.
+4. *A control that works either way.* A per-account rate limit (Module 16).
+   It slows the attacker and costs Alice a few seconds.
+
+**What that implies.** Write both stories in the case. Name the evidence
+that would separate them. Take the action that’s right under both.
+
 ## Architecture connection
 
 Add "the human holding a valid credential" as an explicit actor in your
@@ -118,10 +151,15 @@ No new containers; this reuses alerts you can already generate.
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Write down three answers before you open the alerts:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. What evidence does DET-001 actually carry, and what would you need to
+   tell an attacker from a forgetful Alice?
+2. Which of the two DET-004 stories needs a credential rotation?
+3. Name one control that helps no matter which story is true.
+
+Then run the steps. If your narratives need evidence the lab doesn’t have,
+say so.
 
 ### Steps
 
@@ -243,8 +281,8 @@ on this module's Acme Notes lab, not trivia.
 - **Predict** — write two competing narratives before you open DET-001 and DET-004.
 - **Diagnose** — name whether the *grant* was legitimate, from evidence you actually have.
 - **Build** — complete the competing-narrative writeup (phishing vs insider) on those two alerts.
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

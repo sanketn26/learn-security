@@ -4,6 +4,21 @@ description: Redesign an insecure service into a zero-trust architecture with sc
 
 # Module 13 — Security architecture for software engineers
 
+Two lines from `labs/compose.yaml`:
+
+```yaml
+LAB_MODE: "${LAB_MODE:-true}"
+JWT_SECRET: "${JWT_SECRET:-lab-jwt-secret-change-me-32b-min}"
+```
+
+Nobody chose these defaults in a meeting. Somebody typed them once to
+make the lab start. Now, if you forget to set a variable, authorization is
+off and every token is signed with a string that’s public on GitHub.
+
+That is architecture: what happens when nobody is paying attention.
+Every earlier module found a bug. This one asks which defaults let those
+bugs ship.
+
 ## Why it matters to a software engineer
 
 Architecture is the set of defaults that remain when you are not looking:
@@ -121,6 +136,28 @@ production security observability. None of these is complete.
 | Retries | Credential stuffing looks like your own retry storm |
 | Multi-tenant isolation | One missing `tenant_id` predicate is a breach class |
 | Feature flags | Flags that skip AuthZ in “emergency” become the incident |
+
+## Worked scene — writing one finding
+
+**Observation.** `labs/compose.yaml` sets
+`JWT_SECRET: "${JWT_SECRET:-lab-jwt-secret-change-me-32b-min}"`.
+
+1. *Why it matters.* If the variable is unset, every environment signs
+   tokens with the same public string. Anyone who reads the repository can
+   mint an admin token.
+2. *Recommendation.* No default. The service refuses to start without a
+   secret that isn’t the documented one. Longer term, asymmetric signing
+   so verifiers can’t mint.
+3. *Evidence.* The compose line, and a token you minted with it that
+   `/whoami` accepted.
+4. *Not this.* “Rotate the secret.” Rotating to another value in the same
+   file fixes nothing.
+5. *Residual risk.* Anyone with access to the running container can still
+   read the real secret.
+
+**What that implies.** A finding is falsifiable: someone could prove it
+wrong with one request. “JWT handling is weak” can’t be proved wrong, so
+it isn’t a finding.
 
 ## Architecture connection
 
@@ -249,8 +286,8 @@ on this module's Acme Notes lab, not trivia.
 - **Predict** — write expected findings (what appears, what does not, and why) before you write the review.
 - **Diagnose** — name the missing bulkhead from the platform diagram.
 - **Build** — complete the architecture review (findings a staff engineer could action, plus the ADR assignment).
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

@@ -4,6 +4,19 @@ description: Practice authorized, scoped red team attack simulation, blue team d
 
 # Module 9 — Red Team, Blue Team, and Purple Team
 
+Before the fix: the SSRF sim runs, DET-003 fires, critical. After the fix:
+the same sim runs, gets HTTP 400, and **nothing fires.**
+
+Did you win?
+
+The attack stopped working. That’s the good news. But the alert that
+told you someone was trying also stopped, because the API now writes a
+different event name, and no rule watches it. You fixed the hole and lost
+sight of anyone knocking on it, in the same deploy.
+
+Red would call that a win. Blue might not notice the gap for months.
+Purple is the habit of running the test again and asking both questions.
+
 ## Why it matters to a software engineer
 
 You will sit on all three sides without changing jobs: writing a feature
@@ -25,10 +38,12 @@ flowchart LR
 ```
 
 !!! note "Intuition"
-    This is a loop, not a one-time exercise — notice the arrow returns to
-    Red at the end. Purple teaming isn't a separate team so much as a
-    discipline: red and blue deliberately closing the loop together instead
-    of working in isolation and comparing reports months later.
+    Put the Module 9 lab on this loop. Red is `simulate.py --scenario ssrf`.
+    Blue is DET-003 firing. The Gap box is what happens after
+    `LAB_MODE=false`: the attack stops, *and* the rule goes quiet, because
+    the API now logs a different event. The Fix box has two outputs, a
+    control and a rule. Ship only one of them and the next lap finds the
+    other.
 
 | Red | Blue | Purple |
 | --- | --- | --- |
@@ -96,6 +111,24 @@ list), not by CVSS alone.
 note, DET-002 fires within 60s.” Run sim, check alert, if miss then fix
 log or rule, re-run. Measure: true positive, time to alert, extra noise.
 
+## Worked scene — one lap of the loop
+
+**Hypothesis.** DET-003 fires when `/fetch` hits mock-imds. It maps to
+T1552.005, severity critical.
+
+1. *Red.* `simulate.py --scenario ssrf`. *Got:* dummy credentials in the
+   body.
+2. *Blue.* Ingest. *Got:* `DET-003:alice`, critical. TP.
+3. *Fix.* Reset, then `LAB_MODE=false`. Re-run. *Got:* HTTP 400. The API
+   writes `ssrf_blocked`.
+4. *Blue again.* Ingest. *Got:* no new alert. DET-003 watches
+   `ssrf_metadata_access`, which no longer happens.
+
+**What that implies.** The control delta is real: the fetch is blocked.
+The detection delta is negative: you can no longer see attempts. The
+purple report has to say both. The next lap is a rule on `ssrf_blocked`,
+or a written decision that attempts aren’t worth alerting on.
+
 ## Architecture connection
 
 The closed loop is a product development loop:
@@ -116,10 +149,15 @@ Lab up, `LAB_MODE=true`.
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Write down three answers before you run anything:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. After the SSRF sim in `LAB_MODE=true`, which alert fires, with which ID?
+2. After `LAB_MODE=false`, what HTTP status does the same sim get, and
+   which event does the API write instead?
+3. Does any rule watch that new event? What does that mean for your
+   matrix?
+
+Then run the steps. If a result surprises you, which assumption was wrong?
 
 ### Steps
 
@@ -231,11 +269,10 @@ on this module's Acme Notes lab, not trivia.
 
 ## Before you leave
 
-- **Predict** — write expected evidence (what appears, what does not, and why) before the next observation.
 - **Diagnose** — name the miss (log, rule, or grouping key) when the hypothesis fails.
 - **Build** — run one purple loop (emulate → detect → map → improve) and a 10-line report.
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

@@ -4,6 +4,24 @@ description: Cover the availability leg of the CIA triad through resource exhaus
 
 # Module 16 — Availability and denial of service
 
+Three requests to `/login` in secure mode. The shape of the timings (your
+numbers will differ):
+
+```text
+correct password for alice   ~ a few hundred ms   (bcrypt runs)
+wrong password for alice     ~ a few hundred ms   (bcrypt runs)
+malformed JSON body          ~ a few ms           (rejected before hashing)
+```
+
+The slow hash from Module 6 is doing its job: every guess is expensive
+for an attacker with a stolen database. It is also expensive for *your*
+server on every attempt, valid or not, and `/login` has no rate limit. The
+control that protects confidentiality has created an availability
+problem.
+
+Availability is the letter of CIA that courses usually skip. This module
+puts a number on it.
+
 ## Why it matters to a software engineer
 
 Module 1's asset question asks what would hurt if something is
@@ -109,6 +127,24 @@ A backup you have never restored is a belief, not a control — the same
 themselves: the failure mode isn't "we forgot to back up," it's "we backed
 up for two years and the restore script silently broke in month three."
 
+## Worked scene — putting a number on it
+
+*Illustrative figures; use your own measurements.*
+
+1. *Measured.* A failed login for `alice` in secure mode takes a few
+   hundred milliseconds of CPU, about the same as a successful one.
+2. *Measured.* A malformed body is rejected in a few milliseconds.
+3. *Calculate.* At ~250 ms of CPU per attempt, one core handles about four
+   logins a second. Six attempts from `simulate.py` barely register. Sixty
+   a second from a script uses fifteen cores.
+4. *Check the code.* `/login` has no rate limit, lockout, or per-source
+   throttle.
+
+**What that implies.** Bcrypt protects a stolen database, and it also
+makes every attempt expensive for your server. The fix is to make attempts
+cheap to *refuse* (per-source and per-account limits before the hash runs),
+not to make the hash fast again.
+
 ## Architecture connection
 
 Rate limiting, backoff, and circuit breakers belong at the same trust
@@ -128,10 +164,15 @@ lab-only alerts, cases, and data; preserve anything you need first.
 
 ### Before you run this
 
-Predict: (1) which evidence appears (2) which does not (3) why.
+Write down three answers before you time anything:
 
-Then run the steps. Compare with the prediction. If the result differs,
-which assumption was wrong?
+1. Rank these by time: a correct login, a wrong password for `alice`, a
+   wrong password for a user who doesn’t exist, and a malformed body.
+2. Which of those four timings leaks whether a username exists?
+3. Roughly how many login attempts per second could this API take before
+   legitimate users notice?
+
+Then run the steps. If a result surprises you, which assumption was wrong?
 
 ### Steps
 
@@ -297,8 +338,8 @@ on this module's Acme Notes lab, not trivia.
 - **Predict** — write expected latency/error evidence before you time `/login`.
 - **Diagnose** — name the asymmetric-cost step (hash, query, downstream) from the measurement.
 - **Build** — complete the login cost-asymmetry lab and the rate-limit / RPO-RTO assignment (design, do not implement a new attack).
-- **Defend** — state containment and residual risk in one sentence each.
-- **Exit criteria** — the course [pass bar](../assessment.md): Explain → Predict → Diagnose → Design → Defend.
+
+How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 

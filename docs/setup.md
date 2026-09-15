@@ -171,7 +171,7 @@ LLM runtime).
 | Health endpoint not ready | `docker compose -f labs/compose.yaml logs notes-api` | Wait for build/startup; retry health |
 | Login data behaves unexpectedly | Previous volumes/mode | `make lab-reset`, then `make lab-up` (wipes lab-only state) |
 | Laptop is resource constrained | Memory/CPU use | Run only the default stack; skip kind and local LLM |
-| Container fails to start with a bind-mount error mentioning a `rules.yaml` or similar file | You extracted/cloned the repo under `/tmp` or another path your Docker VM doesn't share (common with Colima; Docker Desktop usually shares the whole filesystem) | Move the repo under your home directory and retry — `docker compose up` |
+| Container fails to start with a bind-mount error mentioning a `rules.yaml` or similar file | You extracted/cloned the repo under `/tmp` or another path your Docker VM doesn't share (common with Colima; Docker Desktop usually shares the whole filesystem) | Move the repo under your home directory and retry. Or, on Colima, share the path: add it under `mounts:` in `colima.yaml` (in `$COLIMA_HOME/default/`, usually `~/.colima/default/`), keeping your home directory listed too, since `mounts` replaces the default. Use absolute paths, not `~`, then `colima stop && colima start` |
 
 ## Cleanup and rollback
 

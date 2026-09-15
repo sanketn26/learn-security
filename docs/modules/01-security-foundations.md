@@ -281,7 +281,7 @@ meeting, not a footnote.
 
 ### Keep for the capstone
 
-Copy the [threat-model template](../capstone/threat-model.md) to
+Copy the [threat-model template](../capstone/templates/threat-model.md) to
 `docs/capstone/work/threat-model.md` and put today’s diagram, boundaries, and
 residual-risk sentence in it. This file becomes the capstone’s M1 item.
 

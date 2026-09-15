@@ -16,6 +16,16 @@ not_in_nav: |
   capstone/work/README.md
 plugins:
   - search
+  # Templates moved under capstone/templates/; keep old published URLs alive.
+  - redirects:
+      redirect_maps:
+        capstone/threat-model.md: capstone/templates/threat-model.md
+        capstone/attack-coverage.md: capstone/templates/attack-coverage.md
+        capstone/incident-report.md: capstone/templates/incident-report.md
+        capstone/containment-runbook.md: capstone/templates/containment-runbook.md
+        capstone/purple-report.md: capstone/templates/purple-report.md
+        capstone/architecture-review.md: capstone/templates/architecture-review.md
+        capstone/security-decision-record.md: capstone/templates/security-decision-record.md
   - social:
       cards_layout_options:
         background_color: "#1a1b26"
@@ -117,16 +127,20 @@ nav:
       - Defensive platform:
           - Start here: capstone/README.md
           - Templates:
-              - Threat model: capstone/threat-model.md
-              - ATT&CK coverage: capstone/attack-coverage.md
-              - Incident report: capstone/incident-report.md
-              - Containment runbook: capstone/containment-runbook.md
-              - Purple-team report: capstone/purple-report.md
-              - Architecture review: capstone/architecture-review.md
-              - Security decision record: capstone/security-decision-record.md
+              - capstone/templates/README.md
+              - Threat model: capstone/templates/threat-model.md
+              - ATT&CK coverage: capstone/templates/attack-coverage.md
+              - Incident report: capstone/templates/incident-report.md
+              - Containment runbook: capstone/templates/containment-runbook.md
+              - Purple-team report: capstone/templates/purple-report.md
+              - Architecture review: capstone/templates/architecture-review.md
+              - Security decision record: capstone/templates/security-decision-record.md
+              - Replay fixtures: capstone/templates/replay-fixture.md
+              - Agent run: capstone/templates/agent-run.md
           - Worked example (Helix):
               - capstone/reference/README.md
               - Threat model: capstone/reference/threat-model-example.md
+              - ATT&CK coverage: capstone/reference/attack-coverage-example.md
               - Incident report: capstone/reference/incident-report-example.md
               - Containment runbook: capstone/reference/containment-runbook-example.md
               - Purple-team report: capstone/reference/purple-report-example.md

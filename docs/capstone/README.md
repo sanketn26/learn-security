@@ -26,8 +26,8 @@ progresses from inventory to focused checks, validated paths, and repair verific
 ## What you hand in
 
 Nine items, all in your local [work folder](work/README.md)
-(`docs/capstone/work/`, gitignored). Start each one by copying its template
-from this folder into `work/`. Never edit a template in place.
+(`docs/capstone/work/`, gitignored). Start each one by copying its
+[template](templates/README.md) into `work/`. Never edit a template in place.
 
 ```mermaid
 flowchart LR
@@ -38,15 +38,15 @@ flowchart LR
 | Milestone | You do | Hand in | Template · example | Started in | Done when |
 | --- | --- | --- | --- | --- | --- |
 | M0 Environment | `make lab-up`; read [ethics](../ethics.md) | — | — | Setup | Lab binds only to 127.0.0.1; health endpoints 200; `simulate.py` refuses a non-local `--base` |
-| M1 Model | Turn your Module 1 diagram into a threat model of the whole stack | `threat-model.md` | [template](threat-model.md) · [Helix](reference/threat-model-example.md) | Module 1 | Names assets, trust boundaries, and residual risk |
+| M1 Model | Turn your Module 1 diagram into a threat model of the whole stack | `threat-model.md` | [template](templates/threat-model.md) · [Helix](reference/threat-model-example.md) | Module 1 | Names assets, trust boundaries, and residual risk |
 | M2 Telemetry | Check the events you need exist and carry the right fields. Fix gaps; don’t rebuild logging | cited in `attack-coverage.md` and `incident-report.md` | — | Module 7 | Login, AuthZ, fetch, and search events have UTC time, event name, actor, object, and `trace_id` |
 | M3 Emulate | `simulate.py --scenario all` | — | — | Modules 8–9 | Runs against loopback only |
-| M4 Detect | Keep DET-001–005 and write **three** new rules against events no rule covers yet. Give every rule a replay fixture | `rules.yaml` + `fixtures/` + `attack-coverage.md` | [template](attack-coverage.md) | Modules 8, 11 | Eight rules fire on sim traffic, or each miss is documented with a fix. Every fixture fires on its abnormal case and stays quiet on normal traffic. Every mapping has tactic, technique ID, confidence, and limitation |
-| M5 Investigate | Open a case; build a UTC timeline; weigh competing hypotheses; `preserve-logs.sh` | `incident-report.md` | [template](incident-report.md) · [Helix](reference/incident-report-example.md) | Modules 10–11 | Case exists with timeline entries; the evidence snapshot is unchanged after preservation; RCA names a control defect |
-| M6 Contain | Preserve → contain → verify; redeploy with `LAB_MODE=false` or patch the code, then retest | `containment-runbook.md` | [template](containment-runbook.md) · [Helix](reference/containment-runbook-example.md) | Module 11 | The runbook records the sequence you actually ran, evidence is preserved before containment, and at least one control change is retested |
-| M7 Purple | One hypothesis, re-test, TP/FN/TN, one improved rule or control | `purple-report.md` | [template](purple-report.md) · [Helix](reference/purple-report-example.md) | Module 9 | Records the before/after difference in detection or control |
-| M8 Agent | `/investigate`; show a denied action, then an approved one | `agent-run.json` | — | Module 12 | 403 without `approval=APPROVE`; tools outside the allowlist denied; instruction-like text in evidence ignored |
-| M9 Review | At least five architecture findings, plus one decision record for a control you chose | `architecture-review.md` + `security-decision-record.md` | [template](architecture-review.md) · [Helix](reference/architecture-review-example.md); [template](security-decision-record.md) · [Helix](reference/security-decision-record-example.md) | Module 13 | Five or more findings; the decision record names an alternative you considered and the residual risk |
+| M4 Detect | Keep DET-001–005 and write **three** new rules against events no rule covers yet. Give every rule a replay fixture | `rules.yaml` + `fixtures/` + `attack-coverage.md` | [template](templates/attack-coverage.md), [fixtures](templates/replay-fixture.md) · [Helix](reference/attack-coverage-example.md) | Modules 8, 11 | Eight rules fire on sim traffic, or each miss is documented with a fix. Every fixture fires on its abnormal case and stays quiet on normal traffic. Every mapping has tactic, technique ID, confidence, and limitation |
+| M5 Investigate | Open a case; build a UTC timeline; weigh competing hypotheses; `preserve-logs.sh` | `incident-report.md` | [template](templates/incident-report.md) · [Helix](reference/incident-report-example.md) | Modules 10–11 | Case exists with timeline entries; the evidence snapshot is unchanged after preservation; RCA names a control defect |
+| M6 Contain | Preserve → contain → verify; redeploy with `LAB_MODE=false` or patch the code, then retest | `containment-runbook.md` | [template](templates/containment-runbook.md) · [Helix](reference/containment-runbook-example.md) | Module 11 | The runbook records the sequence you actually ran, evidence is preserved before containment, and at least one control change is retested |
+| M7 Purple | One hypothesis, re-test, TP/FN/TN, one improved rule or control | `purple-report.md` | [template](templates/purple-report.md) · [Helix](reference/purple-report-example.md) | Module 9 | Records the before/after difference in detection or control |
+| M8 Agent | `/investigate`; show a denied action, then an approved one | `agent-run.json` | [template](templates/agent-run.md) | Module 12 | 403 without `approval=APPROVE`; tools outside the allowlist denied; instruction-like text in evidence ignored |
+| M9 Review | At least five architecture findings, plus one decision record for a control you chose | `architecture-review.md` + `security-decision-record.md` | [template](templates/architecture-review.md) · [Helix](reference/architecture-review-example.md); [template](templates/security-decision-record.md) · [Helix](reference/security-decision-record-example.md) | Module 13 | Five or more findings; the decision record names an alternative you considered and the residual risk |
 
 **Your three detections.** The app already emits `authz_failure` (invalid
 token, admin-blocked), `fetch_blocked_safety_rail`, `ssrf_blocked`,

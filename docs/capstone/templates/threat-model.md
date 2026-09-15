@@ -4,10 +4,9 @@ description: "Blank threat model template for the notes-api capstone service: di
 
 # Threat model — notes-api (fill in)
 
-Start this in the Module 1 lab. Copy it to `docs/capstone/work/threat-model.md`
-and fill in the copy, not this file. For a filled-in example, see the
-[Helix threat model](reference/threat-model-example.md). It's a different
-product, so none of its rows are right for notes-api.
+!!! info "Before you fill this in"
+    **Start in:** Module 1 lab. **Save as:** `docs/capstone/work/threat-model.md`. Edit the copy, never this template.
+    **Example:** [Helix threat model](../reference/threat-model-example.md). If your copy mentions Dana, `HELIX_DEBUG`, or ticket 42, you’ve modelled the wrong system.
 
 ## Diagram
 

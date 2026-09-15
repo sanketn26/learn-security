@@ -2,13 +2,15 @@
 description: "Blank template for a capstone security decision record: the threat addressed, chosen control, alternative considered, and residual risk."
 ---
 
-# Security decision record (lab)
+# Security decision record — notes-api (fill in)
 
-One record per significant security decision — a control you chose, a
-threshold you set, an architecture tradeoff you made. Copy this template
-per decision; do not try to make one record cover the whole capstone.
+!!! info "Before you fill this in"
+    **Start in:** Module 13 engineering assignment. **Save as:** `docs/capstone/work/security-decision-record.md`, one file per decision (for example `security-decision-record-2.md`). Edit the copy, never this template.
+    **Example:** [Helix decision record](../reference/security-decision-record-example.md). If your copy is about `HELIX_DEBUG`, you’ve decided for the wrong system.
 
-**Warning:** AUTHORIZED LAB USE ONLY. Dummy data.
+Write one record per significant security decision: a control you chose, a
+threshold you set, or an architecture trade-off you made. Don’t try to make
+one record cover the whole capstone.
 
 | Field | Value |
 | --- | --- |

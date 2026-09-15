@@ -6,10 +6,12 @@ description: Worked example security decision record for Helix Tickets, explaini
 
 *Parallel miniature. Not the notes-api capstone.*
 
-**ADR-HELIX-1: Debug mode must not disable authorization**
-
-**Status:** Accepted (lab teaching fork: a separate *fault-injection*
-flag may still exist)
+| Field | Value |
+| --- | --- |
+| Decision ID | ADR-HELIX-1: Debug mode must not disable authorization |
+| Date | 2026-08-31 |
+| Author | lab analyst (example) |
+| Status | Accepted (lab teaching fork: a separate *fault-injection* flag may still exist) |
 
 ## Threat
 
@@ -17,7 +19,7 @@ An operator (or a default compose file) leaves `HELIX_DEBUG=true`.
 Object authorization, token expiry, and outbound-fetch policy all
 collapse together. The incident above is that collapse.
 
-## Decision
+## Chosen control
 
 Split flags:
 
@@ -28,6 +30,13 @@ Split flags:
 A teaching overlay `HELIX_INJECT_IDOR=true` may exist on a named lab
 profile so the course can still demonstrate the failure, but it is not
 the same bit as "debug."
+
+## Why this control
+
+Debug is the setting most likely to be left on by accident, so it is the
+worst place to hide a security bypass. Splitting the flags keeps the
+teaching failure available without making "verbose logs" and "no authz"
+the same switch.
 
 ## Alternative considered
 

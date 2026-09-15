@@ -66,7 +66,10 @@ matrix cell proves none of prevention, detection fidelity, or response quality.
 - Map a lab alert to ATT&CK and state limitations.
 - Draft a small coverage matrix for the capstone.
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 See also [COURSE.md section 6](../course.md).
 
@@ -89,48 +92,12 @@ Lateral Movement, and C2 — write “no data source,” do not paint those cell
 
 **Procedure.** The concrete implementation. Lab: Alice `GET /notes/2`.
 
-**Software / groups.** Real-world names. We do not emulate named malware.
-
 **Data sources.** What you would need to see it (application logs, process
 creation, cloud audit). If you lack the data source, you do not “cover” the
 technique.
 
-**Mitigations.** Control classes (restrict web-based content, network
-segmentation, …). Mapping a mitigation is not implementing it.
-
-**Enterprise vs other matrices.** Enterprise includes platform-specific
-techniques (Windows, Linux, cloud, containers). Mobile, ICS, and
-[ATLAS](https://atlas.mitre.org/) for AI are siblings. A prompt-injection
-against an agent may map better to ATLAS/OWASP LLM than to T1059.
-
-**Red use:** adversary emulation plans (“we will attempt T1110.001 against
-the lab login”). **Blue use:** detections, hunts, gap analysis. **SOC use:**
-alert classification and prioritization — with the caveat that the first
-mapping is often wrong.
-
 **Limitations.** Coverage ≠ security; techniques are ambiguous; mappings
 need context; version drift; paper coverage.
-
-**The Pyramid of Pain (David Bianco).** A ranking of indicator types by how
-much it costs an *attacker* to change them when you detect on that type —
-and therefore how durable your detection is:
-
-| Indicator (bottom → top) | Cost for attacker to change | Detection durability |
-| --- | --- | --- |
-| Hash values | Trivial — recompile, repack | Almost none |
-| IP addresses | Easy — new host/proxy | Low |
-| Domain names | Simple — register another | Low–medium |
-| Network/host artifacts | Annoying — rework tooling | Medium |
-| Tools | Challenging — rewrite/replace the tool | High |
-| TTPs (technique/procedure) | Tough — relearn a new approach | Highest |
-
-ATT&CK gives teams a vocabulary for the TTPs near the top of the pyramid; the
-framework itself is not a pyramid layer. A behavioral detection for
-T1110.001 password guessing can survive a changed IP or tool **if** its logic
-uses durable behavior and sufficient context. A rule tied to one procedure's
-fields can still be brittle even when it carries a technique tag. Hash- or
-IP-only detections are usually cheaper for an attacker to evade, so combine
-them with behavior and test the concrete procedures your telemetry can see.
 
 ## Worked scene — mapping DET-002 from evidence
 
@@ -227,6 +194,47 @@ behavior is collection or discovery depending on what was taken.
 ### Cleanup
 
 Keep the lab if continuing to module 9.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**Software / groups.** Real-world names. We do not emulate named malware.
+
+**Mitigations.** Control classes (restrict web-based content, network
+segmentation, …). Mapping a mitigation is not implementing it.
+
+**Enterprise vs other matrices.** Enterprise includes platform-specific
+techniques (Windows, Linux, cloud, containers). Mobile, ICS, and
+[ATLAS](https://atlas.mitre.org/) for AI are siblings. A prompt-injection
+against an agent may map better to ATLAS/OWASP LLM than to T1059.
+
+**Red use:** adversary emulation plans (“we will attempt T1110.001 against
+the lab login”). **Blue use:** detections, hunts, gap analysis. **SOC use:**
+alert classification and prioritization — with the caveat that the first
+mapping is often wrong.
+
+**The Pyramid of Pain (David Bianco).** A ranking of indicator types by how
+much it costs an *attacker* to change them when you detect on that type —
+and therefore how durable your detection is:
+
+| Indicator (bottom → top) | Cost for attacker to change | Detection durability |
+| --- | --- | --- |
+| Hash values | Trivial — recompile, repack | Almost none |
+| IP addresses | Easy — new host/proxy | Low |
+| Domain names | Simple — register another | Low–medium |
+| Network/host artifacts | Annoying — rework tooling | Medium |
+| Tools | Challenging — rewrite/replace the tool | High |
+| TTPs (technique/procedure) | Tough — relearn a new approach | Highest |
+
+ATT&CK gives teams a vocabulary for the TTPs near the top of the pyramid; the
+framework itself is not a pyramid layer. A behavioral detection for
+T1110.001 password guessing can survive a changed IP or tool **if** its logic
+uses durable behavior and sufficient context. A rule tied to one procedure's
+fields can still be brittle even when it carries a technique tag. Hash- or
+IP-only detections are usually cheaper for an attacker to evade, so combine
+them with behavior and test the concrete procedures your telemetry can see.
 
 ## Knowledge check
 

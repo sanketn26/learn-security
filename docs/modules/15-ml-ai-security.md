@@ -79,7 +79,10 @@ flowchart LR
 - Review a tool-using agent's configuration for supply-chain and
   excessive-agency risk without adding new lab infrastructure.
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 **The ML pipeline has the same shape as any other supply chain.** Data
 source → collection → labeling → training → evaluation → registry →
@@ -119,12 +122,6 @@ Neither list substitutes for the other. Rate limits are not watermarking:
 raising cost slows a patient attacker but does not tell you copying
 happened; detection/attribution tells you it happened but does not stop
 the first successful run.
-
-**Adversarial examples.** Inputs crafted to be misclassified while looking
-normal to a human (or normal-looking log lines crafted to look like
-instructions to an LLM — this is Module 12's prompt injection, restated:
-the same "interpretation crosses a boundary" pattern from Module 4, with
-the model as the unsafe interpreter).
 
 **Excessive agency and tool misuse.** Covered operationally in Module 12;
 here, review it as a design-time control. A model that can only *read* is a
@@ -232,8 +229,8 @@ create a probabilistic read path into memorized training information,
 while a tool-using agent can additionally become an actor. Bound the
 search feature by who can write embeddings and who can query them; bound
 the agent by what `policy.yaml` allows, not by model accuracy. Extraction
-prevent vs detect (quotas vs watermarking) belongs in the concepts
-section above — this lab never runs an extraction client. The Module 4
+prevent vs detect (quotas vs watermarking) belongs in the model-theft
+concept above — this lab never runs an extraction client. The Module 4
 pattern (untrusted input crossing an interpreter) did not change; the
 interpreter did.
 
@@ -251,6 +248,17 @@ interpreter did.
 ### Cleanup
 
 None.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**Adversarial examples.** Inputs crafted to be misclassified while looking
+normal to a human (or normal-looking log lines crafted to look like
+instructions to an LLM — this is Module 12's prompt injection, restated:
+the same "interpretation crosses a boundary" pattern from Module 4, with
+the model as the unsafe interpreter).
 
 ## Knowledge check
 

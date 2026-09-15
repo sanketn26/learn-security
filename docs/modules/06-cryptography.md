@@ -146,7 +146,10 @@ SSRF, make a compromised endpoint trustworthy, or repair poor key custody.
 - State what cryptography cannot solve (AuthZ, availability, bad identity).
 - Store a password and sign a message using standard libraries.
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 **Hash.** One-way fingerprint (`SHA-256`). Integrity of a known file, not
 authentication (anyone can hash). Not for passwords by itself.
@@ -162,26 +165,6 @@ model. Organizational or legal non-repudiation additionally depends on
 identity proofing, key custody, revocation, audit evidence, and policy —
 it is not an inherent property of the primitive.
 
-**Symmetric encryption.** One key encrypts and decrypts (AES-GCM). Use AEAD
-(authenticated encryption). Do not use ECB. Do not invent nonces.
-
-**Asymmetric encryption.** Public encrypts, private decrypts (rarely what
-you want for bulk data). Envelope encryption — encrypt a symmetric data
-key to a public key — is a different pattern from TLS 1.3, which uses
-ephemeral key *agreement*, not "asymmetric encryption creates the
-symmetric key."
-
-**Key exchange.** Agree a shared secret over an untrusted network. In TLS
-1.3 that is ephemeral (EC)DHE (hybrid KEMs as standards evolve), not a
-long-term key wrapping bulk data.
-
-**Certificates and TLS.** A certificate binds a public key to an identity,
-signed by a CA you trust. In a typical TLS 1.3 certificate-based
-handshake, ephemeral (EC)DHE establishes shared key material, the
-certificate and signature authenticate the server, HKDF derives traffic
-keys, and symmetric AEAD protects application data. TLS does not mean the
-API authorized the request.
-
 **Password hashing.** Slow and salted. **Argon2id** and **scrypt** are
 memory-hard (RAM costs hurt GPUs). **bcrypt** is CPU-hard with a small
 fixed memory (~4 KiB) — still far better than SHA-256, not in the
@@ -192,20 +175,9 @@ the whole database. `alice-lab-password` is an unusual string and may not
 appear in a public table; the lesson is *fast unsalted hashes invite
 precomputation and offline guessing*, not “this exact password is listed.”
 
-**Randomness.** Use `secrets` / OS CSPRNG (`getrandom`), not `random`.
-Session ids, tokens, keys, CSRF values.
-
 **Key management.** Generation, storage, rotation, destruction, access
 control. The algorithm is not the hard part. KMS/HSM hold keys; apps get
 short-lived use. Logging key material is an incident.
-
-**What crypto cannot solve.**
-
-- IDOR (Alice’s valid signature on her token).
-- SSRF (HTTPS to IMDS is still IMDS).
-- Availability (you can encrypt a deleted disk).
-- “The operator pasted the key in Slack.”
-- Business-logic abuse.
 
 ## Worked scene — who can mint a token?
 
@@ -300,6 +272,42 @@ signatures. TLS is not AuthZ. Key location is part of the threat model.
 ### Cleanup
 
 None beyond not committing generated keys. Delete any scratch private keys.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**Symmetric encryption.** One key encrypts and decrypts (AES-GCM). Use AEAD
+(authenticated encryption). Do not use ECB. Do not invent nonces.
+
+**Asymmetric encryption.** Public encrypts, private decrypts (rarely what
+you want for bulk data). Envelope encryption — encrypt a symmetric data
+key to a public key — is a different pattern from TLS 1.3, which uses
+ephemeral key *agreement*, not "asymmetric encryption creates the
+symmetric key."
+
+**Key exchange.** Agree a shared secret over an untrusted network. In TLS
+1.3 that is ephemeral (EC)DHE (hybrid KEMs as standards evolve), not a
+long-term key wrapping bulk data.
+
+**Certificates and TLS.** A certificate binds a public key to an identity,
+signed by a CA you trust. In a typical TLS 1.3 certificate-based
+handshake, ephemeral (EC)DHE establishes shared key material, the
+certificate and signature authenticate the server, HKDF derives traffic
+keys, and symmetric AEAD protects application data. TLS does not mean the
+API authorized the request.
+
+**Randomness.** Use `secrets` / OS CSPRNG (`getrandom`), not `random`.
+Session ids, tokens, keys, CSRF values.
+
+**What crypto cannot solve.**
+
+- IDOR (Alice’s valid signature on her token).
+- SSRF (HTTPS to IMDS is still IMDS).
+- Availability (you can encrypt a deleted disk).
+- “The operator pasted the key in Slack.”
+- Business-logic abuse.
 
 ## Knowledge check
 

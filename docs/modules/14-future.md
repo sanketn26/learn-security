@@ -73,7 +73,10 @@ will still matter.
   platforms, and AI-app security on a “established vs emerging” map.
 - Identify durable skills and over-automation risks.
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 **AI-assisted attacks and defense (emerging, already observed in parts).**
 Models lower the cost of phishing copy, code review for bugs, and alert
@@ -86,39 +89,12 @@ work. Dangerous for unbounded tools. Human-agent trust exploitation (ASI09)
 and rogue agents (ASI10) are documented risk classes, not science fiction
 catalogs of today’s every product.
 
-**Software supply-chain and dependency attacks (established and growing).**
-A03:2025 elevated this. Build identity, provenance, and pin. You already
-live this in npm/PyPI/GitHub Actions.
-
-**Cloud-native and identity-centric security (established direction).**
-Perimeter shrinks; identity (human and workload) becomes the control plane.
-Zero trust as strategy, not SKU.
-
-**Detection engineering and security data platforms (established practice,
-evolving vendors).** Log cost, schema (OCSF), detections as code, data lakes
-for security. The lab’s sqlite is the idea in miniature.
-
 **Security for AI applications (emerging, standards forming).** OWASP LLM
 Top 10 2026: prompt injection, sensitive information disclosure, excessive
 agency, supply chain, data/model poisoning, unbounded consumption,
 misinformation, hidden context exposure, vector/embedding weaknesses,
 improper output handling. RAG and tool-using agents expand the attack
 surface to **every document and API you connect**.
-
-**Deepfakes, social engineering, automated fraud (ongoing).** Technical
-controls (phishing-resistant MFA, out-of-band verify for money movement)
-matter more than “spot the fake” training alone.
-
-**Privacy-preserving security analytics (emerging).** Aggregation, tokenization,
-query restriction. Tension with investigation needs. Do not claim a homomorphic
-miracle; state the trade-off.
-
-**Post-quantum cryptography (planning is established; migration is work).**
-NIST has selected PQC algorithms; inventories of where you use RSA/ECC
-(TLS, SSH, signed artifacts, JWTs) are the engineering job. Hybrid TLS is
-appearing. Do not “wait until quantum computers exist” to start inventory.
-Do not panic-rip TLS tomorrow without a plan. Check [NIST PQC](https://csrc.nist.gov/projects/post-quantum-cryptography)
-for current selections — they evolve.
 
 **Skills that keep paying.** Threat modeling; AuthN vs AuthZ; reading logs;
 incident timelines; writing tests for security properties; least privilege
@@ -190,6 +166,38 @@ Uncertainty is allowed. Unbounded agency is not.
 ### Cleanup
 
 None.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**Software supply-chain and dependency attacks (established and growing).**
+A03:2025 elevated this. Build identity, provenance, and pin. You already
+live this in npm/PyPI/GitHub Actions.
+
+**Cloud-native and identity-centric security (established direction).**
+Perimeter shrinks; identity (human and workload) becomes the control plane.
+Zero trust as strategy, not SKU.
+
+**Detection engineering and security data platforms (established practice,
+evolving vendors).** Log cost, schema (OCSF), detections as code, data lakes
+for security. The lab’s sqlite is the idea in miniature.
+
+**Deepfakes, social engineering, automated fraud (ongoing).** Technical
+controls (phishing-resistant MFA, out-of-band verify for money movement)
+matter more than “spot the fake” training alone.
+
+**Privacy-preserving security analytics (emerging).** Aggregation, tokenization,
+query restriction. Tension with investigation needs. Do not claim a homomorphic
+miracle; state the trade-off.
+
+**Post-quantum cryptography (planning is established; migration is work).**
+NIST has selected PQC algorithms; inventories of where you use RSA/ECC
+(TLS, SSH, signed artifacts, JWTs) are the engineering job. Hybrid TLS is
+appearing. Do not “wait until quantum computers exist” to start inventory.
+Do not panic-rip TLS tomorrow without a plan. Check [NIST PQC](https://csrc.nist.gov/projects/post-quantum-cryptography)
+for current selections — they evolve.
 
 ## Knowledge check
 

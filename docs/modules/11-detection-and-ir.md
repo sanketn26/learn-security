@@ -82,102 +82,17 @@ content patterns. Neither is a complete investigation.
 - Investigate a simulated account-compromise / data-exposure case.
 - Produce a timeline, incident report, RCA, and remediation plan.
 
-## Key concepts
+## Words for the lab
+
+These are the terms the lab uses. The rest of the vocabulary comes
+[after the lab](#the-rest-of-the-vocabulary), once you have seen it in action.
 
 **Detection logic.** Boolean or statistical conditions on telemetry.
+
 **Thresholds.** 5 failures / 120s — arbitrary until purple-tested.
-**Baselines.** “Unusual” needs a usual. Hard in tiny labs; crucial in prod.
-**Behavioral analytics.** Sequences and outliers, not a single IOC.
+
 **Detection-as-code.** Rules in git (`labs/detections/rules.yaml`), reviewed,
 tested with replayed JSONL, versioned with ATT&CK tags.
-
-**Sigma.** An open generic signature format for logs, convertible to SIEM
-queries. Our YAML is *Sigma-like* (event, fields, threshold), not a full
-Sigma backend.
-
-**YARA.** Pattern language for files/memory (malware hunting). You do not
-need YARA for JSON API logs. Do not download malware to “try YARA.”
-
-**Queries.** `/events?q=` is a toy. Production: constrain time, index, cost.
-
-**Correlation.** Joining multiple *individually weak* events — across
-sources, across time, sharing an actor or asset — into one higher-
-confidence story, instead of paging an analyst once per event. This is a
-different idea from Module 7's correlation ID (which threads *one
-request* through *one system*): correlation here threads *one actor or
-asset* through *many independent events*, possibly minutes or hours apart,
-possibly from rules that don't know about each other. Concretely in this
-lab: DET-001 (password-guessing burst) and DET-002 (cross-user note
-access) are independent rules, each firing its own alert. A real SIEM's
-correlation layer would ask "did the same `actor`/`src_ip` trigger both,
-within one window?" and — if so — raise one case with higher severity
-("credential guessing immediately followed by data access") instead of
-two disconnected low-context alerts an analyst has to notice are related
-by hand. Correlation is what turns a pile of alerts into an incident
-narrative before a human even opens the case.
-
-**Threat intelligence.** External data about what's known-bad, consumed
-as an *enrichment* input to correlation and triage, never as ground truth
-on its own. Concretely: a feed is typically a list of indicators (IPs,
-domains, hashes, or higher-level "this actor's known TTPs") with a
-confidence score and an age. Two things make intel different from your
-own telemetry:
-
-- **It answers a question your own data structurally cannot.** Your logs
-  can show `src_ip=203.0.113.4` connected; only external data can tell you
-  that IP is a known Tor exit node or was flagging phishing infrastructure
-  last week.
-- **It decays, and it can be wrong.** An IP flagged bad six months ago may
-  be reassigned to an innocent host today; a feed vendor's false positive
-  becomes *your* false positive if you treat a match as fact. Use intel to
-  raise or lower a detection's *confidence* and *priority* — "this alert
-  also matched a known-bad indicator, escalate it" — not to auto-decide
-  guilt. That is the entire content of "without treating intel as gospel"
-  above.
-
-The lab has no intel feed to query — practice the judgment on paper: if
-DET-001's `src_ip` (the password-guessing burst) matched a public feed's
-"known scanner" indicator, how would that change your triage of the
-*same* evidence you already have — and what would NOT change (the
-underlying missing-rate-limit root cause still needs fixing either way)?
-
-**Worked example: one alert through the full pipe.** Trace a single
-password-guessing attempt from raw event to a correlated, prioritized
-case:
-
-1. **Collection.** notes-api emits a raw JSON line for one failed login:
-   `{"ts":"2026-08-24T10:02:11Z","event":"login_failure","username":"alice","src_ip":"203.0.113.4"}`.
-   If this had come from a legacy edge firewall instead of notes-api, it
-   might have arrived as
-   `CEF:0|VendorX|EdgeFW|1.0|4001|Auth failure|3|src=203.0.113.4 suser=alice`
-   — same fact, different shape.
-2. **Normalization.** Both forms get mapped to the same schema field names
-   (`actor`, `src_ip`, `event`) so a rule written once can match either
-   source. This is the step that makes step 1's two formats interchangeable.
-3. **Enrichment.** The normalized event is joined with: internal context
-   (alice's account is a regular user, not an admin) and external context
-   (a threat-intel lookup on `203.0.113.4` — say it matches a "known
-   credential-stuffing infrastructure" indicator, confidence medium, seen
-   14 days ago).
-4. **Correlation.** Five more `login_failure` events from the same
-   `src_ip` land in the next 90 seconds (DET-001's actual threshold in
-   this lab: 5 in 120s), then — 40 seconds after the fifth failure — a
-   `cross_user_note_access` event fires for `actor=alice`. Correlated by
-   shared actor within one short window, these become **one case**:
-   "credential-guessing burst immediately followed by cross-user data
-   access from the same identity," not two disconnected low-context
-   alerts.
-5. **Detection / prioritization.** DET-001 alone, with no intel match and
-   no follow-on access, might be routine noise a real SOC auto-tunes down
-   (scanners guess passwords constantly). The same DET-001 correlated with
-   DET-002 *and* an intel match on the source is a different-severity
-   incident entirely — same underlying facts, but the pipe's later stages
-   are what turned "one low-value alert" into "escalate now."
-
-Notice what did **not** change anywhere in that pipe: the actual fix is
-still the missing rate limit (Module 16) and the missing per-object
-authorization check (Module 4). Intel and correlation change how fast you
-notice and how you prioritize — never what the permanent repair is.
 
 **The Diamond Model.** A structuring tool for one intrusion event, not a
 replacement for the timeline: every event has an **adversary** using a
@@ -200,30 +115,10 @@ is not. Pivoting along one edge (same infrastructure, different victim;
 same capability, different adversary) is how you find related activity you
 were not already looking for.
 
-**Incident severity.** Combine impact (data class, blast radius) and
-urgency (active vs historical). Dummy payroll note → practice as high.
-
-**Evidence preservation and chain of custody.** Copy, hash, write who/when,
-do not edit originals. Lab: `preserve-logs.sh` writes
-`labs/evidence/evidence-*` (survives `lab-reset`). The script copies; **you**
-hash (`shasum labs/evidence/evidence-*/**`). This is not courtroom-grade
-forensics; it teaches the habit.
-
 **Quarantine vs eradicate.** Isolate the suspected identity or egress path
 *while you still have the evidence* — disable `LAB_MODE` or block `/fetch`
 to metadata without `down -v`. Eradicate after you know the cause (owner
 check, rotate JWT). See [How defenders think](../how-defenders-think.md).
-
-**Containment / eradication / recovery.**
-Contain: stop the bleeding (disable LAB_MODE, rotate JWT secret).
-Eradicate: remove the weakness and any persistence (none in lab).
-Recover: restore service, watch for recurrence.
-Communicate: who needs to know (in the lab: your report readers).
-
-**Classic IR loop (still useful operationally).**
-Prepare; detect & analyze; contain, eradicate, recover; post-incident.
-Rev. 3 asks you to also **govern and identify** continuously so IR is not
-a surprise.
 
 ## Architecture connection
 
@@ -541,6 +436,123 @@ starting from the [runbook template](../capstone/templates/containment-runbook.m
 ### Cleanup
 
 `lab-reset` after you export the report.
+
+## The rest of the vocabulary
+
+Now that you have run the lab, here is the rest of the language people
+will use about it.
+
+**Baselines.** “Unusual” needs a usual. Hard in tiny labs; crucial in prod.
+
+**Behavioral analytics.** Sequences and outliers, not a single IOC.
+
+**Sigma.** An open generic signature format for logs, convertible to SIEM
+queries. Our YAML is *Sigma-like* (event, fields, threshold), not a full
+Sigma backend.
+
+**YARA.** Pattern language for files/memory (malware hunting). You do not
+need YARA for JSON API logs. Do not download malware to “try YARA.”
+
+**Queries.** `/events?q=` is a toy. Production: constrain time, index, cost.
+
+**Correlation.** Joining multiple *individually weak* events — across
+sources, across time, sharing an actor or asset — into one higher-
+confidence story, instead of paging an analyst once per event. This is a
+different idea from Module 7's correlation ID (which threads *one
+request* through *one system*): correlation here threads *one actor or
+asset* through *many independent events*, possibly minutes or hours apart,
+possibly from rules that don't know about each other. Concretely in this
+lab: DET-001 (password-guessing burst) and DET-002 (cross-user note
+access) are independent rules, each firing its own alert. A real SIEM's
+correlation layer would ask "did the same `actor`/`src_ip` trigger both,
+within one window?" and — if so — raise one case with higher severity
+("credential guessing immediately followed by data access") instead of
+two disconnected low-context alerts an analyst has to notice are related
+by hand. Correlation is what turns a pile of alerts into an incident
+narrative before a human even opens the case.
+
+**Threat intelligence.** External data about what's known-bad, consumed
+as an *enrichment* input to correlation and triage, never as ground truth
+on its own. Concretely: a feed is typically a list of indicators (IPs,
+domains, hashes, or higher-level "this actor's known TTPs") with a
+confidence score and an age. Two things make intel different from your
+own telemetry:
+
+- **It answers a question your own data structurally cannot.** Your logs
+  can show `src_ip=203.0.113.4` connected; only external data can tell you
+  that IP is a known Tor exit node or was flagging phishing infrastructure
+  last week.
+- **It decays, and it can be wrong.** An IP flagged bad six months ago may
+  be reassigned to an innocent host today; a feed vendor's false positive
+  becomes *your* false positive if you treat a match as fact. Use intel to
+  raise or lower a detection's *confidence* and *priority* — "this alert
+  also matched a known-bad indicator, escalate it" — not to auto-decide
+  guilt. That is the entire content of "without treating intel as gospel"
+  above.
+
+The lab has no intel feed to query — practice the judgment on paper: if
+DET-001's `src_ip` (the password-guessing burst) matched a public feed's
+"known scanner" indicator, how would that change your triage of the
+*same* evidence you already have — and what would NOT change (the
+underlying missing-rate-limit root cause still needs fixing either way)?
+
+**Worked example: one alert through the full pipe.** Trace a single
+password-guessing attempt from raw event to a correlated, prioritized
+case:
+
+1. **Collection.** notes-api emits a raw JSON line for one failed login:
+   `{"ts":"2026-08-24T10:02:11Z","event":"login_failure","username":"alice","src_ip":"203.0.113.4"}`.
+   If this had come from a legacy edge firewall instead of notes-api, it
+   might have arrived as
+   `CEF:0|VendorX|EdgeFW|1.0|4001|Auth failure|3|src=203.0.113.4 suser=alice`
+   — same fact, different shape.
+2. **Normalization.** Both forms get mapped to the same schema field names
+   (`actor`, `src_ip`, `event`) so a rule written once can match either
+   source. This is the step that makes step 1's two formats interchangeable.
+3. **Enrichment.** The normalized event is joined with: internal context
+   (alice's account is a regular user, not an admin) and external context
+   (a threat-intel lookup on `203.0.113.4` — say it matches a "known
+   credential-stuffing infrastructure" indicator, confidence medium, seen
+   14 days ago).
+4. **Correlation.** Five more `login_failure` events from the same
+   `src_ip` land in the next 90 seconds (DET-001's actual threshold in
+   this lab: 5 in 120s), then — 40 seconds after the fifth failure — a
+   `cross_user_note_access` event fires for `actor=alice`. Correlated by
+   shared actor within one short window, these become **one case**:
+   "credential-guessing burst immediately followed by cross-user data
+   access from the same identity," not two disconnected low-context
+   alerts.
+5. **Detection / prioritization.** DET-001 alone, with no intel match and
+   no follow-on access, might be routine noise a real SOC auto-tunes down
+   (scanners guess passwords constantly). The same DET-001 correlated with
+   DET-002 *and* an intel match on the source is a different-severity
+   incident entirely — same underlying facts, but the pipe's later stages
+   are what turned "one low-value alert" into "escalate now."
+
+Notice what did **not** change anywhere in that pipe: the actual fix is
+still the missing rate limit (Module 16) and the missing per-object
+authorization check (Module 4). Intel and correlation change how fast you
+notice and how you prioritize — never what the permanent repair is.
+
+**Incident severity.** Combine impact (data class, blast radius) and
+urgency (active vs historical). Dummy payroll note → practice as high.
+
+**Evidence preservation and chain of custody.** Copy, hash, write who/when,
+do not edit originals. Lab: `preserve-logs.sh` writes
+`labs/evidence/evidence-*` (survives `lab-reset`). The script copies; **you**
+hash (`shasum labs/evidence/evidence-*/**`). This is not courtroom-grade
+forensics; it teaches the habit.
+
+**Containment / eradication / recovery.**
+Contain: stop the bleeding (disable LAB_MODE, rotate JWT secret).
+Eradicate: remove the weakness and any persistence (none in lab).
+Recover: restore service, watch for recurrence.
+Communicate: who needs to know (in the lab: your report readers).
+
+**Classic IR loop (still useful operationally).**
+Prepare; detect & analyze; contain, eradicate, recover; post-incident.
+Rev. 3 asks you to also **govern and identify** continuously so IR is not
+a surprise.
 
 ## Knowledge check
 

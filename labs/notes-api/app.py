@@ -61,6 +61,112 @@ app = FastAPI(
     openapi_url="/openapi.json" if LAB_MODE else None,
 )
 
+# Browsers ignore HSTS on this loopback HTTP response. The value is what a
+# TLS proxy in front of this app would forward.
+_RESPONSE_HEADER_NAMES = (
+    "strict-transport-security",
+    "content-security-policy",
+    "x-content-type-options",
+    "x-frame-options",
+    "referrer-policy",
+    "permissions-policy",
+)
+
+
+def _max_age_seconds(value: str) -> int:
+    for part in value.split(";"):
+        item = part.strip()
+        if not item.lower().startswith("max-age="):
+            continue
+        raw = item.split("=", 1)[1].strip()
+        try:
+            return int(raw)
+        except ValueError:
+            return 0
+    return 0
+
+
+def describe_response_headers(headers: Any) -> dict[str, str]:
+    """Classify six response headers as missing, weak, or set.
+
+    Looks only at a header mapping you already have. It does not fetch a URL.
+    "weak" means the header is present and does not do the job its name suggests.
+    """
+    folded = {str(key).lower(): str(value) for key, value in headers.items()}
+    return {name: _describe_one_header(name, folded.get(name)) for name in _RESPONSE_HEADER_NAMES}
+
+
+def _describe_one_header(name: str, value: str | None) -> str:
+    if value is None or not value.strip():
+        return "missing"
+    text = value.strip().lower()
+    if name == "strict-transport-security":
+        return "set" if _max_age_seconds(text) > 0 else "weak"
+    if name == "x-content-type-options":
+        return "set" if text == "nosniff" else "weak"
+    if name == "x-frame-options":
+        return "set" if text in {"deny", "sameorigin"} else "weak"
+    if name == "content-security-policy":
+        sources = _default_src(text)
+        return "weak" if sources is None or "*" in sources else "set"
+    if name == "referrer-policy":
+        return "set" if _effective_referrer_policy(text) in _STRICT_REFERRER_POLICIES else "weak"
+    return "set"
+
+
+_STRICT_REFERRER_POLICIES = {
+    "no-referrer",
+    "same-origin",
+    "origin",
+    "strict-origin",
+    "origin-when-cross-origin",
+    "strict-origin-when-cross-origin",
+}
+_LEAKY_REFERRER_POLICIES = {"unsafe-url", "no-referrer-when-downgrade"}
+
+
+def _default_src(policy: str) -> list[str] | None:
+    """Source list of the first default-src directive, or None if there is none.
+
+    Browsers use the first occurrence of a directive and ignore later ones.
+    """
+    for directive in policy.split(";"):
+        tokens = directive.split()
+        if tokens and tokens[0] == "default-src":
+            return tokens[1:]
+    return None
+
+
+def _effective_referrer_policy(value: str) -> str | None:
+    """The policy a browser applies: the last recognized token, or None.
+
+    Unrecognized tokens are ignored by browsers, so garbage protects nothing.
+    """
+    known = _STRICT_REFERRER_POLICIES | _LEAKY_REFERRER_POLICIES
+    recognized = [token.strip() for token in value.split(",") if token.strip() in known]
+    return recognized[-1] if recognized else None
+
+
+def _response_headers() -> dict[str, str]:
+    if LAB_MODE:
+        return {"Strict-Transport-Security": "max-age=0"}
+    return {
+        "Strict-Transport-Security": "max-age=31536000",
+        "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "no-referrer",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    }
+
+
+@app.middleware("http")
+async def attach_response_headers(request: Request, call_next):
+    response = await call_next(request)
+    for name, value in _response_headers().items():
+        response.headers[name] = value
+    return response
+
 
 def utcnow() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")

@@ -275,6 +275,27 @@ Source: [OWASP API Security](https://owasp.org/API-Security/editions/2023/en/0x1
 - Structured security logs for AuthZ failures (A09).
 - Dependency pinning + scan in CI (A03) — not sufficient alone.
 
+**Response headers.** Run `curl -sD - -o /dev/null http://127.0.0.1:8080/health`
+against the lab. One of the lines is `Strict-Transport-Security: max-age=0`.
+The header is there. Does it protect anything?
+
+It doesn't. `max-age=0` tells the browser to remember HTTPS for zero
+seconds. That is how a site switches HSTS off. Some attacks are decided by
+the browser before your handler runs: whether to load a script, whether to
+frame the page, whether to insist on HTTPS. Six headers carry those
+decisions: `Strict-Transport-Security`, `Content-Security-Policy`,
+`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+`Permissions-Policy`. Each one is **missing**, **weak** (present, and
+doesn't do its job), or **set**. `describe_response_headers` in
+`labs/notes-api/app.py` sorts a header mapping you already have into those
+three words. It doesn't fetch anything, and it doesn't produce a letter
+grade. In the capstone you write your own version inside the scanner,
+because a target shouldn't grade itself.
+
+This lab speaks plain HTTP to `127.0.0.1`, and browsers ignore HSTS on plain
+HTTP. What you're reading is the bytes the app emits, which a TLS proxy in
+front of it would forward. `max-age=0` would still be a bug there.
+
 ## Architecture connection
 
 API gateways can rate-limit and authenticate. They cannot know that note 2
@@ -304,6 +325,15 @@ Then run the steps. If a result surprises you, which assumption was wrong?
 ### Steps
 
 1. Confirm banner: `curl -s http://127.0.0.1:8080/.well-known/lab`
+   Then read response headers, not the body:
+
+   ```bash
+   curl -sD - -o /dev/null http://127.0.0.1:8080/health
+   ```
+
+   In `LAB_MODE=true` you should see `Strict-Transport-Security: max-age=0`
+   and none of the other five. Call that HSTS value weak. Call each of the
+   five absent names missing.
 2. Run scenarios one at a time; read the HTTP bodies. They include dummy
    secrets only:
 
@@ -339,6 +369,10 @@ Then run the steps. If a result surprises you, which assumption was wrong?
    Injection is not a 4xx. `/fetch` to `http://soc-lite:8090/` can still
    succeed — secure mode blocks **metadata hosts**, not every SSRF. OpenAPI
    at `/docs` disappears in secure mode (surface reduction).
+
+   Repeat the header read. Secure mode should send `max-age=31536000` and
+   the other five headers. `Content-Security-Policy` is `default-src 'none'`
+   because this service returns JSON, not a page.
 
 6. Set `LAB_MODE=true` again if later modules need vulnerable mode, or leave
    false and use reset at the start of module 7 or 9. Always run compose
@@ -378,12 +412,15 @@ metadata. Tests that replay these four requests belong in CI.
 3. Why is rate limiting a security control and a product control?
 4. Give an example of API6 on a notes product.
 5. Why is `pickle.loads` on a user blob dangerous?
+6. Why is `Strict-Transport-Security: max-age=0` not a pass?
 
 **Answers:** (1) Object IDs in URLs; clients are untrusted; missing per-object
 checks. (2) SSRF rolled into A01 Broken Access Control. (3) Stops abuse and
 protects cost/availability (API4). (4) Unbounded export of all notes via an
 intended “export” button without per-user quotas. (5) Pickle can invoke
-constructors and lead to RCE.
+constructors and lead to RCE. (6) The header is present and sets the HTTPS
+lifetime to zero seconds. That is weak, not set. Missing would have been
+a different finding.
 
 ## Exit criteria
 
@@ -452,6 +489,8 @@ How these are graded: [assessment](../assessment.md).
 
 ## Further reading
 
+- [OWASP HTTP Headers Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html)
+- [MDN: Strict-Transport-Security](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Strict-Transport-Security) — `max-age=0` is how a site turns HSTS off
 - [OWASP Top 10:2025](https://owasp.org/Top10/2025/)
 - [OWASP API Security Top 10:2023](https://owasp.org/API-Security/editions/2023/en/0x11-t10/)
 - [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/)

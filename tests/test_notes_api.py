@@ -42,6 +42,72 @@ def _login(client, username="alice", password="alice-lab-password"):
     return response.json()["token"]
 
 
+def test_lab_mode_hsts_is_present_and_inert(lab_client):
+    client, module = lab_client
+    response = client.get("/health")
+    assert response.headers["strict-transport-security"] == "max-age=0"
+    assert "content-security-policy" not in response.headers
+    findings = module.describe_response_headers(response.headers)
+    assert findings["strict-transport-security"] == "weak"
+    assert findings["content-security-policy"] == "missing"
+    assert findings["x-frame-options"] == "missing"
+
+
+def test_secure_mode_headers_constrain(secure_client):
+    client, module = secure_client
+    response = client.get("/health")
+    findings = module.describe_response_headers(response.headers)
+    assert findings["strict-transport-security"] == "set"
+    assert int(response.headers["strict-transport-security"].split("=", 1)[1]) > 0
+    assert findings["content-security-policy"] == "set"
+    assert findings["x-content-type-options"] == "set"
+    assert findings["x-frame-options"] == "set"
+    assert findings["referrer-policy"] == "set"
+    assert findings["permissions-policy"] == "set"
+
+
+def test_header_classifier_does_not_treat_wide_csp_as_set():
+    from tests.conftest import LABS, load_module
+
+    module = load_module("notes_api_headers", LABS / "notes-api" / "app.py", {"LAB_MODE": "true"})
+    findings = module.describe_response_headers(
+        {"Content-Security-Policy": "default-src *", "Referrer-Policy": "unsafe-url"}
+    )
+    assert findings["content-security-policy"] == "weak"
+    assert findings["referrer-policy"] == "weak"
+
+
+def test_header_classifier_parses_csp_default_src():
+    from tests.conftest import LABS, load_module
+
+    module = load_module("notes_api_csp", LABS / "notes-api" / "app.py", {"LAB_MODE": "true"})
+
+    def csp(value):
+        return module.describe_response_headers({"Content-Security-Policy": value})["content-security-policy"]
+
+    assert csp("default-src 'self' *") == "weak"
+    assert csp("script-src 'self'; default-src https://a.example *") == "weak"
+    assert csp("this mentions default-src-ish text") == "weak"
+    assert csp("script-src 'self'") == "weak"
+    assert csp("default-src 'self'; default-src *") == "set"  # first directive wins
+    assert csp("default-src 'none'; frame-ancestors 'none'") == "set"
+
+
+def test_header_classifier_referrer_policy_allowlist():
+    from tests.conftest import LABS, load_module
+
+    module = load_module("notes_api_referrer", LABS / "notes-api" / "app.py", {"LAB_MODE": "true"})
+
+    def referrer(value):
+        return module.describe_response_headers({"Referrer-Policy": value})["referrer-policy"]
+
+    assert referrer("garbage") == "weak"
+    assert referrer("no-referrer-when-downgrade") == "weak"
+    assert referrer("strict-origin-when-cross-origin") == "set"
+    assert referrer("unsafe-url, garbage") == "weak"  # garbage is ignored; unsafe-url applies
+    assert referrer("unsafe-url, no-referrer") == "set"  # last recognized token applies
+
+
 def test_health_and_lab_banner(lab_client):
     client, _ = lab_client
     health = client.get("/health")

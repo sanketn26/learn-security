@@ -104,6 +104,17 @@ logging. SaaS vs PaaS vs IaaS shifts the line; it never includes “our IDOR.”
 (`aws:SourceVpce`, audience on OIDC) are the usual findings. Prefer short-lived
 roles over access keys in repos.
 
+```json
+{"Effect": "Allow", "Action": "*", "Resource": "*"}
+```
+
+```json
+{"Effect": "Allow", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::acme-notes/*"}
+```
+
+The first policy is the workload's identity in practice: anything the
+cloud account can do. The second is one bucket, one verb.
+
 **Metadata services (IMDS).** Link-local HTTP that issues **temporary cloud
 credentials** to the workload so the instance need not bake long-lived keys.
 SSRF or a compromised process that can reach IMDS inherits the instance/task
@@ -115,6 +126,29 @@ role. Two *different* mitigations:
 - **Hop limit (TTL)** on the token *response* packet — default 1 so the
   packet dies if forwarded. **Containers often need hop limit 2–3** or the
   task cannot use IMDS and may fall back to v1.
+
+```mermaid
+sequenceDiagram
+  participant API as notes-api
+  participant IMDS as metadata service
+  Note over API,IMDS: IMDSv1, what the lab mock does
+  API->>IMDS: GET /latest/meta-data
+  IMDS-->>API: temporary credentials
+  Note over API,IMDS: IMDSv2
+  API->>IMDS: PUT /latest/api/token
+  IMDS-->>API: session token
+  API->>IMDS: GET with X-aws-ec2-metadata-token
+```
+
+```python
+def imds_get(version: str, token: str | None) -> bool:
+    if version == "v1":
+        return True
+    return token is not None
+```
+
+`imds_get("v1", None)` is the lab's `/fetch`: one GET, no header. A
+naive server-side fetch fails the v2 check because it never did the PUT.
 
 This lab’s `mock-imds` is **IMDSv1-style**: unauthenticated GET, dummy keys.
 Compose still **allows** notes-api to reach it on labnet; `LAB_MODE=false`
@@ -134,6 +168,19 @@ IAM changes. Turn them on; protect them; actually query them.
 **Containers.** Namespaces, cgroups, union filesystem. **Not** a VM. Root in
 a container with host mounts or `privileged` is host root. Run as non-root,
 drop capabilities, read-only rootfs where possible, no host PID/net.
+
+```mermaid
+flowchart LR
+  vm["VM: own kernel"] --> guest["escape means a hypervisor bug"]
+  ctr["container: host kernel"] --> root["uid 0 plus a host mount is the host"]
+```
+
+```python
+def container_user(inspect_user: str) -> str:
+    if inspect_user == "":
+        return "uid 0: the image never set User"
+    return inspect_user
+```
 
 **Image provenance.** Know what you run: signed images (Sigstore/cosign as
 an ecosystem), SBOMs, scan (Trivy/Grype), pin digests not `:latest`. Scanning

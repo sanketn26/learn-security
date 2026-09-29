@@ -176,7 +176,7 @@ no LLM or agentic SOC.
 
 - Unauthorized testing, exploit development against real systems, malware
   authoring, or operational red-team tradecraft for hire.
-- Reverse engineering, wireless, radio, ICS/OT, or hardware implants.
+- Reverse engineering, wireless attack labs, radio, ICS/OT, or hardware implants. What a Wi-Fi probe and an association fail to prove is in Module 2. There is no radio exercise.
 - Breaking cryptography or implementing novel ciphers.
 - Vendor certification paths (specific SIEM/EDR products as the curriculum).
 - Treating compliance frameworks (SOC 2, ISO 27001, PCI) as equivalent to
@@ -217,6 +217,11 @@ no LLM or agentic SOC.
 Progressive difficulty: read-only observation → authorized local “attack”
 against the lab app → fix and detect → investigate and report → gated
 automation.
+
+The same path, counted as twenty ideas instead of seventeen module files,
+is the table [Twenty ideas, in the order you meet them](modules/README.md#twenty-ideas-in-the-order-you-meet-them).
+Those numbers follow the course. They replace a twelve-step interview list
+and a fifty-name domain list, which number the same subject more than once.
 
 ---
 

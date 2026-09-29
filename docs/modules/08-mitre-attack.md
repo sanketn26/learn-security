@@ -108,6 +108,30 @@ the lab login”). **Blue use:** detections, hunts, gap analysis. **SOC use:**
 alert classification and prioritization — with the caveat that the first
 mapping is often wrong.
 
+**Threat hunting (idea 10).** A hunt starts from a hypothesis, names the
+technique, and searches a data source you already store. An alert is
+someone else's hypothesis that already fired. A hunt is yours, including
+the case where the search returns nothing and you write down the gap.
+
+```mermaid
+flowchart LR
+  hypo["hypothesis"] --> tech["technique you can name"]
+  tech --> source["a log you actually keep"]
+  source --> search["search"]
+  search --> out["a row, or a gap"]
+```
+
+Hypothesis: a valid user read a note they do not own, and no case was
+opened. The data source is the audit event `cross_user_note_access`.
+soc-lite already stores it.
+
+```bash
+curl -s 'http://127.0.0.1:8090/events?event=cross_user_note_access'
+```
+
+An empty list is a result. Either the behavior did not happen, or the
+API never emitted the event. Those two explanations are the gap row.
+
 **Limitations.** Coverage ≠ security; techniques are ambiguous; mappings
 need context; version drift; paper coverage.
 

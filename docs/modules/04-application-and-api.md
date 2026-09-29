@@ -192,6 +192,35 @@ command, LDAP, template. **Prompt injection** (untrusted text treated as
 instructions by a model) is the same pattern with a different interpreter;
 Module 12/15 go deep. The lab `/search` concatenates SQL in LAB_MODE.
 
+```mermaid
+flowchart LR
+  text["search text"] --> splice["spliced into the SQL string"]
+  text --> bound["passed as a bound value"]
+```
+
+`labs/notes-api/app.py` is both branches. The first builds a statement.
+The second keeps `q` as data.
+
+```python
+# LAB_MODE: q is spliced into the statement. Both lines are not one program.
+sql = f"WHERE owner = '{user['username']}' AND title LIKE '%{q}%'"
+
+# LAB_MODE off: q stays a bound value.
+rows = conn.execute(
+    "SELECT id, owner, title FROM notes WHERE owner = ? AND title LIKE ?",
+    (user["username"], f"%{q}%"),
+)
+```
+
+**SSRF, the same shape with a URL.** The server is about to connect
+somewhere. The allowlist is the decision. In secure mode the metadata
+host is refused before the client runs.
+
+```python
+if not LAB_MODE and host in {"mock-imds", "metadata.internal"}:
+    raise HTTPException(status_code=400, detail="destination blocked")
+```
+
 This lab uses `Authorization: Bearer` headers, so **CSRF is not the lesson**
 (browsers do not auto-send that header across sites). Cookie sessions would
 still need `SameSite` and anti-CSRF tokens.

@@ -85,6 +85,34 @@ CI identity → artifact → signature → registry → runtime) maps directly:
 swap "source code" for "training data" and "build" for "training run." A
 compromise at any stage can arrive as an apparently normal deployment.
 
+```mermaid
+flowchart LR
+  data["training rows"] --> train["training run"]
+  train --> reg["model registry"]
+  reg --> api["serving API"]
+```
+
+**Raising the cost, and noticing the copy.** Those are different jobs
+on the serving API. A quota slows a caller. An audit tells you the
+pattern of queries. One does not do the other.
+
+```mermaid
+flowchart TB
+  query["query"] --> quota["quota and truncated outputs"]
+  query --> audit["query audit"]
+  quota --> slower["copying costs more"]
+  audit --> noticed["the pattern is on record"]
+```
+
+```python
+def on_query(queries_today: int, quota: int, wants_raw_probabilities: bool) -> str:
+    if queries_today > quota:
+        return "refuse: the copy just got more expensive"
+    if wants_raw_probabilities:
+        return "truncate: fewer bits per answer"
+    return "serve, and keep the query for the audit"
+```
+
 **Training-data poisoning.** An attacker who can influence training or
 fine-tuning data biases the model's future behavior — a backdoor trigger
 phrase, a systematically mislabeled class, a skewed recommendation. The

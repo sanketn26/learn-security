@@ -81,7 +81,19 @@ description: Glossary of defensive security terms used throughout the course, fr
 | Jailbreak | Prompt injection aimed at overriding the model’s safety or role instructions. |
 | Indirect prompt injection | Prompt injection that arrives in data the model was asked to read (a log, a document), not in the user’s typed prompt. |
 | Phishing-resistant MFA | Origin-bound authenticators (passkeys / WebAuthn / hardware keys) that cannot be relayed in real time the way OTP can. |
-| PQC | Post-quantum cryptography; NIST-selected algorithms intended to resist cryptographically relevant quantum computers. |
+| DLP | Data loss prevention. A gate on data leaving through an API, a bucket, or an endpoint. It does not add the owner check that should have run first. |
+| Encoding | A reversible change of alphabet, such as Base64. No key and no confidentiality. |
+| IDS / IPS | Intrusion detection alerts on a signature. Intrusion prevention can also drop the packet. The application's authorization decision is a separate step. |
+| PQC | Post-quantum cryptography; classical algorithms (NIST-standardized) intended to resist cryptographically relevant quantum computers. Distinct from quantum cryptography. |
+| Threat hunting | A search that starts from a hypothesis and a log you already keep. An empty result is either "it did not happen" or "we do not record it." |
+| DoS | Denial of service from one source filling a resource. Separate from whether that resource is bandwidth or expensive work. |
+| DDoS | Distributed denial of service: many sources filling one resource. Blocking a single address leaves the others. |
+| VPN | An encrypted tunnel into a network. An address on that network is not authentication or authorization. |
+| Wi-Fi probe | A client asking the air whether a remembered network name is nearby. Anyone in radio range can hear the name. Association to an answer is not authorization. |
+| ZTA | Zero trust architecture. Every request is authorized from identity, device, and the specific resource. Network location is not the decision. NIST SP 800-207. |
+| ZTNA | Zero trust network access. A front door that grants an application, not a subnet. The deployment pattern that followed "VPN into the LAN." |
+| Quantum cryptography | Cryptography whose security relies on quantum mechanics. The product form is quantum key distribution (QKD). It does not replace TLS. |
+| QKD | Quantum key distribution. Hardware that establishes a shared secret over a quantum channel, then used with ordinary symmetric encryption. The classical channel beside it still needs authentication. |
 | Hybrid TLS | Handshake that agrees both a classical and a PQC shared secret so either remaining strong is enough. |
 | SLSA | Supply-chain levels for software artifacts (provenance), not a certificate. |
 | Sigma | Portable log-detection rule format; this lab’s YAML is Sigma-like, not a Sigma backend. |

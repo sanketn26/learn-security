@@ -42,7 +42,7 @@ flowchart LR
 
 | Established | Emerging | Experimental | Speculative |
 | --- | --- | --- | --- |
-| least privilege, threat modeling, detection-as-code, supply-chain controls | agent-assisted investigation, AI-app security practice, security data platforms | bounded autonomous containment in narrow environments, privacy-preserving analytic prototypes | broad unsupervised SOC replacement, precise quantum timelines |
+| least privilege, threat modeling, detection-as-code, supply-chain controls | agent-assisted investigation, AI-app security practice, security data platforms, PQC migration | bounded autonomous containment in narrow environments, privacy-preserving analytic prototypes | broad unsupervised SOC replacement, precise quantum timelines, QKD as a replacement for TLS |
 
 ```text
 new component: model / vector store / agent / tool
@@ -72,6 +72,8 @@ will still matter.
 - Place agentic SOC, supply chain, identity-centric cloud, security data
   platforms, and AI-app security on a “established vs emerging” map.
 - Identify durable skills and over-automation risks.
+- Separate quantum cryptography (quantum key distribution) from
+  post-quantum cryptography.
 
 ## Key concepts
 
@@ -113,11 +115,58 @@ matter more than “spot the fake” training alone.
 query restriction. Tension with investigation needs. Do not claim a homomorphic
 miracle; state the trade-off.
 
+**Quantum cryptography (idea 8, judged here).** Quantum cryptography uses
+quantum states for a cryptographic task. The form sold as a product is
+quantum key distribution (QKD): a dedicated link that establishes a
+shared secret, and can reveal eavesdropping because measuring those
+states disturbs them. That secret then feeds ordinary symmetric
+encryption (AES). Module 6 draws the three stacks side by side. QKD
+needs its own hardware and a quantum channel. The classical messages
+beside that channel still need authentication, or an attacker
+impersonates the other end. It does not sign artifacts, and it does not
+cross the public internet the way TLS does. A pitch that a QKD box
+replaces your TLS estate belongs in the speculative column.
+
+```mermaid
+flowchart TB
+  uses["where do we still use RSA or elliptic curves?"] --> list["TLS, SSH, JWT, signed artifacts"]
+  list --> plan["plan hybrid TLS"]
+  buy["buy a QKD link for one cable"] --> untouched["the list above is still blank"]
+```
+
+[NSA](https://www.nsa.gov/Cybersecurity/Quantum-Key-Distribution-QKD-and-Quantum-Cryptography-QC/)
+does not recommend QKD for national-security systems and points
+engineers at post-quantum cryptography instead. Read that as scope,
+not as “the physics is fake.”
+
 **Post-quantum cryptography (planning is established; migration is work).**
-NIST has selected PQC algorithms; inventories of where you use RSA/ECC
-(TLS, SSH, signed artifacts, JWTs) are the engineering job. Hybrid TLS is
-appearing. Do not “wait until quantum computers exist” to start inventory.
-Do not panic-rip TLS tomorrow without a plan. Check [NIST PQC](https://csrc.nist.gov/projects/post-quantum-cryptography)
+PQC is classical math, chosen so a cryptographically relevant quantum
+computer does not break RSA and elliptic curves (Shor’s algorithm).
+NIST has standardized algorithms you can ship in software. Inventories
+of where you use RSA/ECC (TLS, SSH, signed artifacts, JWTs) are the
+engineering job. Hybrid TLS — a handshake that agrees both a classical
+and a PQC secret — is appearing. Recorded traffic is the reason the
+inventory cannot wait: someone can store today’s handshake and decrypt
+it years later (“harvest now, decrypt later”).
+
+```mermaid
+sequenceDiagram
+  participant Client
+  participant API
+  participant Archive
+  participant Later
+  Client->>API: TLS today, RSA or elliptic curve
+  Archive->>Archive: stores the handshake
+  Note over Later: a cryptographically relevant quantum computer, years on
+  Later->>Archive: recovers the secret from the stored handshake
+```
+
+A QKD link does not rewind that recording, and it does not find the
+JWT signing key. The `jwt_alg` snippet in Module 6 is the start of the
+list: read the header you already ship. Do not
+wait for a quantum computer or for QKD hardware before you start the
+inventory. Do not panic-rip TLS tomorrow without a plan. Check
+[NIST PQC](https://csrc.nist.gov/projects/post-quantum-cryptography)
 for current selections — they evolve.
 
 **Skills that keep paying.** Threat modeling; AuthN vs AuthZ; reading logs;
@@ -186,6 +235,7 @@ Uncertainty is allowed. Unbounded agency is not.
 - Treating a 2026 OWASP list as eternal.
 - Ignoring supply chain because “AI is the topic.”
 - Skipping PQC inventory because it feels distant.
+- Treating a QKD product as the post-quantum migration.
 
 ### Cleanup
 
@@ -196,13 +246,15 @@ None.
 1. Name one established practice and one emerging idea from this module.
 2. Why is pinning dependencies still relevant in an AI future?
 3. What is a cascading failure in an agentic SOC?
-4. What PQC work can you do before algorithms finish shaking out?
+4. What PQC work can you do before algorithms finish shaking out, and why is a QKD purchase not that work?
 5. Why might privacy-preserving analytics conflict with IR?
 
 **Answers:** (1) e.g. detection-as-code vs autonomous containment. (2) Models
 and tools are still software with publishers. (3) One bad enrichment auto-
 triggers isolation across regions. (4) Inventory crypto use, track NIST,
-plan hybrid TLS. (5) Investigators need record-level evidence; aggregation
+plan hybrid TLS. QKD distributes a secret on special hardware; it
+does not inventory RSA/ECC or protect traffic already recorded.
+(5) Investigators need record-level evidence; aggregation
 hides it.
 
 ## Engineering assignment
@@ -230,7 +282,9 @@ on this module's Acme Notes lab, not trivia.
 
 ??? question "Design: What PQC work can you do before algorithms finish shaking out?"
     Inventory crypto use (TLS, JWT, at-rest), track NIST, plan hybrid TLS.
-    Do not skip the inventory because the date feels distant.
+    Do not skip the inventory because the date feels distant. A QKD
+    purchase is a different control: it does not find those uses, and it
+    does not decrypt-protect traffic already recorded.
 
 ??? question "Defend: How do privacy-preserving analytics conflict with IR, and what is residual if you pick only one?"
     Investigators need record-level evidence; aggregation hides it.
@@ -250,6 +304,7 @@ How these are graded: [assessment](../assessment.md).
 
 - [NIST AI RMF](https://www.nist.gov/itl/ai-risk-management-framework)
 - [NIST PQC](https://csrc.nist.gov/projects/post-quantum-cryptography)
+- [NSA on QKD and quantum cryptography](https://www.nsa.gov/Cybersecurity/Quantum-Key-Distribution-QKD-and-Quantum-Cryptography-QC/)
 - [OWASP GenAI](https://genai.owasp.org/)
 - [MITRE ATLAS](https://atlas.mitre.org/)
 - [CISA Secure by Design](https://www.cisa.gov/securebydesign)

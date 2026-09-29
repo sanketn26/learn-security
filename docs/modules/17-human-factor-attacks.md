@@ -114,6 +114,38 @@ only thing that bounds the damage of a trusted actor going wrong is how
 much that actor was trusted with in the first place — which is Module 1's
 "residual risk" idea applied to your own team, not just to attackers.
 
+**Awareness training (idea 20).** Training asks a person to notice a
+trick and stop. Some people do. The path that continues is a valid
+credential, and from there the controls are the same ones Modules 3
+and 1 already named.
+
+```mermaid
+flowchart TB
+  mail["phishing message"] --> person["person"]
+  person -->|"training stops some attempts here"| halt["no password sent"]
+  person -->|"others type the password"| login["login"]
+  login -->|"phishing-resistant MFA"| nosession["no session"]
+  login -->|"one-time code can be relayed"| cred["valid session"]
+  cred --> least["least privilege bounds what that session can read"]
+```
+
+```python
+def after_phish(password_sent: bool, phishing_resistant_mfa: bool, can_read_all_notes: bool) -> str:
+    if not password_sent:
+        return "training stopped the attempt; no session"
+    if phishing_resistant_mfa:
+        return "password was sent; phishing-resistant MFA issued no session"
+    if can_read_all_notes:
+        return "session exists and can read every note"
+    return "session exists; blast radius is this user's own notes"
+```
+
+The last return is what remains when training missed and the second
+factor could be relayed, and least privilege was real. The third return
+is the same miss with least privilege skipped. MFA in this function
+runs before a session exists. It does not shrink a session that was
+already issued.
+
 ## Worked scene — two stories for DET-001
 
 Evidence: six `login_failure` events for `alice` from one `src_ip` in

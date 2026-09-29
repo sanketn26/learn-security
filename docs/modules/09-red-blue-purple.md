@@ -111,6 +111,19 @@ list), not by CVSS alone.
 note, DET-002 fires within 60s.” Run sim, check alert, if miss then fix
 log or rule, re-run. Measure: true positive, time to alert, extra noise.
 
+```python
+def lap(alert_ids: list[str], saw_blocked_event: bool) -> str:
+    if "DET-002" in alert_ids:
+        return "rule saw the cross-user read"
+    if saw_blocked_event:
+        return "control held, and the block was logged"
+    return "neither the rule nor the block left evidence"
+```
+
+The third return is the failed lap: the behavior happened, or was
+stopped, and the log is silent either way. Fix the log or the rule,
+then call `lap` again on the replay.
+
 ## Worked scene — one lap of the loop
 
 **Hypothesis.** DET-003 fires when `/fetch` hits mock-imds. It maps to

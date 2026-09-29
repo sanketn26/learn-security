@@ -104,7 +104,9 @@ injection beats images. Separate prod from lab. JWT_SECRET in compose is
 acceptable only as a lab smell you would ticket.
 
 **Identity-aware service communication.** mTLS or JWT/OIDC between services
-with `aud` per callee. No “VPC = trusted.”
+with `aud` per callee. No “VPC = trusted.” Module 2 is the same rule for
+people: a VPN subnet or an office SSID is not a trust decision. ZTNA
+reaches this service. ZTA is the policy on the request.
 
 **Network segmentation.** Still useful to reduce SSRF and ransomware blast
 radius. Not a replacement for AuthZ.
@@ -125,6 +127,52 @@ your own architecture diagram.
 **Secure SDLC.** Threat model on design; code review including AuthZ;
 dependency scan; SAST as a *helper*; DAST/API tests for IDOR; deploy gates;
 production security observability. None of these is complete.
+
+**Vulnerability management (idea 16).** A scanner emits a score. The loop
+you operate is find, rank for *this* system, fix, retest. CWE names the
+class and CVE names one product instance; both are defined in Module 1.
+The rank step is where a 9.8 on an unreachable admin tool loses to a
+missing owner check on payroll notes.
+
+```mermaid
+flowchart LR
+  find["find"] --> rank["rank for this data and this reachability"]
+  rank --> fix["fix"]
+  fix --> retest["retest the same request"]
+  retest --> find
+```
+
+```python
+def rank(cvss: float, payroll: bool, reachable_from_user: bool) -> str:
+    if payroll and reachable_from_user:
+        return "fix this week"
+    if cvss >= 9 and not reachable_from_user:
+        return "track it; do not drop the owner-check fix to chase it"
+    return "schedule"
+```
+
+**Frameworks (idea 1, applied here).** A compliance framework asks
+whether a control exists on paper. The engineering question is whether
+a replay shows the control fired, and what risk remains if it did.
+SOC 2, ISO 27001, and PCI are governance artifacts. Passing one is a
+sentence in a report. It is not the owner check.
+
+```mermaid
+flowchart LR
+  paper["control listed in a framework"] --> claim["we have authorization"]
+  replay["replay: Alice requests note 2"] --> evidence["authz_failure, no note body"]
+  evidence --> remains["residual: admin role can still read it"]
+```
+
+```python
+def authz_held(events: list[dict], note_id: int = 2) -> bool:
+    blocked = [e for e in events if e["event"] == "authz_failure" and e["note_id"] == note_id]
+    leaked = [e for e in events if e["event"] == "cross_user_note_access" and e["note_id"] == note_id]
+    return bool(blocked) and not leaked
+```
+
+`authz_held` is the evidence. A questionnaire that answers "yes" to
+"do you restrict access to data" is the paper.
 
 **Distributed-systems trade-offs.**
 

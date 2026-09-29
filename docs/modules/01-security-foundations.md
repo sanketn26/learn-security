@@ -112,7 +112,8 @@ alert, backup. Controls fail. Plan for that.
 
 **Residual risk.** Risk that remains after controls. “We parameterize SQL but
 still have no object-level tests” is a residual-risk statement. “We’re
-OWASP-compliant” is not.
+OWASP-compliant” is not. The picture of that split is with the full
+definition later in this module.
 
 ## Worked scene — following note 2 across the boxes
 
@@ -306,6 +307,17 @@ through user-controlled key). Production vulnerability management usually
 references those IDs. CWE:CVE is class:instance, like “SQL injection” vs
 “CVE-2024-… in product X version Y.”
 
+Production vulnerability management is the loop in Module 13: find, rank
+for this system, fix, retest. A CVE id is the input to `rank`, not the
+priority.
+
+```mermaid
+flowchart LR
+  cve["CVE: one bug in one version"] --> rank["rank: whose data, from where"]
+  rank --> fix["fix"]
+  fix --> again["retest that request"]
+```
+
 
 **Bulkhead.** A partition so one flooded compartment does not sink the ship:
 object AuthZ, a network that cannot reach IMDS, logs off the app host, an
@@ -316,9 +328,22 @@ bulkheads, not five identical walls. See
 **Control.** A measure that changes risk: owner check, TLS, rate limit, log +
 alert, backup. Controls fail. Plan for that.
 
-**Residual risk.** Risk that remains after controls. “We parameterize SQL but
+**Residual risk (idea 1).** Risk that remains after controls. “We parameterize SQL but
 still have no object-level tests” is a residual-risk statement. “We’re
 OWASP-compliant” is not.
+
+```mermaid
+flowchart LR
+  control["owner check shipped"] --> left["admin endpoints may still be wide open"]
+  paper["a framework says access is restricted"] --> sentence["a sentence in a report"]
+```
+
+!!! note "Intuition"
+    The first arrow names a risk that is still true after the control
+    shipped. The second arrow names a document. Module 13 turns the same
+    split into a replay. The numbered
+    order of ideas is
+    [on the module index](README.md#twenty-ideas-in-the-order-you-meet-them).
 
 **Least privilege.** Every identity (user, service, CI job, AI agent) gets only
 the permissions required for the task, for the shortest time. Alice’s token
@@ -335,6 +360,20 @@ authorization on, debug off, metadata blocked.
 authorization. Authenticate and authorize each request, assume breach, limit
 blast radius. It is not a product, and it does not mean “trust nothing so
 thoroughly that the app cannot run.”
+
+Zero trust architecture (ZTA) is that strategy written as a system:
+identity, device, and the specific resource, decided per request.
+[NIST SP 800-207](https://csrc.nist.gov/publications/detail/sp/800-207/final)
+is the reference. Zero trust network access (ZTNA) is the front door
+that replaced "join our subnet through a VPN" for most applications.
+Module 2 draws the sequence — castle, VPN, ZTNA, ZTA — and the same
+mistake on a Wi-Fi association.
+
+```mermaid
+flowchart LR
+  place["on the VPN, or on the office SSID"] --> ask["still ask: who, which note, which device"]
+  ask --> allow["allow this request only"]
+```
 
 **Threat modeling.** A structured way to ask: what are we building, what can go
 wrong, what are we going to do, did we do a good job? Methods (STRIDE, PASTA,

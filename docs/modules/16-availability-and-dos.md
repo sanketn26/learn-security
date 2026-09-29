@@ -68,6 +68,8 @@ overlaps but the response differs" below.
 
 - Distinguish volumetric denial of service from asymmetric-cost (algorithmic
   complexity) denial of service.
+- Distinguish one source (DoS) from many sources (DDoS), and say which
+  hop each one fills.
 - Explain why a login endpoint using a deliberately slow KDF (Module 6) is
   also, unavoidably, a resource-exhaustion target.
 - Identify the missing control in the lab app and name the standard controls
@@ -83,12 +85,50 @@ Module 2's "follow one request" diagram is the map: an attacker only needs
 to exhaust the narrowest point on that path, not every point.
 
 **Volumetric vs algorithmic-complexity attacks.** Volumetric: overwhelm
-capacity with sheer request or packet volume (classic DDoS). Algorithmic-
-complexity / asymmetric-cost: send a small number of *expensive* requests
-that cost the attacker little and the server a lot — a regex with
+capacity with sheer request or packet volume. Algorithmic-
+complexity / asymmetric-cost: a small number of *expensive* requests
+that cost the caller little and the server a lot — a regex with
 catastrophic backtracking, an uncapped file upload, or, concretely in this
 lab, a login attempt that forces a full slow-KDF computation (Module 6)
 for every guess, correct or not.
+
+**One source or many (idea 19).** Denial of service (DoS) is one caller
+filling a resource. Distributed denial of service (DDoS) is many callers
+filling one. Those two words are about *who*. Volumetric and asymmetric
+are about *what fills up*. You can have all four combinations. The lab
+login is one source buying bcrypt: DoS, asymmetric. A link full of
+packets from many addresses is DDoS, volumetric. Many sources each
+triggering bcrypt is distributed and asymmetric: blocking a single
+address does not stop the CPU spend.
+
+```mermaid
+flowchart TB
+  one["one client"] --> cpu["notes API CPU"]
+  many["many clients"] --> edge["bandwidth or the connection table"]
+  edge --> api["the API, if the edge still has room"]
+```
+
+!!! note "Intuition"
+    Count the sources, then name the hop that saturated. One address
+    and a hot CPU is a request you can refuse in front of the hash.
+    Many addresses and a full link are upstream of your process: a
+    blocklist of one IP restores nothing.
+
+```python
+def availability_case(sources: int, saturated: str) -> str:
+    if sources < 1 or saturated not in {"cpu", "bandwidth"}:
+        return "name the hop that filled, then count the sources"
+    distributed = sources > 1
+    who = "DDoS" if distributed else "DoS"
+    if saturated == "cpu":
+        return f"{who}, asymmetric: each request buys expensive work"
+    return f"{who}, volumetric: the path is full of cheap traffic"
+```
+
+The function classifies a case you already observed. It does not
+generate load. In this lab you time `/login` from one client. You do
+not have a second source, and you do not have a saturated link. The
+distributed rows are how you recognize a case the lab cannot stage.
 
 **Asymmetric cost is the interesting case for engineers.** A volumetric
 flood is an infrastructure/capacity problem (rate limiting, autoscaling,
@@ -121,6 +161,26 @@ this concrete instead of aspirational:
   means an RPO of up to 24 hours, whether or not anyone said so on purpose.
 - **RTO (recovery time objective):** how long you can afford to be down
   while restoring.
+
+**Restore objectives (idea 19).** Incident recovery in Module 11 puts
+the API back after you remove the cause. These two numbers say how much
+of the sqlite file you already accepted losing, and how long users wait.
+
+```mermaid
+flowchart LR
+  backup["last good backup"] --> rpo["notes written after that: the RPO window"]
+  outage["API stops answering"] --> rto["API answers again: the RTO window"]
+```
+
+```python
+from datetime import datetime, timedelta
+
+def rpo_hours(last_backup: datetime, incident_at: datetime) -> float:
+    return (incident_at - last_backup) / timedelta(hours=1)
+```
+
+A nightly backup and an incident at 18:00 is an RPO of about eighteen
+hours, whether or not a policy document says "four."
 
 A backup you have never restored is a belief, not a control — the same
 "controls fail, plan for that" idea from Module 1 applies to backups
@@ -280,6 +340,9 @@ database whose bcrypt hashes are incompatible with the default teaching mode.
    to prevent?
 4. Why can DET-001's telemetry signature mean two different incidents?
 5. Why doesn't horizontal autoscaling fix an asymmetric-cost design flaw?
+6. One client is driving `/login` to 100% CPU. A thousand addresses have
+   filled the link, and the API is idle. Which is DoS, which is DDoS, and
+   what does blocking one address change in each?
 
 **Answers:** (1) Volumetric overwhelms capacity with sheer volume; algorithmic-
 complexity makes each individual request disproportionately expensive to
@@ -291,6 +354,9 @@ can be credential-access reconnaissance or an availability attack; the
 response differs even though the detection is identical. (5) More servers
 still each do more expensive work per attacker-controlled request than per
 legitimate one — the cost ratio, not total capacity, is the problem.
+(6) The hot CPU from one client is DoS, and refusing that source (or
+putting the limit before bcrypt) can help. The full link from many
+addresses is DDoS; one blocked address leaves the rest of the sources.
 
 ## Engineering assignment
 

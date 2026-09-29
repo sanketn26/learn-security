@@ -124,9 +124,39 @@ a JWT after verifying the seeded lab password (unsalted SHA-256 in
 **Authorization (AuthZ).** A decision: allow or deny an action on a resource.
 Must happen on the server for every object. UI hiding a button is not AuthZ.
 
-**Session vs token.** A session is server-side state (session id in a cookie).
-A token is typically client-held claims (JWT). Both can be stolen. Both need
-expiry, revocation strategy, and transport security.
+```mermaid
+flowchart LR
+  password["password matches"] --> who["token says alice"]
+  who --> req["GET /notes/2"]
+  req --> own["owner is bob: deny"]
+```
+
+```python
+def authenticate(user: dict) -> bool:
+    # Who. Module 6 is how the password check is actually done.
+    return user["authenticated"]
+
+def authorize(user: dict, note: dict) -> bool:
+    # Which row. A true result from authenticate is not this.
+    return user["username"] == note["owner"] or user["role"] == "admin"
+```
+
+!!! note "Intuition"
+    The first function answers who showed up. The second answers whether
+    that person may touch this row. A valid token only gets you to the
+    second question. Comparing two password hashes with `==` is not the
+    authentication lesson; Module 6 keeps that compare slow and constant-time.
+
+**Session vs token.** A session is server-side state: an id in a cookie,
+and the row lives on the server. A token is client-held claims (a JWT),
+signed so the server can see they were not edited. Both can be stolen.
+Both need expiry, a revocation story, and transport security.
+
+```mermaid
+flowchart TB
+  cookie["session id in a cookie"] --> table["server looks up its session row"]
+  bearer["JWT in Authorization"] --> check["server checks the signature and reads the claims"]
+```
 
 **Cookies.** Automatically sent by browsers for a site. Need `Secure`,
 `HttpOnly`, `SameSite` in real browser apps. This lab uses `Authorization:
@@ -142,6 +172,24 @@ an access token so a client can call an API as a user or as itself. It is
 not “login.” **OpenID Connect** adds an identity layer (id_token) on top of
 OAuth. You do not need to implement either in this course; you need to stop
 treating a random JWT your app minted as “we use OAuth.”
+
+```mermaid
+flowchart LR
+  app["notes-api mints HS256"] --> self["this service signed its own claims"]
+  idp["authorization server"] --> access["access token for one API"]
+  idp --> idt["OIDC id_token: who the user is"]
+```
+
+```python
+# alg is the header. iss and aud are payload claims. Do not mix the two.
+homegrown_header = {"alg": "HS256"}
+homegrown_payload = {"iss": "notes-api"}
+delegated_payload = {"iss": "https://idp.example", "aud": "notes-api"}
+```
+
+`homegrown_payload` is this API signing for itself. `delegated_payload`
+names an authorization server, and `aud` says the token was minted for
+notes-api. Same three-segment shape. Different issuer.
 
 **API keys.** Bearer secrets, often long-lived, often pasted into frontends
 by accident. Prefer scoped, rotatable keys or workload identity.

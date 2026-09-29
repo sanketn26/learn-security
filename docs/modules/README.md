@@ -170,3 +170,42 @@ Those boundaries and identities remain visible throughout the course.
 | 15 | [ML/AI system security](15-ml-ai-security.md) |
 | 16 | [Availability and denial of service](16-availability-and-dos.md) |
 | 17 | [Phishing, social engineering, insider risk](17-human-factor-attacks.md) |
+
+## Twenty ideas, in the order you meet them
+
+Module numbers stay 01–17. The list below is a different count: twenty
+defensive ideas, numbered in the order this course teaches them. A public
+list of twelve interview steps, or of fifty domain names, splits one idea
+across several labels and numbers the pieces in another order. Use these
+numbers when you ask “have we covered this?”
+
+```mermaid
+flowchart LR
+  A["1–6 see the system"] --> B["7–8 crypto you ship"]
+  B --> C["9–14 notice and respond"]
+  C --> D["15–17 design the next control"]
+  D --> E["18–20 the lenses that change the question"]
+```
+
+| # | Idea | Where you learn it |
+| --- | --- | --- |
+| 1 | Name the risk that remains after a control. A framework checkbox is not that sentence. | [Module 1](01-security-foundations.md) |
+| 2 | See the network. A VPN, then zero trust access, and what a Wi-Fi probe leaks. | [Module 2](02-network-and-os.md) |
+| 3 | See the host: process, file, and connection. | [Module 2](02-network-and-os.md) |
+| 4 | Decide who the caller is, and what they may touch. | [Module 3](03-identity-and-access.md) |
+| 5 | Hold the application to one invariant. | [Module 4](04-application-and-api.md) |
+| 6 | Treat the cloud workload as an identity with a network position. | [Module 5](05-cloud-containers-k8s.md) |
+| 7 | Pick the tool: encoding, hash, encryption, signature, TLS. | [Module 6](06-cryptography.md) |
+| 8 | Tell quantum key distribution from a post-quantum migration. | [Module 6](06-cryptography.md), judged in [Module 14](14-future.md) |
+| 9 | Make logs usable, and know what an intrusion sensor adds. | [Module 7](07-monitoring-and-logs.md) |
+| 10 | Name the behavior, then hunt for it in data you have. | [Module 8](08-mitre-attack.md) |
+| 11 | Test the defense on purpose. | [Module 9](09-red-blue-purple.md) |
+| 12 | Run the queue: triage, a playbook, a metric you can define. | [Module 10](10-soc.md) |
+| 13 | Investigate, and keep the evidence intact. | [Module 11](11-detection-and-ir.md) |
+| 14 | Watch sensitive data leave. A gate on the way out is one control. | [Module 11](11-detection-and-ir.md) |
+| 15 | Let an assistant draft. A person still decides. | [Module 12](12-agentic-soc.md) |
+| 16 | Find a weakness, rank it for *this* system, fix it, retest. Design the lifecycle around that loop. | [Module 13](13-security-architecture.md) |
+| 17 | Sort a future claim into established, emerging, or speculative. | [Module 14](14-future.md) |
+| 18 | The model and its data are an asset. | [Module 15](15-ml-ai-security.md) |
+| 19 | Stay up under load: one source or many, cheap floods or expensive requests, and how far back a restore reaches. | [Module 16](16-availability-and-dos.md) |
+| 20 | The person holding a valid credential. Training changes the start of some attacks. | [Module 17](17-human-factor-attacks.md) |

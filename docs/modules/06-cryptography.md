@@ -39,6 +39,7 @@ not an academic break of AES. OWASP files them under
 
 | Primitive | Visual model | Reversible? | Solves |
 | --- | --- | --- | --- |
+| Encoding | message ↔ another alphabet | Yes, no key | transport of bytes, nothing about secrecy |
 | Hash | message → fingerprint | No | change detection when expected hash is trusted |
 | Encryption | plaintext + key ⇄ ciphertext | Yes, with key | confidentiality |
 | MAC | message + shared key → tag | Verification uses same secret | integrity/authenticity among key holders |
@@ -198,6 +199,68 @@ Session ids, tokens, keys, CSRF values.
 **Key management.** Generation, storage, rotation, destruction, access
 control. The algorithm is not the hard part. KMS/HSM hold keys; apps get
 short-lived use. Logging key material is an incident.
+
+**Encoding (idea 7).** Base64 turns bytes into ASCII so a cookie or a JWT
+can travel in a header. Anyone who sees the text can turn it back. A hash
+does not turn back. Encryption turns back only with the key.
+
+```mermaid
+flowchart LR
+  body["note body"] --> b64["Base64"]
+  body --> digest["SHA-256"]
+  body --> box["AES, key required"]
+  b64 --> plain["readable again, no key"]
+  digest --> finger["fingerprint only"]
+  box --> hidden["unreadable without the key"]
+```
+
+```python
+import base64, hashlib
+
+body = b"Bob payroll draft"
+print(base64.b64encode(body))            # reversible alphabet, no key
+print(hashlib.sha256(body).hexdigest())  # fingerprint, no key, not the body
+# AES would take body plus a key. Base64 of the body is still the body.
+```
+
+**Quantum cryptography and post-quantum cryptography (idea 8).** These
+share an adjective and do different jobs. Every stack below still ends
+in ordinary symmetric encryption of the bytes. What changes is how the
+two sides agree the secret.
+
+```mermaid
+flowchart TB
+  subgraph today["TLS today"]
+    ecc["RSA or elliptic curve agrees a secret"] --> aes1["AES protects the bytes"]
+  end
+  subgraph qkd["quantum cryptography: QKD"]
+    hw["special hardware agrees a secret"] --> aes2["AES protects the bytes"]
+  end
+  subgraph pqc["post-quantum cryptography"]
+    kem["new classical math agrees a secret"] --> aes3["AES protects the bytes"]
+  end
+```
+
+!!! note "Intuition"
+    QKD is a hardware link. PQC is an algorithm you ship in the TLS you
+    already run. Buying the link does not list the places you still use
+    RSA or elliptic curves.
+
+```python
+import base64, json
+
+def jwt_alg(token: str) -> str:
+    header = token.split(".")[0]
+    header += "=" * (-len(header) % 4)
+    return json.loads(base64.urlsafe_b64decode(header))["alg"]
+
+# HS256 and RS256 both belong on a crypto inventory.
+# A QKD appliance does not appear in this header, and this header is still your job.
+```
+
+Module 14 is where you decide what to do with that inventory. The work
+you can do now is the list — TLS, SSH, signed artifacts, JWTs — not a
+QKD link in front of notes-api.
 
 **What crypto cannot solve.**
 

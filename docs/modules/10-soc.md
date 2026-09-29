@@ -95,6 +95,29 @@ cloud; someone is accountable for detection SLAs; someone coordinates IR.
 **Flow.** Alert → triage → enrich → investigate → escalate → contain →
 eradicate → recover → post-incident review.
 
+**Playbook (idea 12).** A playbook is the numbered card for one alert
+type. It says when the card applies, what to do in order, when to stop
+and hand the case upward, and which evidence to keep. It is a procedure
+for a person. It is not a compliance document, and it is not a product
+that closes the alert by itself.
+
+```mermaid
+flowchart TB
+  alert["alert DET-002"] --> when["applies when actor read someone else's note"]
+  when --> steps["1. open the event  2. name owner and actor  3. preserve the log"]
+  steps --> stop["stop and escalate if more than one note, or the actor is admin"]
+  stop --> keep["keep the raw event; do not delete the container"]
+```
+
+The lab card for this alert is `labs/soc-lite/playbooks/broken-access-control.md`.
+The rule that points at it:
+
+```yaml
+id: DET-002
+event: cross_user_note_access
+playbook: broken-access-control.md
+```
+
 **SIEM, EDR, NDR, XDR, SOAR, TI, cases, VM, detection engineering** — see
 COURSE tables. soc-lite is a toy SIEM + case system.
 

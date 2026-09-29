@@ -17,6 +17,28 @@ with evidence.
 
 These are habits, not a framework. Steal them into design reviews.
 
+```mermaid
+flowchart LR
+  happy["1 invert the happy path"] --> radius["2 draw the blast radius"]
+  radius --> cheap["3 name the cheapest path"]
+  cheap --> notice["4 what must be true to notice"]
+  notice --> smaller["5 delete the route you do not need"]
+```
+
+Move 4 is a claim you can write down. This one is DET-002:
+
+```python
+claim = {
+    "event": "cross_user_note_access",
+    "group_by": "actor",
+    "window_seconds": 3600,
+    "threshold": 1,
+}
+```
+
+If the API never emits `event`, the claim cannot fire. That hole is
+the detection work, found before anyone argues about the threshold.
+
 **1. Invert the happy path.**
 Take any arrow on a diagram and ask what happens if it is forged, delayed,
 duplicated, or omitted. The interesting bug is usually not “the request

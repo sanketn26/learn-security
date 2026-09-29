@@ -91,6 +91,25 @@ content patterns. Neither is a complete investigation.
 **Detection-as-code.** Rules in git (`labs/detections/rules.yaml`), reviewed,
 tested with replayed JSONL, versioned with ATT&CK tags.
 
+```mermaid
+flowchart LR
+  ev["login_failure events"] --> grp["group by src_ip"]
+  grp --> win["5 events inside 120 seconds"]
+  win --> det["DET-001"]
+```
+
+```yaml
+id: DET-001
+event: login_failure
+group_by: [src_ip]
+threshold: 5
+window_seconds: 120
+```
+
+Five failures from one address inside two minutes is the whole claim.
+Change `threshold` and you have changed what "guessing" means. Replay
+the same JSONL before you trust the new number.
+
 **Sigma.** An open generic signature format for logs, convertible to SIEM
 queries. Our YAML is *Sigma-like* (event, fields, threshold), not a full
 Sigma backend.
@@ -219,6 +238,41 @@ Contain: stop the bleeding (disable LAB_MODE, rotate JWT secret).
 Eradicate: remove the weakness and any persistence (none in lab).
 Recover: restore service, watch for recurrence.
 Communicate: who needs to know (in the lab: your report readers).
+
+Restoring the service is incident recovery. How many hours of notes you
+can bear to lose, and how long the API may stay down, are recovery
+objectives. Those numbers are idea 19, drawn in
+[Module 16](16-availability-and-dos.md).
+
+**Data leaving (idea 14).** Data loss prevention is a gate on the way
+out: the API response, an object bucket, a laptop export. The gate
+watches for a class of data crossing a boundary you named. It does not
+insert the owner check that should have run before the bytes moved.
+
+```mermaid
+flowchart TB
+  note["note 2, owner bob"] --> api["API response"]
+  note --> bucket["export bucket"]
+  note --> laptop["analyst export"]
+  api --> gate["DLP: this class of data, this destination"]
+  bucket --> gate
+  laptop --> gate
+```
+
+```json
+{"event":"egress","actor":"alice","object":"note/2","destination":"export-bucket","class":"payroll"}
+```
+
+```python
+def egress_allowed(event: dict) -> bool:
+    if event["class"] == "payroll" and event["destination"] != "owner-client":
+        return False
+    return True
+```
+
+`egress_allowed` can stop a second copy. The incident is still Alice
+receiving Bob's note from `get_note`. Fix the read. Keep the gate as a
+second wall.
 
 **Classic IR loop (still useful operationally).**
 Prepare; detect & analyze; contain, eradicate, recover; post-incident.

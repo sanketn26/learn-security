@@ -88,6 +88,28 @@ them, they are weaker evidence.
 name, actor, object, result, src, `trace_id`, and a stable schema. Avoid
 unstructured `logger.info(f"user {u} got note {n}")` as your only record.
 
+```mermaid
+flowchart LR
+  line["user alice got note 2"] --> nowhere["no field named actor"]
+  row["event, actor, note_id, owner, result"] --> search["filter actor = alice"]
+```
+
+```python
+bad = "user alice got note 2"
+good = {
+    "ts": "2026-09-29T12:00:00Z",
+    "event": "note_read",
+    "actor": "alice",
+    "note_id": 2,
+    "owner": "bob",
+    "result": "allow",
+    "trace_id": "8f2c",
+}
+```
+
+`bad.split()` cannot answer "which notes did alice read." `good["actor"]`
+can. soc-lite searches the second shape.
+
 **Normalization.** Mapping vendor fields to a common schema (OCSF, ECS, or
 your own). soc-lite cheats by ingesting JSON the app already owns — a real
 collector has to parse whatever format each source actually speaks first.
@@ -120,6 +142,42 @@ CEF/LEEF/syslog/cloud-API-JSON into one target schema — normalization
 (above) is that layer's output, not its input. soc-lite skips this step
 because notes-api already emits the target schema directly; a collector
 in front of an off-the-shelf firewall would not have that luxury.
+
+**Intrusion detection and prevention (idea 9).** An IDS watches packets
+and raises an alert when a signature matches. An IPS can also drop the
+packet. The sensor sits on the path. The owner decision sits in the
+application, after the packet has become a request.
+
+```mermaid
+flowchart LR
+  client["client"] --> sensor["IDS or IPS"]
+  sensor -->|"signature matched"| alert["alert, or a dropped packet"]
+  sensor --> api["notes API"]
+  api -->|"who owns this row"| decision["200 or 404"]
+```
+
+!!! note "Intuition"
+    A signature can spot a famous byte pattern on the wire. Alice reading
+    note 2 with her own valid token has no famous pattern. The row's
+    `owner` column is the only place that fact exists.
+
+DET-005 is the lab's signature-shaped rule. It matches text in a log
+field. It is the same kind of test an IPS runs on packets, aimed at a
+different source:
+
+```yaml
+event: search
+match_field: q
+match_regex: "('|--|;|union|or\\s+1=1)"
+```
+
+The decision the signature cannot make is the one in `get_note` when
+`LAB_MODE` is off:
+
+```python
+if not LAB_MODE and row["owner"] != user["username"] and user["role"] != "admin":
+    raise HTTPException(status_code=404, detail="not found")
+```
 
 **Timestamps.** UTC, monotonic enough to order, NTP sane. Clock skew wrecks
 timelines.

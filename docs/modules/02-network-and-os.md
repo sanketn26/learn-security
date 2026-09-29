@@ -84,6 +84,8 @@ deny needless egress and join views with UTC timestamps and correlation IDs.
 
 - Explain TCP/IP, DNS, HTTP(S), TLS, routing, ports, proxies, and firewalls
   as they affect service design and visibility.
+- Place a VPN, zero trust network access, and a Wi-Fi association on the
+  same rule: network location is not authorization.
 - Connect processes, files, permissions, users, environment variables,
   system calls, and logs.
 - Capture **local** evidence (compose network and container logs) safely.
@@ -112,15 +114,167 @@ packet filter, not an identity system. A reverse proxy may terminate TLS and
 add headers (`X-Forwarded-For`) that your app must not trust blindly for
 authorization.
 
+**VPN (idea 2).** A virtual private network is an encrypted tunnel that
+ends inside a network you operate. After the tunnel, the laptop can route
+to notes-api. The API still has to learn who is calling.
+
+```mermaid
+flowchart LR
+  laptop["laptop"] -->|"encrypted tunnel"| gw["VPN gateway"]
+  gw --> api["notes API"]
+```
+
+!!! note "Intuition"
+    The gateway answers "this packet came through our door." It does not
+    answer "this person may read note 2."
+
+```python
+# Mistake: a source address on the VPN subnet stands in for an owner check.
+def read_note(user: dict, note: dict) -> str:
+    if user["ip"].startswith("10.8.0."):
+        return note["body"]
+    if user["username"] != note["owner"]:
+        raise PermissionError("not the owner")
+    return note["body"]
+```
+
+The address check returns the body before the owner check runs. Secure
+mode in `get_note` asks the owner question and ignores where the TCP
+connection came from:
+
+```python
+if not LAB_MODE and row["owner"] != user["username"] and user["role"] != "admin":
+    raise HTTPException(status_code=404, detail="not found")
+```
+
+**From the VPN to zero trust (idea 2, continued).** The tunnel above is
+one stage in a longer change. Each stage answers a wider question, and
+each one leaves the owner check where it was: in the application.
+
+```mermaid
+flowchart LR
+  castle["castle: inside the firewall means trusted"] --> vpn["VPN: a remote laptop is pulled inside"]
+  vpn --> ztna["ZTNA: that person reaches one application"]
+  ztna --> zta["ZTA: every request is its own decision"]
+```
+
+1. **Castle.** A firewall draws a trusted inside. A host on the inside
+   network can open connections to other hosts there.
+2. **VPN.** People who are not in the building still need that inside.
+   The client joins the subnet through an encrypted tunnel. A stolen
+   laptop, or a phished user, is now inside, and lateral movement is
+   ordinary routing.
+3. **Zero trust network access (ZTNA).** The user is granted notes-api,
+   not the subnet. There is no "inside" full of other hosts. This is the
+   deployment pattern that replaced "VPN into the LAN" for web and API
+   applications. A VPN can remain for a protocol that cannot carry a
+   per-request identity. It is no longer the boundary.
+4. **Zero trust architecture (ZTA).** The name for the whole strategy,
+   not a box you buy. [NIST SP 800-207](https://csrc.nist.gov/publications/detail/sp/800-207/final)
+   treats every request as untrusted until policy says otherwise:
+   identity, device health, and the specific resource, checked again
+   next time. Module 1 defines that rule. ZTNA is one way to build the
+   front door. The owner check in `get_note` is the part no front door
+   can see.
+
+```python
+def allow(request: dict, note: dict) -> bool:
+    # Old rule. Corporate network, VPN, or office Wi-Fi all collapse to one bit.
+    on_corporate_network = request["on_vpn"] or request["ssid"] == "Acme-Corp"
+    if on_corporate_network:
+        return True
+    return request["user"] == note["owner"]
+
+
+def allow_zta(request: dict, note: dict) -> bool:
+    # Each request. The path that carried it is not an input.
+    if request["user"] != note["owner"] and request["role"] != "admin":
+        return False
+    if request["device_posture"] != "healthy":
+        return False
+    return True
+```
+
+`allow` returns true for anyone who completed the tunnel or joined the
+SSID, including someone who is not the owner. `allow_zta` asks who they
+are, whether this note is theirs, and whether the device is still one
+you accept. A healthy device with Alice's session still cannot read
+Bob's note. An unhealthy device cannot read Alice's note either. That
+second denial is a policy you chose. The residual, if you drop it, is
+a healthy stolen laptop still holding Alice's session.
+
+**Wireless probing (idea 2, the radio version of the same mistake).**
+Before a phone joins a network, it asks the air whether a remembered
+name is nearby. That question is a probe request. It carries the SSID
+the phone hopes to find. Anyone in radio range can hear the name. An
+access point that wants those phones to attach answers with that name.
+
+```mermaid
+flowchart LR
+  phone["phone"] -->|"probe: is Acme-Corp here?"| air["anyone nearby hears the name"]
+  rogue["an AP that answers Acme-Corp"] --> phone
+  phone --> joined["associated to that name"]
+  joined -.-> api["notes API still has to authorize the request"]
+```
+
+!!! note "Intuition"
+    Association answers "this radio attached to a name." It does not
+    answer "this person may read note 2." A probe is the client
+    advertising which names it trusts. A rogue access point replies to
+    a name your users already remember.
+
+```json
+{"event":"wifi_probe","client":"device-17","ssid_sought":"Acme-Corp"}
+```
+
+```python
+def read_note(user: dict, note: dict) -> str:
+    # Same bug as the VPN subnet, with a radio fact in place of an address.
+    if user["ssid"] == "Acme-Corp":
+        return note["body"]
+    if user["username"] != note["owner"]:
+        raise PermissionError("not the owner")
+    return note["body"]
+```
+
+This course does not run a wireless lab. There is no radio in the
+compose stack, and no exercise that injects frames. The record above
+is the shape of what a wireless controller already logs. The defensive
+use of it is to notice a new access point answering `Acme-Corp`, and
+to refuse to treat that association as authorization.
+
 **Processes, files, permissions, users.** On Linux, a process runs as a user,
 with a filesystem view, environment, and capabilities. Secrets in env vars
 are visible to that process and often to anyone who can `docker inspect` or
 read `/proc`. File modes (`0600` vs `0644`) still matter for sqlite and keys.
 
-**System calls.** User code asks the kernel to do things (`open`, `connect`,
-`execve`). EDR products watch these. You will not run a full EDR here; know
-that “the app made an outbound GET to IMDS” is a `connect` + write to a
-socket.
+**System calls (idea 3).** User code asks the kernel to do things (`open`,
+`connect`, `execve`). An endpoint sensor (EDR is the product category)
+watches those calls. You will not run one here. Know which question each
+record can answer.
+
+```mermaid
+flowchart TB
+  req["GET /notes/2"] --> apilog["API log: who, which note, whose note"]
+  proc["open, connect, exec"] --> hostlog["host log: which program, which file, which address"]
+```
+
+!!! note "Intuition"
+    The API log can show Alice read Bob's note. It cannot show that the
+    process then opened the sqlite file or connected to the metadata
+    address. The host log can show that connection. It cannot show that
+    note 2 belongs to Bob.
+
+```json
+{"event":"note_read","actor":"alice","note_id":2,"owner":"bob"}
+```
+
+```json
+{"event":"process_connect","exe":"/usr/local/bin/uvicorn","dst":"169.254.169.254","dst_port":80}
+```
+
+“The app made an outbound GET to IMDS” is the second record: a `connect`
+plus a write on that socket. The first record never contains the address.
 
 **Logs.** stdout, files, journald, syslog. They are not evidence until they
 have timestamps, integrity, and retention you can defend. Container logs

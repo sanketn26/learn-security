@@ -9,6 +9,7 @@ description: Glossary of defensive security terms used throughout the course, fr
 | ABAC | Attribute-based access control; decision uses properties of user, resource, context. |
 | Alert | A detection output requiring a human or automated decision. |
 | ATT&CK | MITRE knowledge base of adversary tactics and techniques. |
+| Asset | Something whose disclosure, change, or downtime would hurt. |
 | Attack | An attempt to abuse a system. |
 | Attack surface | Reachable interfaces an adversary could use. |
 | Audit trail | Security-relevant records intended for later review. |
@@ -76,7 +77,9 @@ description: Glossary of defensive security terms used throughout the course, fr
 | Processing time | Clock when the pipeline saw the event. Delayed ingest makes processing-time windows lie. |
 | Quarantine | Isolate a suspected identity, workload, tenant, or tool so it cannot cause further harm while evidence is preserved. Not the same as delete/kill. |
 | STRIDE | Spoofing, tampering, repudiation, information disclosure, denial of service, elevation of privilege — a prompt for “what can go wrong.” |
-| Prompt injection | Untrusted text (prompt, log, document) interpreted as instructions by a model. |
+| Prompt injection | Untrusted text the model treats as instructions. |
+| Jailbreak | Prompt injection aimed at overriding the model’s safety or role instructions. |
+| Indirect prompt injection | Prompt injection that arrives in data the model was asked to read (a log, a document), not in the user’s typed prompt. |
 | Phishing-resistant MFA | Origin-bound authenticators (passkeys / WebAuthn / hardware keys) that cannot be relayed in real time the way OTP can. |
 | PQC | Post-quantum cryptography; NIST-selected algorithms intended to resist cryptographically relevant quantum computers. |
 | Hybrid TLS | Handshake that agrees both a classical and a PQC shared secret so either remaining strong is enough. |

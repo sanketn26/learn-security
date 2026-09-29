@@ -2,7 +2,7 @@
 description: Treat detections as tested code and run incident response through NIST SP 800-61 containment, eradication, and recovery.
 ---
 
-# Module 11 — Detection engineering and incident response
+# Module 11 — Detection and incident response
 
 DET-001 covers T1110.001, password guessing. It says so in the matrix.
 Here is a fixture:
@@ -534,8 +534,8 @@ Timeline before containment when possible. RCA names a systemic cause
 ### Keep for the capstone
 
 Before you reset, add the timeline and RCA to
-`docs/capstone/work/incident-report.md` (M5). Then record the containment
-sequence you actually ran in `docs/capstone/work/containment-runbook.md` (M6),
+`docs/capstone/work/incident-report.md` (Artifact E). Then record the containment
+sequence you actually ran in `docs/capstone/work/containment-runbook.md` (Artifact F),
 starting from the [runbook template](../capstone/templates/containment-runbook.md).
 
 ### Cleanup

@@ -8,7 +8,7 @@ description: "Agent run template for the capstone: the saved /investigate respon
     **Start in:** Module 12 lab. **Save as:** `docs/capstone/work/agent-run.json`.
     There is no Helix example. The agent only exists in this repository’s lab.
 
-M8 asks you to prove three things with evidence you saved, not describe
+Artifact H asks you to prove three things with evidence you saved, not describe
 them:
 
 1. The agent investigated a real alert and got its mapping from the catalog.

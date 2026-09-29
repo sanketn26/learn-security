@@ -14,7 +14,7 @@ hide:
       <a class="course-button course-button--secondary" href="onboarding/">Read onboarding first</a>
       <a class="course-button course-button--coffee" href="https://buymeacoffee.com/sanketn">☕ Support this course</a>
     </div>
-    <p class="course-hero__note">17 modules across 4 parts · 2 capstone options · runs entirely on 127.0.0.1, no cloud bill</p>
+    <p class="course-hero__note">Core = modules 1–13 + one capstone · modules 14–17 are extended lenses · 17 modules across 4 parts · runs entirely on 127.0.0.1</p>
   </div>
   <div class="course-terminal" aria-label="Course roadmap">
     <div class="course-terminal__bar"><i></i><i></i><i></i><span>learn-security / roadmap</span></div>
@@ -89,7 +89,7 @@ hide:
 
 </div>
 
-## Start in three steps
+## Start in four steps
 
 1. Read [Onboarding](onboarding.md). It translates the course vocabulary into
    software-engineering language and tells you what you can safely skip.
@@ -100,6 +100,22 @@ hide:
    so setup is not a gate to understanding the system.
 4. Begin [Module 1](modules/01-security-foundations.md). Each module opens
    with a **Visual overview** — read that first, then the module text.
+
+## Time
+
+One budget. A path’s hours include the modules and the capstone in that row. A 13-week cohort follows the standard row (about 8 hours a week); the capstone is week 13. The [condensed plan](condensed-plan.md) is that same 100 hours, block by block.
+
+| Path | Hours | Modules | Capstone |
+| --- | ---: | --- | --- |
+| Preview | 8–12 | Visual overview, summary, and knowledge check of each module. No labs. | None |
+| Architecture focus | 35–45 | 1, 3–9, 11–13 | Platform threat model and architecture review |
+| Detection / SOC focus | 40–50 | 1–4, 7–12, and 16 before 17 | Platform incident artifacts |
+| Standard engineer | 100 | 1–17, in order | Platform. 12 of these hours if you kept module work (low end of 12–20). A cold start is 25–30 and replaces that 12. |
+| Guided beginner | 100–120 | Onboarding, then modules 1–17. Optional labs (kind, packet capture, scanners, LLM) are skipped. | Same capstone as standard |
+
+The [Python vulnerability scanner](capstone/vulnerability-scanner.md) is the other capstone: **25–35 hours**. That range replaces the platform slice above. Doing both adds 25–35 hours. The platform’s cold-start 25–30 hours is a different project.
+
+**Core = modules 1–13 + one capstone.** Modules 14–17 are extended lenses. The platform capstone does not score them. The scanner’s own optional list (10, 12, 14, 15, 17) is on [that page](capstone/vulnerability-scanner.md#course-knowledge-you-will-use).
 
 ## What you will build
 

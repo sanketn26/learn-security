@@ -2,7 +2,7 @@
 description: Redesign an insecure service into a zero-trust architecture with scoped identity, signed artifacts, and least-privilege defaults.
 ---
 
-# Module 13 — Security architecture for software engineers
+# Module 13 — Security architecture
 
 Two lines from `labs/compose.yaml`:
 
@@ -223,7 +223,7 @@ Put the five findings and your “what we will not automate” list in
 engineering assignment’s decision record in
 `docs/capstone/work/security-decision-record.md`, starting from the
 [decision-record template](../capstone/templates/security-decision-record.md).
-Together they make the capstone’s M9 item.
+Together they make the capstone’s Artifact I item.
 
 ### Cleanup
 

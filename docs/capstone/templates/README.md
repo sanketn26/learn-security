@@ -18,12 +18,12 @@ with the right shape. Copy its structure, never its names.
 
 | Template | Save as | Milestone | Start in | Helix example |
 | --- | --- | --- | --- | --- |
-| [Threat model](threat-model.md) | `work/threat-model.md` | M1 | Module 1 | [example](../reference/threat-model-example.md) |
-| [ATT&CK coverage](attack-coverage.md) | `work/attack-coverage.md` | M4 | Module 8 | [example](../reference/attack-coverage-example.md) |
-| [Replay fixtures](replay-fixture.md) | `work/fixtures/<rule>.fire.jsonl` + `.quiet.jsonl` | M4 | Module 11 | [example](../reference/attack-coverage-example.md#replay-fixture) |
-| [Incident report](incident-report.md) | `work/incident-report.md` | M5 | Modules 10–11 | [example](../reference/incident-report-example.md) |
-| [Containment runbook](containment-runbook.md) | `work/containment-runbook.md` | M6 | Module 11 | [example](../reference/containment-runbook-example.md) |
-| [Purple-team report](purple-report.md) | `work/purple-report.md` | M7 | Module 9 | [example](../reference/purple-report-example.md) |
-| [Agent run](agent-run.md) | `work/agent-run.json` | M8 | Module 12 | — |
-| [Architecture review](architecture-review.md) | `work/architecture-review.md` | M9 | Module 13 | [example](../reference/architecture-review-example.md) |
-| [Security decision record](security-decision-record.md) | `work/security-decision-record.md` | M9 | Module 13 | [example](../reference/security-decision-record-example.md) |
+| [Threat model](threat-model.md) | `work/threat-model.md` | Artifact A | Module 1 | [example](../reference/threat-model-example.md) |
+| [ATT&CK coverage](attack-coverage.md) | `work/attack-coverage.md` | Artifact D | Module 8 | [example](../reference/attack-coverage-example.md) |
+| [Replay fixtures](replay-fixture.md) | `work/fixtures/<rule>.fire.jsonl` + `.quiet.jsonl` | Artifact D | Module 11 | [example](../reference/attack-coverage-example.md#replay-fixture) |
+| [Incident report](incident-report.md) | `work/incident-report.md` | Artifact E | Modules 10–11 | [example](../reference/incident-report-example.md) |
+| [Containment runbook](containment-runbook.md) | `work/containment-runbook.md` | Artifact F | Module 11 | [example](../reference/containment-runbook-example.md) |
+| [Purple-team report](purple-report.md) | `work/purple-report.md` | Artifact G | Module 9 | [example](../reference/purple-report-example.md) |
+| [Agent run](agent-run.md) | `work/agent-run.json` | Artifact H | Module 12 | — |
+| [Architecture review](architecture-review.md) | `work/architecture-review.md` | Artifact I | Module 13 | [example](../reference/architecture-review-example.md) |
+| [Security decision record](security-decision-record.md) | `work/security-decision-record.md` | Artifact I | Module 13 | [example](../reference/security-decision-record-example.md) |

@@ -36,7 +36,7 @@ How to invent the next control: [how-defenders-think.md](how-defenders-think.md)
 
 ## 1. Course title and overview
 
-**Title:** Defensive Security Engineering: From Service Design to the SOC
+**Title:** Defensive Security Engineering
 
 **One-paragraph overview.** You will threat-model a small web API, watch how
 identity and access failures become incidents, instrument the service so those
@@ -74,17 +74,18 @@ commercial SIEM.
 
 ### Duration and workload
 
-| Mode | Duration | Weekly load | Total |
-| --- | --- | --- | --- |
-| Cohort | 13 weeks | 7–8 hours | ~95 hours |
-| Self-paced | 9–15 weeks | as available | 85–105 hours |
-| Intensive | 3 weeks | 25–30 hours | ~85 hours |
+Hours, modules, and capstone are one table on the [home page](index.md#time).
+A 13-week cohort follows the standard row of that table (100 hours, about
+8 hours a week). The capstone is week 13.
 
-Modules 1–6 are foundations and hardening. Modules 7–11 are operations.
-Module 12 (agentic SOC) sits with architecture in Part III because the
-failure mode is a design problem. Modules 13–14 integrate architecture and
-judgment. Modules 15–17 are extended lenses (ML/AI systems, availability,
-human factor) on the same stack. The capstone is week 13.
+The course is organized as Parts I–IV:
+
+- **Part I — Understand the System** (modules 1–6).
+- **Part II — See and Defend the System** (modules 7–11).
+- **Part III — Design What Comes Next** (modules 12–14).
+- **Part IV — Extended Lenses** (modules 15–17): ML/AI systems, availability, and the human factor, on the same stack.
+
+**Core = modules 1–13 + one capstone.** Modules 14–17 are extended lenses and are not scored on the platform capstone.
 
 ### Learning outcomes
 
@@ -194,23 +195,23 @@ no LLM or agentic SOC.
 
 | Week | Module | Outcome | Lab |
 | --- | --- | --- | --- |
-| 1 | [01 Foundations](modules/01-security-foundations.md) | Precise vocabulary; threat model of notes-api | Trust-boundary diagram |
+| 1 | [01 Security foundations](modules/01-security-foundations.md) | Precise vocabulary; threat model of notes-api | Trust-boundary diagram |
 | 1–2 | [02 Network and OS](modules/02-network-and-os.md) | Visibility from packets, processes, permissions, logs | Local packet + log inspection |
-| 2 | [03 IAM](modules/03-identity-and-access.md) | AuthN vs AuthZ; tokens; service identity | Review and tighten login/JWT |
-| 3 | [04 App and API](modules/04-application-and-api.md) | OWASP Top 10:2025 and API Top 10:2023 in the lab app | Exploit (lab-only) then fix |
-| 4 | [05 Cloud, containers, K8s](modules/05-cloud-containers-k8s.md) | Shared responsibility, IMDS, images, RBAC | SSRF-to-metadata; optional kind |
+| 2 | [03 Identity and access](modules/03-identity-and-access.md) | AuthN vs AuthZ; tokens; service identity | Review and tighten login/JWT |
+| 3 | [04 Application and API](modules/04-application-and-api.md) | OWASP Top 10:2025 and API Top 10:2023 in the lab app | Exploit (lab-only) then fix |
+| 4 | [05 Cloud, containers, Kubernetes](modules/05-cloud-containers-k8s.md) | Shared responsibility, IMDS, images, RBAC | SSRF-to-metadata; optional kind |
 | 4–5 | [06 Cryptography](modules/06-cryptography.md) | Hash, MAC, signatures, TLS, password storage | `labs/crypto/demo.py` + JWT |
 | 5 | [07 Monitoring and logs](modules/07-monitoring-and-logs.md) | Telemetry quality; pipeline | Ingest JSONL into soc-lite |
 | 6 | [08 MITRE ATT&CK](modules/08-mitre-attack.md) | Shared language; coverage ≠ security | Map five detections |
-| 7 | [09 Red, blue, purple](modules/09-red-blue-purple.md) | Adversary emulation with authorization | simulate.py + detections |
-| 8 | [10 SOC](modules/10-soc.md) | Tiers, triage, metrics, fatigue | Cases and workflow |
-| 9 | [11 Detection engineering and IR](modules/11-detection-and-ir.md) | Rules, investigation, report | Simulated account/data incident |
+| 7 | [09 Red, blue, and purple](modules/09-red-blue-purple.md) | Adversary emulation with authorization | simulate.py + detections |
+| 8 | [10 Security operations center](modules/10-soc.md) | Tiers, triage, metrics, fatigue | Cases and workflow |
+| 9 | [11 Detection and incident response](modules/11-detection-and-ir.md) | Rules, investigation, report | Simulated account/data incident |
 | 10 | [12 Agentic SOC](modules/12-agentic-soc.md) | Assist, do not replace; policy and approval | Investigate + APPROVE |
 | 11 | [13 Security architecture](modules/13-security-architecture.md) | SDLC, secrets, supply chain, distributed trade-offs | Design review of the platform |
-| 11 | [14 Future](modules/14-future.md) | Durable fundamentals vs emerging practice | Written judgment |
-| 12 | [15 ML/AI security](modules/15-ml-ai-security.md) | Model/data as an asset, not a black box | Threat-model smart search; audit agent policy |
-| 12 | [16 Availability and DoS](modules/16-availability-and-dos.md) | Volumetric vs asymmetric-cost attacks | Time the login endpoint under load |
-| 12 | [17 Human factor](modules/17-human-factor-attacks.md) | Phishing vs insider risk, same telemetry | Competing-narrative writeup on DET-001/004 |
+| 11 | [14 Future directions](modules/14-future.md) | Durable fundamentals vs emerging practice | Written judgment |
+| 12 | [15 ML/AI system security](modules/15-ml-ai-security.md) | Model/data as an asset, not a black box | Threat-model smart search; audit agent policy |
+| 12 | [16 Availability and denial of service](modules/16-availability-and-dos.md) | Volumetric vs asymmetric-cost attacks | Time the login endpoint under load |
+| 12 | [17 Phishing, social engineering, insider risk](modules/17-human-factor-attacks.md) | Phishing vs insider risk, same telemetry | Competing-narrative writeup on DET-001/004 |
 | 13 | Capstone | Operate the platform, or build the scanner | [Platform](capstone/README.md) or [scanner](capstone/vulnerability-scanner.md) |
 
 Progressive difficulty: read-only observation → authorized local “attack”
@@ -236,21 +237,21 @@ lives in the exercise index.
 | --- | --- | --- |
 | 01 | Security foundations | Design review language |
 | 02 | Network and OS | What you can actually observe |
-| 03 | IAM | Every request has an identity and a decision |
+| 03 | Identity and access | Every request has an identity and a decision |
 | 04 | Application and API | Input, authz, and business logic |
-| 05 | Cloud / containers / K8s | Shared fate with the platform |
+| 05 | Cloud, containers, Kubernetes | Shared fate with the platform |
 | 06 | Cryptography | What you can prove vs what you still log |
 | 07 | Monitoring and logs | Evidence is a product you build |
 | 08 | MITRE ATT&CK | Common language, incomplete by design |
-| 09 | Red / blue / purple | Closed-loop validation |
-| 10 | SOC | Operations, not dashboards |
-| 11 | Detection and IR | Code + judgment under time pressure |
+| 09 | Red, blue, and purple | Closed-loop validation |
+| 10 | Security operations center | Operations, not dashboards |
+| 11 | Detection and incident response | Code + judgment under time pressure |
 | 12 | Agentic SOC | Tools, policy, humans |
 | 13 | Security architecture | Defaults you ship |
-| 14 | Future | Skills that compound |
+| 14 | Future directions | Skills that compound |
 | 15 | ML/AI system security | Same lens, model as the asset |
-| 16 | Availability and DoS | Asymmetric cost is an application decision |
-| 17 | Human factor | Evidence doesn't say who to blame |
+| 16 | Availability and denial of service | Asymmetric cost is an application decision |
+| 17 | Phishing, social engineering, insider risk | Evidence doesn't say who to blame |
 
 ---
 
@@ -603,14 +604,16 @@ are kept.
 rubric, and failure scenarios live there, not here. You collect the work
 you started in Modules 1–13 into `docs/capstone/work/` and add three
 detections of your own. [How to work through](capstone/howto.md) maps each
-milestone to its module and gives a 12–20 hour budget (25–30 if you start
-cold).
+artifact to its module. Hours are the capstone column of the
+[home time table](index.md#time): platform 12–20 if you kept the work
+(25–30 if you start cold); scanner 25–35.
 
 Alternatively, build the [Python vulnerability scanner](capstone/vulnerability-scanner.md):
 inventory exposure, schedule evidence-driven checks, validate connected
 weaknesses, and retest repairs. This independent capstone assumes Python
-proficiency, requires no LLM or agentic SOC, and takes 25–35 hours. Choose
-one capstone for assessment; completing both adds the scanner workload.
+proficiency, requires no LLM or agentic SOC, and takes the scanner’s
+25–35 hours from that same table. Choose one capstone for assessment;
+completing both adds the scanner’s 25–35 hours.
 
 ---
 

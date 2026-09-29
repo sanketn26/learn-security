@@ -92,16 +92,11 @@ only a line on a diagram.
 
 ## Five words for the lab
 
-You need these five to draw the diagram. The rest of the vocabulary comes
-[after the lab](#the-rest-of-the-vocabulary), once you have a picture to
-hang it on.
+You need these five to draw the diagram. The words mean what the [glossary](../glossary.md) says. The examples are Acme Notes. Onboarding is the software-engineering translation of the same lines, not a second definition. The rest of the vocabulary comes [after the lab](#the-rest-of-the-vocabulary), once you have a picture to hang it on.
 
-**Asset.** Something of value: Bob’s note, the JWT signing secret, availability
-of `/login`, analyst time, your reputation. Threat-model assets, not only hosts.
+**Asset.** Something whose disclosure, change, or downtime would hurt. On Acme Notes: Bob’s note, the JWT signing secret, availability of `/login`, analyst time, your reputation. Threat-model assets, not only hosts.
 
-**Trust boundary.** A place where the level of trust changes: browser → API,
-API → sqlite, API → mock-imds, analyst laptop → compose ports. Anything
-crossing a boundary is untrusted until your code decides otherwise.
+**Trust boundary.** Where the level of trust changes. On Acme Notes: browser → API, API → sqlite, API → mock-imds, analyst laptop → compose ports. Anything crossing a boundary is untrusted until your code decides otherwise.
 
 **Attack surface.** The set of reachable interfaces: HTTP routes, debug
 endpoints, CI, dependencies, admin functions, metadata service. Reducing
@@ -233,7 +228,7 @@ meeting, not a footnote.
 
 Copy the [threat-model template](../capstone/templates/threat-model.md) to
 `docs/capstone/work/threat-model.md` and put today’s diagram, boundaries, and
-residual-risk sentence in it. This file becomes the capstone’s M1 item.
+residual-risk sentence in it. This file becomes the capstone’s Artifact A item.
 
 ### Cleanup
 
@@ -265,7 +260,7 @@ deploy hits I and A.
 | Term | Meaning | Lab example |
 | --- | --- | --- |
 | Vulnerability | A weakness that can be abused | `GET /notes/{id}` skips owner check in `LAB_MODE` |
-| Threat | A potential cause of harm (who/what might try) | Stolen Alice session used to read other notes |
+| Threat | Potential cause of harm | Stolen Alice session used to read other notes |
 | Risk | Effect of uncertainty on objectives: likelihood × impact, in context | IDOR on payroll-like notes → data exposure |
 | Exploit | A specific method that uses a vulnerability | HTTP GET with Alice’s token and Bob’s id |
 | Attack | An attempt to abuse a system | Running `simulate.py --scenario idor` (authorized) |

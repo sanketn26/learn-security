@@ -21,8 +21,7 @@ can do all of the following for its material, in this order:
 | **Design** | Propose prevention **and** detection. |
 | **Defend** | Explain containment. Explain residual risk. |
 
-That is Explain → Predict → Diagnose → Design → Defend. Module exit
-checklists instantiate this bar; they do not replace it. Lab output
+That is Explain → Predict → Diagnose → Design → Defend. Each module’s self-check and “Before you leave” list instantiate this bar; they do not replace it. Lab output
 (screenshots or command transcripts of **local** services) is necessary
 evidence, not a substitute for the explanations.
 

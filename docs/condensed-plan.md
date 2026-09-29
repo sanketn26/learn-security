@@ -1,11 +1,10 @@
 ---
-description: A one-page, roughly 100-hour condensed study plan moving from weak security ops to a working defensive platform, block by block.
+description: The standard-engineer path from the home time table, itemized as a 100-hour block-by-block plan.
 ---
 
 # One-page condensed learning plan
 
-**Goal:** In ~100 hours, go from “strong engineer, weak security ops” to
-shipping a tiny defensive platform you can explain end to end.
+**Goal:** This is the standard-engineer row of the [time table](index.md#time): 100 hours, modules 1–17, platform capstone included. The 12-hour capstone block is the low end of that table’s 12–20 hour kept-work range. Go from “strong engineer, weak security ops” to a tiny defensive platform you can explain end to end.
 
 **Daily habit (30–45 min):** read one ATT&CK technique *or* threat-model one
 PR. Do not install a new tool instead.

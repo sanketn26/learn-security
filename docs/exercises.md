@@ -72,12 +72,17 @@ Copy this for every module:
 The last four rows are the [thinking guide](how-defenders-think.md) in
 worksheet form. Fill them even when the module does not ask.
 
-## Detection-rule authoring (Module 11)
+## Shipped detection rules (DET-001–005)
 
-Module 11 walks **existing** rule DET-001 from hypothesis through replay
-fixture: [Worked walkthrough — authoring DET-001](modules/11-detection-and-ir.md#worked-walkthrough-authoring-det-001).
-Use that sequence when you add rules. The capstone still requires three
-rules you author yourself; this course does not publish those solutions.
-Save each rule’s fire and quiet files as described in the
-[replay-fixture template](capstone/templates/replay-fixture.md).
+The lab ships five rules in `labs/detections/rules.yaml`. This index is where each one is taught. Later modules may cite a rule without re-teaching it.
+
+| Rule | What it matches | Where you learn it |
+| --- | --- | --- |
+| DET-001 | `login_failure` burst from one `src_ip` (password guessing) | Module 7 reads the alert. [Module 11](modules/11-detection-and-ir.md#worked-walkthrough-authoring-det-001) walks authoring it, then you write more rules. |
+| DET-002 | `cross_user_note_access` (IDOR) | Module 8 maps it from evidence. |
+| DET-003 | `ssrf_metadata_access` (SSRF to mock IMDS) | Module 5 is the hole and does not name the rule. Module 8 names the rule and the event it watches. Module 9 fires it, then shows the miss after the fix. Module 10 triages `DET-003:alice`. |
+| DET-004 | `broken_function_authz` (non-admin calls an admin route) | Module 17 reads two stories from the same alert. |
+| DET-005 | `search` query with SQL metacharacters | Module 4 is the injection hole and does not name the rule. Module 8 maps it in the five-row pack. Module 10 only warns against paging on every DET-005 regex hit. |
+
+Module 11’s DET-001 walkthrough is the sequence to copy when you add rules. The capstone still requires three rules you author yourself; this course does not publish those solutions. Save each rule’s fire and quiet files as described in the [replay-fixture template](capstone/templates/replay-fixture.md).
 

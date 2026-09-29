@@ -2,7 +2,7 @@
 description: Learn the TCP/IP, DNS, and Linux process and file fundamentals needed to investigate incidents from packets, sockets, and logs.
 ---
 
-# Module 2 — Networking and operating-system fundamentals
+# Module 2 — Network and OS
 
 Two pieces of evidence from the same minute. One is a packet:
 

@@ -2,7 +2,7 @@
 description: Practical cryptography for engineers — choosing the right primitive for TLS, JWT signatures, and password hashing without rolling your own.
 ---
 
-# Module 6 — Cryptography for engineers
+# Module 6 — Cryptography
 
 Two rows from two users tables. Both columns are called `password_hash`.
 

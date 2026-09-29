@@ -90,6 +90,7 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 nav:
+  - Home: index.md
   - Start Here:
       - Welcome: index.md
       - Onboarding: onboarding.md
@@ -97,11 +98,9 @@ nav:
       - Setup and first lab: setup.md
       - Learning paths: learning-paths.md
       - Safety and ethics: ethics.md
-  - Course Map:
       - Full course guide: course.md
-      - Exercise index: exercises.md
       - Modules overview: modules/README.md
-  - Modules:
+  - Learn:
       - Part I — Understand the System:
           - 1. Security foundations: modules/01-security-foundations.md
           - 2. Network and OS: modules/02-network-and-os.md
@@ -123,7 +122,8 @@ nav:
           - 15. ML/AI system security: modules/15-ml-ai-security.md
           - 16. Availability and denial of service: modules/16-availability-and-dos.md
           - 17. Phishing, social engineering, insider risk: modules/17-human-factor-attacks.md
-  - Capstones:
+  - Practice:
+      - Exercise index: exercises.md
       - Defensive platform:
           - Start here: capstone/README.md
           - How to work through: capstone/howto.md

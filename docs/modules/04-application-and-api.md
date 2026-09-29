@@ -2,7 +2,7 @@
 description: Hands-on OWASP Top 10 coverage of broken access control, injection, SSRF, XSS, and unsafe deserialization in a real API.
 ---
 
-# Module 4 — Application and API security
+# Module 4 — Application and API
 
 Two requests. Same path. Both return 200.
 

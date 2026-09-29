@@ -2,7 +2,7 @@
 description: Separate established security practice from emerging architecture and pure speculation, and build a short list of cybersecurity skills actually worth learning next.
 ---
 
-# Module 14 — The future of cybersecurity
+# Module 14 — Future directions
 
 A vendor slide: *“Autonomous SOC: resolves 95% of alerts with no human
 in the loop.”*

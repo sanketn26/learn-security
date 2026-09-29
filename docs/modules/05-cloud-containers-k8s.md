@@ -2,7 +2,7 @@
 description: Apply the cloud shared-responsibility model to IAM, metadata services, object storage ACLs, and Kubernetes container security.
 ---
 
-# Module 5 — Cloud, container, and Kubernetes security
+# Module 5 — Cloud, containers, Kubernetes
 
 There is no public route to the metadata service. Nobody can reach it
 from outside. Then Alice sends this:

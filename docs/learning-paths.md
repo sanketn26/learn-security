@@ -10,13 +10,15 @@ reorder); skipped modules are deferred, not deleted. Do not skip safety or
 the foundation concepts. [How defenders think](how-defenders-think.md) is
 short and belongs on every path.
 
-| Path | Time | Complete | Skip or defer |
-| --- | ---: | --- | --- |
-| Guided beginner | 100–120 h | onboarding, all core readings/labs, capstone | optional kind, packet capture, scanners, LLM |
-| Standard engineer | 80–100 h | all modules and capstone | only hardware-heavy options |
-| Architecture focus | 35–45 h | 1, 3–7, 8–9, 11–13; threat model + review. Skim [how defenders think](how-defenders-think.md). Defer 14–17. | deep SOC queues |
-| Detection/SOC focus | 40–50 h | 1–4, 7–12, plus 16 before 17; incident capstone artifacts. Read [how defenders think](how-defenders-think.md) before module 7. Skim Module 5’s IMDS section before DET-003. Defer 14–15. | optional Kubernetes |
-| Preview | 8–12 h | onboarding, each module's Visual overview, module summaries, knowledge checks | runnable labs and capstone |
+Hours for each path are only in the [time table](index.md#time) on the home page. This page says what each path includes.
+
+| Path | Complete | Skip or defer |
+| --- | --- | --- |
+| Guided beginner | onboarding, modules 1–17, one capstone | optional kind, packet capture, scanners, LLM |
+| Standard engineer | modules 1–17 and one capstone | only hardware-heavy options |
+| Architecture focus | 1, 3–7, 8–9, 11–13; threat model + review. Skim [how defenders think](how-defenders-think.md). Defer 14–17. | deep SOC queues |
+| Detection/SOC focus | 1–4, 7–12, plus 16 before 17; incident capstone artifacts. Read [how defenders think](how-defenders-think.md) before module 7. Module 5 is the metadata hole and does not name DET-003. Module 10 triages `DET-003:alice`. Module 11 is where you author more rules (the worked example is DET-001). Defer 14–15. | optional Kubernetes |
+| Preview | onboarding, each module's Visual overview, module summaries, knowledge checks | runnable labs and capstone |
 
 ## Capstone choice
 
@@ -24,11 +26,10 @@ Choose the [defensive platform](capstone/README.md) for SOC operations, or
 the [Python vulnerability scanner](capstone/vulnerability-scanner.md) for
 application security automation: inventory, focused validation, connected
 paths, and repair verification. The scanner assumes proficient Python and
-uses no LLM. Budget 25–35 hours for it; doing both adds that workload.
+uses no LLM. Scanner hours are 25–35. Platform hours are 12–20 if you kept the module work, or 25–30 from a cold start. Both figures are in the [time table](index.md#time). Doing both capstones adds the scanner’s 25–35 hours.
 Its [course-knowledge map](capstone/vulnerability-scanner.md#course-knowledge-you-will-use)
 lists the modules it needs and which are optional. The platform capstone
-has the same map in [How to work through](capstone/howto.md#course-knowledge-you-will-use),
-with a 12–20 hour budget if you kept your module work.
+has the same map in [How to work through](capstone/howto.md#course-knowledge-you-will-use).
 
 ## Recommended beginner rhythm
 

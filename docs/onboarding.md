@@ -28,13 +28,15 @@ scanning, and LLM exercises can all be skipped.
 
 ## Ten translations from engineering to security
 
+The one-line definitions live in the [glossary](glossary.md). This table only names the engineering object each term already points at. Module 1 shows asset, threat, and trust boundary on Acme Notes; it does not redefine them.
+
 | Familiar engineering idea | Security lens |
 | --- | --- |
-| A database row or service | Asset: something worth protecting |
+| A database row, a secret, or a service you would hate to lose | [Asset](glossary.md): something whose disclosure, change, or downtime would hurt |
 | Public method or API route | Attack surface: a reachable way to interact |
-| API/service boundary | Trust boundary: input crosses into different trust |
+| The line where a request enters code that trusts itself more than the caller | [Trust boundary](glossary.md): where the level of trust changes |
 | Bug or unsafe design assumption | Vulnerability |
-| Failure scenario with an actor and impact | Threat scenario |
+| Who or what could cause that harm | [Threat](glossary.md): a potential cause of harm |
 | Likelihood and consequence in context | Risk |
 | Guard clause, policy, isolation, backup | Security control |
 | Request identity | Authentication: who/what is calling? |

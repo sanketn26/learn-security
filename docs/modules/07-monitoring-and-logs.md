@@ -2,7 +2,7 @@
 description: Design a security logging and alerting pipeline that gives the SOC the telemetry it needs to actually detect a technique.
 ---
 
-# Module 7 — Security monitoring and logs
+# Module 7 — Monitoring and logs
 
 At 09:00 the SOC dashboard says **0 alerts in the last 24 hours.**
 

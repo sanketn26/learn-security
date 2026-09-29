@@ -2,7 +2,7 @@
 description: Practice authorized, scoped red team attack simulation, blue team detection, and purple team collaboration to close the loop.
 ---
 
-# Module 9 — Red Team, Blue Team, and Purple Team
+# Module 9 — Red, blue, and purple
 
 Before the fix: the SSRF sim runs, DET-003 fires, critical. After the fix:
 the same sim runs, gets HTTP 400, and **nothing fires.**
@@ -212,7 +212,7 @@ sides: detect attempts *and* successes.
 
 Save the 10-line report as `docs/capstone/work/purple-report.md`, using the
 [purple-team template](../capstone/templates/purple-report.md). This file becomes the
-capstone’s M7 item.
+capstone’s Artifact G item.
 
 ### Cleanup
 

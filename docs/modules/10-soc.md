@@ -2,7 +2,7 @@
 description: Walk the SOC operating model from telemetry to alert, triage, incident, containment, and lessons learned in a real case.
 ---
 
-# Module 10 — Security Operations Center (SOC)
+# Module 10 — Security operations center
 
 02:07. One alert:
 
@@ -212,7 +212,7 @@ response actions is a SOC control, not bureaucracy.
 Copy the [incident-report template](../capstone/templates/incident-report.md) to
 `docs/capstone/work/incident-report.md`. Note the case ID, the alert IDs you
 cased, and the MTTA figure. Module 11 adds the timeline and RCA, and the
-finished report is the capstone’s M5 item.
+finished report is the capstone’s Artifact E item.
 
 ### Cleanup
 

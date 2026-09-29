@@ -20,10 +20,7 @@ works on it: assets, boundaries, controls, residual risk.
 
 ## Why it matters to a software engineer
 
-Module 12 taught you to secure an **application that calls an LLM**. This
-module flips the lens: the model, its training data, and its serving
-pipeline are now the **asset** you are defending, using the exact same
-trust-boundary and asset/threat/risk/control vocabulary from Module 1. If
+Module 12 secured an **application that calls an LLM**, and named prompt injection, jailbreak, and indirect prompt injection once. This module does not reteach those three terms. It flips the lens: the model, its training data, and its serving pipeline are now the **asset** you are defending, using the exact same trust-boundary and asset/threat/risk/control vocabulary from Module 1. If
 you build or ship models — recommendation, classification, embeddings,
 fraud scoring, or an LLM — this is the module that treats them as production
 systems with their own attack surface, not as a black box someone else
@@ -122,9 +119,9 @@ the first successful run.
 
 **Adversarial examples.** Inputs crafted to be misclassified while looking
 normal to a human (or normal-looking log lines crafted to look like
-instructions to an LLM — this is Module 12's prompt injection, restated:
-the same "interpretation crosses a boundary" pattern from Module 4, with
-the model as the unsafe interpreter).
+instructions to an LLM — Module 12’s indirect prompt injection, with the
+model as the unsafe interpreter: the same “interpretation crosses a
+boundary” pattern from Module 4).
 
 **Excessive agency and tool misuse.** Covered operationally in Module 12;
 here, review it as a design-time control. A model that can only *read* is a

@@ -2,7 +2,7 @@
 description: Distinguish authentication from authorization, and practice object-level access control to catch BOLA/IDOR bugs in real APIs.
 ---
 
-# Module 3 — Identity and access management
+# Module 3 — Identity and access
 
 Decode Alice’s lab token and you get this:
 

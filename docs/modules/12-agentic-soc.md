@@ -1,5 +1,6 @@
 ---
 description: Secure agentic SOC copilots and tool-using LLM agents with policy engines and human review, not just a smarter model.
+last_reviewed: 2026-09-29
 ---
 
 # Module 12 — Agentic SOC
@@ -104,7 +105,9 @@ cannot add tools.
 Citation required in the summary (counts, ids).
 
 **Human approval.** `approval=APPROVE` string on respond tools. Anything
-else 403s.
+else 403s. This is the lab default and it is weak: a string proves nothing
+about who sent it. The optional [Module 12b](12b-agent-security-workshop.md)
+shows why, and switches on signed, single-use approvals bound to one action.
 
 ```mermaid
 flowchart LR
@@ -306,6 +309,10 @@ API contract. Agents assist; they do not own containment.
 Save the `/investigate` response as `docs/capstone/work/agent-run.json`
 (redact it if you used a hosted LLM). Keep a note of the 403 you got and the
 approved action that followed. Together they make the capstone’s Artifact H item.
+
+**Going further (optional).** Module 12's planner is deterministic, so it cannot
+be hijacked. [Module 12b](12b-agent-security-workshop.md) puts a gullible planner
+in the loop, hijacks it, and tests which defenses hold.
 
 ### Cleanup
 

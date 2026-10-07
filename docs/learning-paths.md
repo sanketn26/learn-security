@@ -50,6 +50,8 @@ and evidence sources you have learned.
 Core labs use the Compose stack, Python, and curl. Anything labeled optional
 is an enrichment, not a hidden prerequisite. In particular:
 
+- the [Module 4b secure coding workshop](modules/04b-secure-coding-workshop.md) is optional and outside every path's hours; take it if you ship application code or want an AppSec focus;
+- the [Module 12b agent security workshop](modules/12b-agent-security-workshop.md) is optional and outside every path's hours; take it if you build or run AI agents or coding agents (see also [securing your coding agent](appendix-coding-agent-security.md));
 - packet capture is optional; application and container logs are sufficient;
 - kind/k3d and Kubernetes tools are optional;
 - Trivy/Grype are optional;

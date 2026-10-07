@@ -40,6 +40,17 @@ audit log inside the agent’s volume:
 docker exec lab-agentic-soc cat /cases/agent-audit.jsonl
 ```
 
+**Shortcut.** With the lab running, one command captures the same three
+attempts, the audit lines, and (optionally) a full model-driven run trace:
+
+```bash
+python3 labs/agentic-soc/tools/export_agent_run.py --alert "$A" \
+  --out docs/capstone/work/agent-run.json --with-trace
+```
+
+It notes `approval_mode` (and mints a token for you if the lab is in `bound`
+mode). Fill in `analyst_notes` by hand: that part is yours.
+
 ## Save it in this shape
 
 ```json

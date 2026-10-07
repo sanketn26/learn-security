@@ -1,5 +1,6 @@
 ---
 description: Practical cryptography for engineers — choosing the right primitive for TLS, JWT signatures, and password hashing without rolling your own.
+last_reviewed: 2026-09-29
 ---
 
 # Module 6 — Cryptography

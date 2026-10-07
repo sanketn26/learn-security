@@ -423,6 +423,9 @@ class SimulatedAction(BaseModel):
     target: str
     approval: str
     actor: str = "analyst"
+    # What the action is applied to (for example {"target_actor": "alice"}).
+    # Without it the audit would say "block_actor on this alert" and not who.
+    args: dict[str, Any] = {}
 
 
 ALLOWED_ACTIONS = {
@@ -443,7 +446,12 @@ def simulate_action(body: SimulatedAction) -> dict[str, Any]:
     conn = connect()
     conn.execute(
         "INSERT INTO audit(ts, actor, action, detail) VALUES (?, ?, ?, ?)",
-        (now, body.actor, f"simulate:{body.action}", body.target),
+        (
+            now,
+            body.actor,
+            f"simulate:{body.action}",
+            body.target if not body.args else f"{body.target} {json.dumps(body.args, sort_keys=True)}",
+        ),
     )
     conn.commit()
     conn.close()
@@ -451,6 +459,7 @@ def simulate_action(body: SimulatedAction) -> dict[str, Any]:
         "status": "simulated",
         "action": body.action,
         "target": body.target,
+        "args": body.args,
         "effect": ALLOWED_ACTIONS[body.action],
         "warning": "No production system was changed. AUTHORIZED LAB USE ONLY.",
     }

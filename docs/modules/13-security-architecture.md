@@ -1,5 +1,6 @@
 ---
 description: Redesign an insecure service into a zero-trust architecture with scoped identity, signed artifacts, and least-privilege defaults.
+last_reviewed: 2026-09-29
 ---
 
 # Module 13 — Security architecture

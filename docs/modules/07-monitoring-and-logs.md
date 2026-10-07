@@ -1,5 +1,6 @@
 ---
 description: Design a security logging and alerting pipeline that gives the SOC the telemetry it needs to actually detect a technique.
+last_reviewed: 2026-09-29
 ---
 
 # Module 7 — Monitoring and logs

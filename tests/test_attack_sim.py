@@ -74,3 +74,59 @@ def test_brute_force_emits_six_failed_logins(simulate, monkeypatch):
     simulate.scenario_brute_force("http://127.0.0.1:8080")
     assert len(logins) == 6
     assert all(row["username"] == "alice" for row in logins)
+
+
+def _recorder(simulate, monkeypatch, note_id=7):
+    calls: list[tuple] = []
+
+    def fake_request(base, method, path, token=None, data=None, query=None, headers=None):
+        calls.append((method, path, data, query, headers))
+        if path == "/login":
+            return 200, json.dumps({"token": "lab-token"})
+        if path == "/notes" and method == "POST":
+            return 200, json.dumps({"id": note_id})
+        return 200, "{}"
+
+    monkeypatch.setattr(simulate, "request", fake_request)
+    return calls
+
+
+def test_workshop_scenarios_are_registered(simulate):
+    assert {"injection_union", "xss", "traversal", "mass_assign", "fail_open", "error_leak"} <= set(
+        simulate.SCENARIOS
+    )
+
+
+def test_union_payload_selects_from_users(simulate, monkeypatch):
+    calls = _recorder(simulate, monkeypatch)
+    simulate.scenario_injection_union("http://127.0.0.1:8080")
+    search = [c for c in calls if c[1] == "/search"]
+    assert search and "UNION SELECT" in search[0][3]["q"]
+
+
+def test_xss_stores_then_renders_the_note(simulate, monkeypatch):
+    calls = _recorder(simulate, monkeypatch, note_id=7)
+    simulate.scenario_xss("http://127.0.0.1:8080")
+    assert any(c[0] == "POST" and c[1] == "/notes" and "<script>" in c[2]["body"] for c in calls)
+    assert any(c[0] == "GET" and c[1] == "/notes/7/page" for c in calls)
+
+
+def test_traversal_reads_the_canary_only(simulate, monkeypatch):
+    calls = _recorder(simulate, monkeypatch)
+    simulate.scenario_traversal("http://127.0.0.1:8080")
+    reads = [c for c in calls if c[1] == "/files"]
+    assert [r[3]["name"] for r in reads] == ["../canary.txt"]
+
+
+def test_mass_assign_always_restores_the_role(simulate, monkeypatch):
+    calls = _recorder(simulate, monkeypatch)
+    simulate.scenario_mass_assign("http://127.0.0.1:8080")
+    patches = [c[2] for c in calls if c[0] == "PATCH"]
+    assert patches[0]["role"] == "admin" and patches[-1] == {"role": "user"}
+
+
+def test_fail_open_sends_malformed_tenant_header(simulate, monkeypatch):
+    calls = _recorder(simulate, monkeypatch)
+    simulate.scenario_fail_open("http://127.0.0.1:8080")
+    export = [c for c in calls if c[1].endswith("/export")]
+    assert export[0][4] == {"X-Tenant": "abc"}

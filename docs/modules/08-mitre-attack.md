@@ -1,5 +1,6 @@
 ---
 description: Map observed events to tactics and techniques using the MITRE ATT&CK framework, and treat detection coverage as a testable hypothesis.
+last_reviewed: 2026-09-29
 ---
 
 # Module 8 — MITRE ATT&CK

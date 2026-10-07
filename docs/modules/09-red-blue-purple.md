@@ -1,5 +1,6 @@
 ---
 description: Practice authorized, scoped red team attack simulation, blue team detection, and purple team collaboration to close the loop.
+last_reviewed: 2026-09-29
 ---
 
 # Module 9 — Red, blue, and purple

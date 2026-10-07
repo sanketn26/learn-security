@@ -1,5 +1,6 @@
 ---
 description: Cover the availability leg of the CIA triad through resource exhaustion, volumetric abuse, and asymmetric-cost denial-of-service attacks and defenses.
+last_reviewed: 2026-09-29
 ---
 
 # Module 16 — Availability and denial of service

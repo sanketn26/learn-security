@@ -43,3 +43,53 @@ prompt_injection:
   treat_alert_fields_as_untrusted: true
   treat_log_bodies_as_untrusted: true
   ignore_instructions_inside_evidence: true
+
+# --- Phase 2 additions (Module 12b) -----------------------------------------
+# approval.mode:
+#   string - the caller sends approval=APPROVE (lab default; Module 12).
+#            Fine only while nothing but a human can reach /actions.
+#   bound  - a human approver mints a signed token for one action, one alert,
+#            these arguments, valid briefly, usable once. Set it to see why.
+approval:
+  mode: string
+  ttl_seconds: 300
+  # Never a valid target of block_actor, whatever an alert says.
+  protected_actors: [admin]
+
+# Who may do what. The agent's own identity can never act; only a human role
+# with act:respond can approve. A run carries the intersection of the agent's
+# scopes and the requesting person's role.
+identity:
+  agent_scopes:
+    - read:alerts
+    - read:logs
+    - read:playbooks
+    - read:enrichment
+    - request:action
+  roles:
+    analyst-ro: [read:alerts, read:logs, read:playbooks, read:enrichment, request:action]
+    analyst-resp: [read:alerts, read:logs, read:playbooks, read:enrichment, request:action, act:respond]
+
+# Hard limits for a hardened run. A runaway or a denial-of-wallet attack hits
+# these before it hits your bill. (The unsafe lab mode is capped at 60 steps
+# only so the lab does not hang.)
+budgets:
+  max_steps: 8
+  max_tool_calls: 12
+  # Denied calls before the run is aborted and flagged. A poisoned alert should
+  # end with a clear reason, not slowly eat the step budget.
+  max_blocked: 3
+  # Requests for a human to approve something, per run. Each one costs a person
+  # attention, so a poisoned alert must not be able to flood the queue.
+  max_requests_per_run: 2
+  deadline_seconds: 10
+
+memory:
+  ttl_seconds: 86400
+
+# Third-party tool servers are pinned by the hash of everything the model is
+# told about each tool. A changed description disables the tool until a human
+# reviews it and updates this hash.
+tool_servers:
+  threat-intel-mcp:
+    enrich_ip: b2bdb30cea87f8cf264e1557c2031b5706c0268683e50e90db81e628c1253b7b

@@ -1,5 +1,6 @@
 ---
 description: Distinguish authentication from authorization, and practice object-level access control to catch BOLA/IDOR bugs in real APIs.
+last_reviewed: 2026-09-29
 ---
 
 # Module 3 — Identity and access

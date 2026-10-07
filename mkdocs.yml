@@ -106,6 +106,7 @@ nav:
           - 2. Network and OS: modules/02-network-and-os.md
           - 3. Identity and access: modules/03-identity-and-access.md
           - 4. Application and API: modules/04-application-and-api.md
+          - 4b. Secure coding workshop: modules/04b-secure-coding-workshop.md
           - 5. Cloud, containers, Kubernetes: modules/05-cloud-containers-k8s.md
           - 6. Cryptography: modules/06-cryptography.md
       - Part II — See and Defend the System:
@@ -116,6 +117,7 @@ nav:
           - 11. Detection and incident response: modules/11-detection-and-ir.md
       - Part III — Design What Comes Next:
           - 12. Agentic SOC: modules/12-agentic-soc.md
+          - 12b. Agent security workshop: modules/12b-agent-security-workshop.md
           - 13. Security architecture: modules/13-security-architecture.md
           - 14. Future directions: modules/14-future.md
       - Part IV — Extended Lenses:
@@ -152,6 +154,9 @@ nav:
       - Lab guide: lab-guide.md
       - Glossary: glossary.md
       - Assessment: assessment.md
+      - OWASP coverage: owasp-coverage.md
+      - Agent threat model: agent-threat-model.md
+      - Securing your coding agent: appendix-coding-agent-security.md
       - References: references.md
       - Condensed plan: condensed-plan.md
       - Follow-up projects: follow-up-projects.md

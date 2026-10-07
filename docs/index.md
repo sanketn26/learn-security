@@ -103,7 +103,7 @@ hide:
 
 ## Time
 
-One budget. A path’s hours include the modules and the capstone in that row. A 13-week cohort follows the standard row (about 8 hours a week); the capstone is week 13. The [condensed plan](condensed-plan.md) is that same 100 hours, block by block.
+One budget. A path’s hours include the modules and the capstone in that row. A 13-week cohort follows the standard row (about 8 hours a week); the capstone is week 13. The [condensed plan](condensed-plan.md) is that same 100 hours, block by block. The optional [Module 4b secure coding workshop](modules/04b-secure-coding-workshop.md) and [Module 12b agent security workshop](modules/12b-agent-security-workshop.md) are **not** in any row: budget about 6–8 extra hours each (estimates, not yet measured with learners).
 
 | Path | Hours | Modules | Capstone |
 | --- | ---: | --- | --- |

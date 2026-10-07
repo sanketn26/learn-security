@@ -40,6 +40,7 @@ def tmp_lab_env(tmp_path: Path) -> dict[str, str]:
     return {
         "DATABASE_PATH": str(db_path),
         "LOG_PATH": str(log_path),
+        "SANDBOX_DIR": str(tmp_path / "sandbox"),
         "JWT_SECRET": "test-jwt-secret-not-for-prod-32b",
         "DB_PATH": str(cases_db),
         "RULES_PATH": str(LABS / "detections" / "rules.yaml"),

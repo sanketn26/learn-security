@@ -1,0 +1,8 @@
+{
+  "mapping_accuracy": 1.0,
+  "action_correctness": 1.0,
+  "groundedness": 1.0,
+  "hardened_side_effects": 0,
+  "hardened_runaways": 0,
+  "corpus_hijacks_unsafe_min": 0.95
+}

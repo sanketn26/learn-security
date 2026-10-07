@@ -1,0 +1,48 @@
+# Workshop rules for Module 4b. Deliberately small: they find the textbook shapes
+# and miss others, so you can practice triage. See docs/modules/04b-secure-coding-workshop.md (exercise 6).
+rules:
+  - id: workshop-sql-built-from-string
+    languages: [python]
+    severity: ERROR
+    message: >-
+      SQL text is built by string formatting. Pass values as bind parameters
+      (`?`) instead; formatting cannot make untrusted text safe.
+    metadata:
+      owasp: A05:2025
+    pattern-either:
+      - pattern: $CONN.execute(f"...{$X}...", ...)
+      - pattern: $CONN.execute("..." + $X, ...)
+      - pattern: $CONN.execute("...".format(...), ...)
+      - pattern: $CONN.execute("..." % $X, ...)
+      - patterns:
+          - pattern: |
+              $SQL = ...
+              ...
+              $CONN.execute($SQL, ...)
+          - metavariable-pattern:
+              metavariable: $SQL
+              pattern-either:
+                - pattern: f"...{$X}..."
+                - pattern: '"..." + $X'
+                - pattern: '"...".format(...)'
+                - pattern: '"..." % $X'
+      - patterns:
+          - pattern: |
+              $SQL = (...)
+              ...
+              $CONN.execute($SQL, ...)
+          - pattern-regex: |-
+              \(\s*"[^"]*"\s*f"[^"]*\{[^}]+\}
+    # Variables built across several statements are not followed (see triage/).
+
+  - id: workshop-html-built-from-string
+    languages: [python]
+    severity: WARNING
+    message: >-
+      HTML is built with an f-string. Escape every interpolated value
+      (html.escape) or use a template engine that does it for you.
+    metadata:
+      owasp: A05:2025
+    patterns:
+      - pattern: HTMLResponse(f"...{$X}...")
+      - pattern-not: HTMLResponse(f"...{html.escape(...)}...")

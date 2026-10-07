@@ -59,3 +59,24 @@ jobs:
         run: pip install -r requirements-labs.txt
       - name: Run lab platform tests
         run: pytest tests/ -q
+
+  workshop-semgrep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Semgrep
+        run: pip install -r requirements-workshop.txt
+      - name: Rule annotations hold (true positive, false positive, known miss)
+        run: semgrep --test labs/workshop/semgrep --metrics=off
+      - name: Rules still flag the vulnerable /search query
+        run: |
+          semgrep --config labs/workshop/semgrep/rules.yml labs/notes-api/app.py \
+            --metrics=off --json --output semgrep.json
+          python3 - <<'PY'
+          import json
+          ids = [r["check_id"] for r in json.load(open("semgrep.json"))["results"]]
+          assert any(i.endswith("workshop-sql-built-from-string") for i in ids), ids
+          PY

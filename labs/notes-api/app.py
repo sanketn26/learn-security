@@ -9,10 +9,13 @@ This file is not production software.
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import os
+import re
 import sqlite3
 import time
+import traceback
 import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -23,8 +26,8 @@ import bcrypt
 import httpx
 import jwt
 from fastapi import FastAPI, Header, HTTPException, Request
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from fastapi.responses import HTMLResponse, JSONResponse
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from seed import NOTES, USERS
 
@@ -33,6 +36,13 @@ JWT_SECRET = os.getenv("JWT_SECRET", "lab-jwt-secret-change-me-32b-min")
 DATABASE_PATH = os.getenv("DATABASE_PATH", "/data/notes.db")
 LOG_PATH = os.getenv("LOG_PATH", "/logs/notes-api.jsonl")
 MOCK_IMDS_URL = os.getenv("MOCK_IMDS_URL", "http://mock-imds")
+
+# Lab safety rail for the file routes: even in LAB_MODE the path-traversal demo
+# cannot touch anything outside this directory. Not a production control.
+SANDBOX_DIR = os.getenv("SANDBOX_DIR", "/data/sandbox")
+FILES_DIR = os.path.join(SANDBOX_DIR, "files")
+CANARY_NAME = "canary.txt"
+CANARY_TEXT = "LABFAKE-canary: reading this through /files means path traversal worked.\n"
 
 # Lab safety rail: even in LAB_MODE, the process cannot fetch the public
 # internet, file URLs, or the learner's host. This is not a production control.
@@ -237,6 +247,9 @@ def init_db() -> None:
             )
             """
         )
+        columns = {row["name"] for row in conn.execute("PRAGMA table_info(users)")}
+        if "display_name" not in columns:
+            conn.execute("ALTER TABLE users ADD COLUMN display_name TEXT NOT NULL DEFAULT ''")
         if conn.execute("SELECT COUNT(*) AS c FROM users").fetchone()["c"] == 0:
             for user in USERS:
                 conn.execute(
@@ -250,9 +263,18 @@ def init_db() -> None:
                 )
 
 
+def init_sandbox() -> None:
+    os.makedirs(FILES_DIR, exist_ok=True)
+    # Rewritten on every start: the traversal demo can overwrite it, and the
+    # exercise output should not depend on what a previous run left behind.
+    with open(os.path.join(SANDBOX_DIR, CANARY_NAME), "w", encoding="utf-8") as handle:
+        handle.write(CANARY_TEXT)
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     init_db()
+    init_sandbox()
     audit("service_start", lab_fetch_allowlist=sorted(LAB_FETCH_ALLOWLIST))
 
 
@@ -485,6 +507,264 @@ async def fetch(url: str, authorization: str | None = Header(default=None)) -> J
             "warning": "AUTHORIZED LAB USE ONLY",
         }
     )
+
+
+# ---------------------------------------------------------------------------
+# Secure-coding workshop routes (Module 4b). Each has a LAB_MODE branch that is
+# vulnerable on purpose and an else branch that is the reference fix.
+# ---------------------------------------------------------------------------
+
+_MARKUP_PATTERNS = (
+    ("script", re.compile(r"<\s*script", re.IGNORECASE)),
+    ("handler", re.compile(r"\bon[a-z]+\s*=", re.IGNORECASE)),
+    ("js-url", re.compile(r"javascript:", re.IGNORECASE)),
+)
+
+
+def markup_kind(text: str) -> str:
+    """Name the script-bearing markup in text, or "" if none. Used for logging only."""
+    for kind, pattern in _MARKUP_PATTERNS:
+        if pattern.search(text):
+            return kind
+    return ""
+
+
+def _owned_note(note_id: int, user: dict[str, str]) -> sqlite3.Row:
+    """Fetch a note; in secure mode, hide notes the caller may not read."""
+    with db() as conn:
+        row = conn.execute(
+            "SELECT id, owner, title, body, visibility FROM notes WHERE id = ?",
+            (note_id,),
+        ).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="not found")
+    if not LAB_MODE and row["owner"] != user["username"] and user["role"] != "admin":
+        audit(
+            "authz_failure",
+            reason="idor_blocked",
+            actor=user["username"],
+            note_id=note_id,
+            owner=row["owner"],
+        )
+        raise HTTPException(status_code=404, detail="not found")
+    return row
+
+
+@app.get("/notes/{note_id}/page", response_class=HTMLResponse)
+def note_page(note_id: int, authorization: str | None = Header(default=None)) -> HTMLResponse:
+    """Render a note as an HTML page. Teaches stored XSS (A05:2025, output encoding)."""
+    user = current_user(authorization)
+    row = _owned_note(note_id, user)
+    audit(
+        "note_render",
+        actor=user["username"],
+        note_id=note_id,
+        owner=row["owner"],
+        markup=markup_kind(row["title"] + " " + row["body"]),
+    )
+    if LAB_MODE:
+        # AUTHORIZED LAB USE ONLY. Note text becomes HTML syntax.
+        page = f"<html><body><h1>{row['title']}</h1><div>{row['body']}</div></body></html>"
+    else:
+        page = (
+            f"<html><body><h1>{html.escape(row['title'])}</h1>"
+            f"<div>{html.escape(row['body'])}</div></body></html>"
+        )
+    return HTMLResponse(page)
+
+
+_TRAVERSAL_RE = re.compile(r"(\.\./|\.\.\\|^/|^[A-Za-z]:|%2e%2e)", re.IGNORECASE)
+_SAFE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$")
+
+
+def _in_sandbox(path: str) -> bool:
+    root = os.path.realpath(SANDBOX_DIR)
+    try:
+        real = os.path.realpath(path)
+    except ValueError:  # embedded NUL: not a path the lab will touch
+        return False
+    return real == root or real.startswith(root + os.sep)
+
+
+def _file_target(user: dict[str, str], name: str) -> str:
+    """Where a named file lives for this caller."""
+    if LAB_MODE:
+        # AUTHORIZED LAB USE ONLY. The caller's string chooses the path:
+        # "../canary.txt" climbs out, and an absolute name replaces the base.
+        return os.path.join(FILES_DIR, name)
+    if not _SAFE_NAME_RE.fullmatch(name):
+        audit("file_blocked", actor=user["username"], name=name, reason="bad_name")
+        raise HTTPException(status_code=400, detail="invalid file name")
+    base = os.path.join(FILES_DIR, user["username"])
+    target = os.path.join(base, name)
+    if os.path.commonpath([os.path.realpath(base), os.path.realpath(target)]) != os.path.realpath(base):
+        audit("file_blocked", actor=user["username"], name=name, reason="outside_base")
+        raise HTTPException(status_code=400, detail="invalid file name")
+    return target
+
+
+def _rail_check(user: dict[str, str], name: str, target: str) -> None:
+    if not _in_sandbox(target):
+        audit("file_blocked_safety_rail", actor=user["username"], name=name)
+        raise HTTPException(status_code=400, detail="destination blocked by lab safety rail")
+
+
+class FileUpload(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    content: str = Field(max_length=10_000)
+
+
+@app.post("/files")
+def upload_file(body: FileUpload, authorization: str | None = Header(default=None)) -> dict[str, str]:
+    """Store a small text file. Teaches path traversal (A01/A05:2025)."""
+    user = current_user(authorization)
+    # Log the attempt before validating it: a blocked probe is still a probe.
+    audit(
+        "file_access",
+        actor=user["username"],
+        op="write",
+        name=body.name[:200],
+        traversal="yes" if _TRAVERSAL_RE.search(body.name) else "",
+    )
+    target = _file_target(user, body.name)
+    _rail_check(user, body.name, target)
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    with open(target, "w", encoding="utf-8") as handle:
+        handle.write(body.content)
+    return {"name": body.name, "stored": os.path.relpath(target, SANDBOX_DIR)}
+
+
+@app.get("/files")
+def read_file(name: str, authorization: str | None = Header(default=None)) -> dict[str, str]:
+    user = current_user(authorization)
+    audit(
+        "file_access",
+        actor=user["username"],
+        op="read",
+        name=name[:200],
+        traversal="yes" if _TRAVERSAL_RE.search(name) else "",
+    )
+    target = _file_target(user, name)
+    _rail_check(user, name, target)
+    if not os.path.isfile(target):
+        raise HTTPException(status_code=404, detail="not found")
+    with open(target, encoding="utf-8", errors="replace") as handle:
+        return {"name": name, "content": handle.read(10_000)}
+
+
+class ProfileUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    display_name: str = Field(max_length=80)
+
+
+_PRIVILEGED_FIELDS = {"role", "password_hash", "username"}
+# Fixed statements, one per column. A safety rail: the lab's vulnerable branch
+# can never let a caller choose a column name, only pick from these two.
+_UPDATE_SQL = {
+    "display_name": "UPDATE users SET display_name = ? WHERE username = ?",
+    "role": "UPDATE users SET role = ? WHERE username = ?",
+}
+
+
+@app.patch("/users/me")
+def update_me(
+    body: dict[str, Any], authorization: str | None = Header(default=None)
+) -> dict[str, str]:
+    """Update your profile. Teaches mass assignment (API3:2023)."""
+    user = current_user(authorization)
+    fields = sorted(body)
+    audit("profile_update", actor=user["username"], fields=fields)
+    privileged = sorted(_PRIVILEGED_FIELDS & set(body))
+    if privileged:
+        audit(
+            "privileged_field_update",
+            actor=user["username"],
+            fields=privileged,
+            applied=LAB_MODE,
+        )
+    if LAB_MODE:
+        # AUTHORIZED LAB USE ONLY. Every client-supplied key is trusted.
+        updates = {k: v for k, v in body.items() if k in _UPDATE_SQL}
+    else:
+        try:
+            updates = ProfileUpdate.model_validate(body).model_dump()
+        except ValidationError as exc:
+            raise HTTPException(status_code=422, detail="unknown or invalid field") from exc
+    with db() as conn:
+        for column, value in updates.items():
+            conn.execute(_UPDATE_SQL[column], (value, user["username"]))
+        row = conn.execute(
+            "SELECT username, display_name, role FROM users WHERE username = ?",
+            (user["username"],),
+        ).fetchone()
+    return dict(row)
+
+
+_EXPORTERS = {
+    "json": lambda row: json.dumps(dict(row)),
+    "csv": lambda row: ",".join(str(row[k]) for k in ("id", "owner", "title")),
+}
+LAB_TENANT = 1
+
+
+def _tenant_allows(user: dict[str, str], row: sqlite3.Row, x_tenant: str | None) -> bool:
+    """Illustrative policy: the caller's tenant header must match, and the note must be theirs."""
+    tenant = int(x_tenant) if x_tenant is not None else LAB_TENANT  # ValueError on "abc"
+    return tenant == LAB_TENANT and (row["owner"] == user["username"] or user["role"] == "admin")
+
+
+@app.get("/notes/{note_id}/export")
+def export_note(
+    note_id: int,
+    format: str = "json",
+    x_tenant: str | None = Header(default=None),
+    authorization: str | None = Header(default=None),
+) -> dict[str, Any]:
+    """Export a note. Teaches A10:2025: failing open, and leaking error detail."""
+    user = current_user(authorization)
+    with db() as conn:
+        row = conn.execute(
+            "SELECT id, owner, title, body, visibility FROM notes WHERE id = ?", (note_id,)
+        ).fetchone()
+    if row is None:
+        # Secure mode answers "missing" and "not yours" identically, so the
+        # route cannot be used to find out which note ids exist.
+        raise HTTPException(
+            status_code=404 if LAB_MODE else 403,
+            detail="not found" if LAB_MODE else "forbidden",
+        )
+    try:
+        allowed = _tenant_allows(user, row, x_tenant)
+    except Exception as exc:  # noqa: BLE001 - the lesson is what this handler decides
+        if LAB_MODE:
+            # AUTHORIZED LAB USE ONLY. The policy crashed, so the code lets the request through.
+            audit(
+                "authz_fail_open",
+                actor=user["username"],
+                note_id=note_id,
+                owner=row["owner"],
+                error=repr(exc),
+            )
+            allowed = True
+        else:
+            audit("authz_error_denied", actor=user["username"], note_id=note_id, error=repr(exc))
+            raise HTTPException(status_code=403, detail="forbidden") from exc
+    if not allowed:
+        audit("authz_failure", reason="export_denied", actor=user["username"], note_id=note_id)
+        raise HTTPException(status_code=403, detail="forbidden")
+    try:
+        data = _EXPORTERS[format](row)
+    except Exception:  # noqa: BLE001
+        ref = uuid.uuid4().hex[:8]
+        audit("export_error", actor=user["username"], note_id=note_id, format=format, ref=ref)
+        if LAB_MODE:
+            # AUTHORIZED LAB USE ONLY. Internals go to the client.
+            return JSONResponse(
+                status_code=500,
+                content={"error": "export failed", "traceback": traceback.format_exc()},
+            )
+        raise HTTPException(status_code=400, detail=f"unsupported format (ref {ref})") from None
+    return {"note_id": note_id, "format": format, "data": data}
 
 
 @app.get("/whoami")

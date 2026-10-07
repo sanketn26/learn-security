@@ -1,5 +1,6 @@
 ---
 description: Walk the SOC operating model from telemetry to alert, triage, incident, containment, and lessons learned in a real case.
+last_reviewed: 2026-09-29
 ---
 
 # Module 10 — Security operations center

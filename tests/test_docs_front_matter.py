@@ -10,6 +10,7 @@ mkdocs.utils.meta.get_data without requiring MkDocs in the lab-tests job.
 
 from __future__ import annotations
 
+import datetime
 import re
 from pathlib import Path
 
@@ -74,3 +75,24 @@ def test_checker_matches_mkdocs(text: str, leaks: bool) -> None:
 def test_front_matter_parses(page: Path) -> None:
     problem = front_matter_problem(page.read_text(encoding="utf-8"))
     assert problem is None, problem
+
+
+MODULES = sorted((DOCS / "modules").glob("[0-9][0-9]*-*.md"))
+
+
+def _meta(page: Path) -> dict:
+    match = YAML_RE.match(page.read_text(encoding="utf-8"))
+    assert match is not None
+    return yaml.safe_load(match.group(1))
+
+
+@pytest.mark.parametrize(
+    "page",
+    [*MODULES, DOCS / "owasp-coverage.md"],
+    ids=lambda p: str(p.relative_to(DOCS)),
+)
+def test_last_reviewed_is_a_past_date(page: Path) -> None:
+    """Review dates let a maintainer find stale pages; see ROADMAP.md Phase 5."""
+    reviewed = _meta(page).get("last_reviewed")
+    assert isinstance(reviewed, datetime.date), "add `last_reviewed: YYYY-MM-DD`"
+    assert reviewed <= datetime.date.today(), "last_reviewed is in the future"

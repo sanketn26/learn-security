@@ -3,7 +3,7 @@
 # does not have to install them on the host. Not part of the required
 # compose stack — see docs/setup.md. Attaches to the same lab networks so
 # it can reach notes-api/soc-lite/agentic-soc by service name.
-FROM alpine:3.20
+FROM alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc
 
 ARG TRIVY_VERSION=0.74.0
 ARG KUBECTL_VERSION=v1.30.4

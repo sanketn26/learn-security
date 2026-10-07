@@ -1,5 +1,6 @@
 ---
 description: Treat detections as tested code and run incident response through NIST SP 800-61 containment, eradication, and recovery.
+last_reviewed: 2026-09-29
 ---
 
 # Module 11 — Detection and incident response

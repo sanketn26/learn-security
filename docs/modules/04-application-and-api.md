@@ -1,5 +1,6 @@
 ---
 description: Hands-on OWASP Top 10 coverage of broken access control, injection, SSRF, XSS, and unsafe deserialization in a real API.
+last_reviewed: 2026-09-29
 ---
 
 # Module 4 — Application and API
@@ -245,7 +246,9 @@ pickle, Java serialization, YAML `load`). Can become RCE. Do not pickle
 user data.
 
 **File handling.** Path traversal (`../`), unsanitized names, executing
-uploads. Not in the default lab routes; still in your mental model.
+uploads. Path traversal is a runnable exercise in the
+[secure coding workshop](04b-secure-coding-workshop.md); executable uploads are
+still only in your mental model.
 
 **Dependency / supply chain (A03:2025).** Compromised packages, build
 systems, update channels. Scanning helps; pinning and provenance help more.
@@ -374,6 +377,10 @@ Then run the steps. If a result surprises you, which assumption was wrong?
    ```
 
 3. Map each to OWASP (A01/API1, API5, A05, API7/A01).
+
+   Done here, ready for more? The
+   [secure coding workshop](04b-secure-coding-workshop.md) adds five more
+   vulnerable routes and has you patch them until tests pass.
 4. Restart in secure mode:
 
    ```bash

@@ -1,0 +1,3 @@
+# Optional: static analysis for the Module 4b workshop (exercise 6) and its CI job.
+# Pinned so a new release cannot change findings under a learner or CI.
+semgrep==1.179.0

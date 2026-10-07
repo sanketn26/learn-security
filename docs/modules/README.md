@@ -157,6 +157,7 @@ Those boundaries and identities remain visible throughout the course.
 | 02 | [Network and OS](02-network-and-os.md) |
 | 03 | [Identity and access](03-identity-and-access.md) |
 | 04 | [Application and API](04-application-and-api.md) |
+| 04b | [Secure coding workshop](04b-secure-coding-workshop.md) |
 | 05 | [Cloud, containers, Kubernetes](05-cloud-containers-k8s.md) |
 | 06 | [Cryptography](06-cryptography.md) |
 | 07 | [Monitoring and logs](07-monitoring-and-logs.md) |
@@ -165,6 +166,7 @@ Those boundaries and identities remain visible throughout the course.
 | 10 | [Security operations center](10-soc.md) |
 | 11 | [Detection and incident response](11-detection-and-ir.md) |
 | 12 | [Agentic SOC](12-agentic-soc.md) |
+| 12b | [Agent security workshop](12b-agent-security-workshop.md) |
 | 13 | [Security architecture](13-security-architecture.md) |
 | 14 | [Future directions](14-future.md) |
 | 15 | [ML/AI system security](15-ml-ai-security.md) |

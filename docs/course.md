@@ -198,7 +198,7 @@ no LLM or agentic SOC.
 | 1 | [01 Security foundations](modules/01-security-foundations.md) | Precise vocabulary; threat model of notes-api | Trust-boundary diagram |
 | 1–2 | [02 Network and OS](modules/02-network-and-os.md) | Visibility from packets, processes, permissions, logs | Local packet + log inspection |
 | 2 | [03 Identity and access](modules/03-identity-and-access.md) | AuthN vs AuthZ; tokens; service identity | Review and tighten login/JWT |
-| 3 | [04 Application and API](modules/04-application-and-api.md) | OWASP Top 10:2025 and API Top 10:2023 in the lab app | Exploit (lab-only) then fix |
+| 3 | [04 Application and API](modules/04-application-and-api.md) (+ [04b secure coding workshop](modules/04b-secure-coding-workshop.md)) | OWASP Top 10:2025 and API Top 10:2023 in the lab app | Exploit (lab-only) then fix; patch five routes until tests pass |
 | 4 | [05 Cloud, containers, Kubernetes](modules/05-cloud-containers-k8s.md) | Shared responsibility, IMDS, images, RBAC | SSRF-to-metadata; optional kind |
 | 4–5 | [06 Cryptography](modules/06-cryptography.md) | Hash, MAC, signatures, TLS, password storage | `labs/crypto/demo.py` + JWT |
 | 5 | [07 Monitoring and logs](modules/07-monitoring-and-logs.md) | Telemetry quality; pipeline | Ingest JSONL into soc-lite |

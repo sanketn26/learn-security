@@ -1,5 +1,7 @@
 # Detection-as-code for the local SOC. Queries are evaluated against JSONL logs.
 # Mappings are starting points, not complete coverage.
+# `owasp` tags name the OWASP Top 10:2025 / API Top 10:2023 weakness the rule
+# evidences; see docs/owasp-coverage.md.
 
 rules:
   - id: DET-001
@@ -14,6 +16,7 @@ rules:
       tactic: Credential Access
       technique_id: T1110.001
       technique: Password Guessing
+    owasp: [A07:2025, API2:2023]
     playbook: brute-force.md
 
   - id: DET-002
@@ -31,6 +34,7 @@ rules:
     extra_techniques:
       - id: T1190
         name: Exploit Public-Facing Application
+    owasp: [A01:2025, API1:2023]
     playbook: broken-access-control.md
 
   - id: DET-003
@@ -48,6 +52,7 @@ rules:
     extra_techniques:
       - id: T1190
         name: Exploit Public-Facing Application
+    owasp: [A01:2025, API7:2023]
     playbook: ssrf-metadata.md
 
   - id: DET-004
@@ -65,6 +70,7 @@ rules:
     extra_techniques:
       - id: T1069
         name: Permission Groups Discovery
+    owasp: [A01:2025, API5:2023]
     playbook: broken-access-control.md
 
   - id: DET-005
@@ -81,4 +87,78 @@ rules:
       tactic: Initial Access
       technique_id: T1190
       technique: Exploit Public-Facing Application
+    owasp: [A05:2025]
     playbook: injection.md
+
+  - id: DET-006
+    name: Script markup in a rendered note
+    description: A note containing script-bearing markup was rendered as a page.
+    event: note_render
+    group_by: [actor]
+    threshold: 1
+    window_seconds: 3600
+    severity: medium
+    match_field: markup
+    match_regex: "(script|handler|js-url)"
+    attack:
+      tactic: Execution
+      technique_id: T1059.007
+      technique: JavaScript
+    extra_techniques:
+      - id: T1190
+        name: Exploit Public-Facing Application
+    owasp: [A05:2025]
+    playbook: xss.md
+
+  - id: DET-007
+    name: Path traversal in file access
+    description: A file name contained directory-climbing or absolute-path syntax.
+    event: file_access
+    group_by: [actor]
+    threshold: 1
+    window_seconds: 3600
+    severity: high
+    match_field: traversal
+    match_regex: "yes"
+    attack:
+      tactic: Collection
+      technique_id: T1005
+      technique: Data from Local System
+    extra_techniques:
+      - id: T1190
+        name: Exploit Public-Facing Application
+    owasp: [A01:2025]
+    playbook: path-traversal.md
+
+  - id: DET-008
+    name: Privileged field in profile update
+    description: A profile update named a privileged field such as role.
+    event: privileged_field_update
+    group_by: [actor]
+    threshold: 1
+    window_seconds: 3600
+    severity: high
+    attack:
+      tactic: Privilege Escalation
+      technique_id: T1098
+      technique: Account Manipulation
+    owasp: [API3:2023, A01:2025]
+    playbook: mass-assignment.md
+
+  - id: DET-009
+    name: Authorization failed open
+    description: The authorization check raised an error and the request was allowed anyway.
+    event: authz_fail_open
+    group_by: [actor]
+    threshold: 1
+    window_seconds: 3600
+    severity: high
+    attack:
+      tactic: Collection
+      technique_id: T1213
+      technique: Data from Information Repositories
+    extra_techniques:
+      - id: T1190
+        name: Exploit Public-Facing Application
+    owasp: [A10:2025]
+    playbook: fail-open.md

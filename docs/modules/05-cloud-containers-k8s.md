@@ -1,5 +1,6 @@
 ---
 description: Apply the cloud shared-responsibility model to IAM, metadata services, object storage ACLs, and Kubernetes container security.
+last_reviewed: 2026-09-29
 ---
 
 # Module 5 — Cloud, containers, Kubernetes

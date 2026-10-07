@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: {interval: weekly}
+  - package-ecosystem: pip
+    directory: /
+    schedule: {interval: weekly}
+  - package-ecosystem: pip
+    directory: /labs/notes-api
+    schedule: {interval: weekly}
+  - package-ecosystem: pip
+    directory: /labs/agentic-soc
+    schedule: {interval: weekly}
+  - package-ecosystem: pip
+    directory: /labs/soc-lite
+    schedule: {interval: weekly}
+  # Keeps the pinned @sha256 digests in the lab Dockerfiles current.
+  - package-ecosystem: docker
+    directory: /labs/notes-api
+    schedule: {interval: weekly}
+  - package-ecosystem: docker
+    directory: /labs/agentic-soc
+    schedule: {interval: weekly}
+  - package-ecosystem: docker
+    directory: /labs/mock-imds
+    schedule: {interval: weekly}
+  - package-ecosystem: docker
+    directory: /labs/soc-lite
+    schedule: {interval: weekly}
+  - package-ecosystem: docker
+    directory: /labs/toolbox
+    schedule: {interval: weekly}

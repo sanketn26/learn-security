@@ -1,0 +1,16 @@
+{
+  "servers": [
+    {
+      "name": "threat-intel-mcp",
+      "note": "A pretend third-party tool server. Offline: it returns canned TEST-NET data.",
+      "tools": [
+        {
+          "name": "enrich_ip",
+          "version": "1.0.0",
+          "description": "Look up reputation for an IPv4 address and return a short verdict.",
+          "params": {"ip": "ipv4"}
+        }
+      ]
+    }
+  ]
+}

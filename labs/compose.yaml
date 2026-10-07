@@ -98,6 +98,11 @@ services:
       LLM_BASE_URL: "${LLM_BASE_URL:-}"
       LLM_MODEL: "${LLM_MODEL:-}"
       LLM_API_KEY: "${LLM_API_KEY:-}"
+      # Module 12b. AGENT_MODE: hardened (default) or unsafe. AGENT_APPROVAL_MODE:
+      # empty uses policy.yaml (string); set to bound for signed approvals.
+      AGENT_MODE: "${AGENT_MODE:-hardened}"
+      AGENT_APPROVAL_MODE: "${AGENT_APPROVAL_MODE:-}"
+      MCP_REGISTRY_PATH: "${MCP_REGISTRY_PATH:-/app/mcp_registry.json}"
     volumes:
       - ./agentic-soc/policy.yaml:/app/policy.yaml:ro
       - ./soc-lite/playbooks:/app/playbooks:ro
